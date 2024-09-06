@@ -1,0 +1,27 @@
+one:
+  id: 1801
+  title: "free"
+  content: "free ticket"
+  ticket_type: "event"
+  event_id: 801
+  quantity: 5
+  status: "normal"
+
+two:
+  id: 1802
+  title: "crypto"
+  content: "crypto ticket"
+  ticket_type: "event"
+  event_id: 801
+  quantity: 5
+  status: "normal"
+
+three:
+  id: 1803
+  title: "fiat"
+  content: "fiat ticket"
+  ticket_type: "event"
+  event_id: 801
+  quantity: 5
+  status: "normal"
+

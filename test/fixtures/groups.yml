@@ -1,0 +1,9 @@
+one:
+  id: 1
+  handle: "guildx"
+  events_count: 0
+  can_publish_event: "all"
+  can_join_event: "all"
+  can_view_event: "all"
+  status: "active"
+  timezone: "asia/shanghai"

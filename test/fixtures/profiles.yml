@@ -1,0 +1,13 @@
+one:
+  id: 1
+  handle: cookie
+  email: cookie@gmail.com
+
+two:
+  id: 2
+  handle: mooncake
+  email: mooncake@gmail.com
+
+three:
+  id: 3
+  handle: biscuit

@@ -1,0 +1,32 @@
+one:
+  id: 2801
+  item_type: "Ticket"
+  item_id: 1802
+  chain: "op"
+  kind: "crypto"
+  token_name: "USDT"
+  token_address: "0x1234"
+  receiver_address: 0x5678
+  price: 5000000
+
+two:
+  id: 2802
+  item_type: "Ticket"
+  item_id: 1802
+  chain: "arb"
+  kind: "crypto"
+  token_name: "USDT"
+  token_address: "0x1234"
+  receiver_address: 0x5678
+  price: 5000000
+
+three:
+  id: 2803
+  item_type: "Ticket"
+  item_id: 1803
+  chain: "stripe"
+  kind: "fiat"
+  token_name: "USD"
+  token_address: ""
+  receiver_address: nil
+  price: 500

@@ -1,0 +1,27 @@
+one:
+  id: 1
+  group_id: 1
+  owner_id: 1
+  title: "my meetup"
+  tags: ["live", "art"]
+  start_time: "2024-08-08T10:20:30+00:00"
+  end_time: "2024-08-08T10:22:30+00:00"
+  location: "central park"
+  content: "wonderful"
+  status: "published"
+  display: "normal"
+  event_type: "event"
+
+with_ticket:
+  id: 801
+  group_id: 1
+  owner_id: 1
+  title: "meetup for ticketing"
+  tags: ["music"]
+  start_time: "2024-08-08T10:20:30+00:00"
+  end_time: "2024-08-08T10:22:30+00:00"
+  location: "central park"
+  content: ""
+  status: "published"
+  display: "normal"
+  event_type: "event"
