@@ -27,7 +27,7 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config unzip && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config automake libtool libffi-dev libssl-dev libgmp-dev python3-dev unzip && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 ENV BUN_INSTALL=/usr/local/bun
