@@ -1,5 +1,4 @@
 class Comment < ApplicationRecord
-  belongs_to :marker
   belongs_to :profile
   belongs_to :badge, optional: true
 

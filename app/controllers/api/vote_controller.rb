@@ -19,7 +19,7 @@ class Api::VoteController < ApiController
 
     proposal = VoteProposal.find(params[:id])
     authorize proposal, :cancel?
-    proposal.update(status: "cancel")
+    proposal.update(status: "cancelled")
 
     render json: { result: "ok" }
   end
@@ -52,7 +52,7 @@ class Api::VoteController < ApiController
     raise AppError.new("exceed vote_proposal max_choice") if options.count > (proposal.max_choice || 1)
 
     raise AppError.new("user has voted") if VoteRecord.find_by(vote_proposal_id: proposal.id, voter_id: profile.id)
-    raise AppError.new("vote has been cancelled") if proposal.status == "cancel"
+    raise AppError.new("vote has been cancelled") if proposal.status == "cancelled"
 
     if proposal.start_time
       raise AppError.new("voting time not started") if DateTime.now < proposal.start_time

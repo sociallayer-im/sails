@@ -7,7 +7,7 @@ class Api::GroupInviteController < ApiController
       return render json: { receiver_id: receiver_id, result: "error", message: "membership exists" }
     end
 
-    if GroupInvite.find_by(receiver_id: profile.id, group_id: group.id, role: params[:role])
+    if GroupInvite.find_by(receiver_id: profile.id, group_id: group.id, role: params[:role], status: "requesting")
       return render json: { receiver_id: receiver_id, result: "error", message: "group invite exists" }
     end
 
@@ -28,11 +28,10 @@ class Api::GroupInviteController < ApiController
     group = Group.find(group_invite.group_id)
     authorize group, :manage?, policy_class: GroupPolicy
 
-    raise AppError.new("invite has been accepted") if group_invite.status == "accepted"
     raise AppError.new("invalid status") unless group_invite.status == "requesting"
     raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
 
-    unless group.is_owner(profile.id) && [ "member", "issuer", "manager" ].include?(group_invite.role) || [ "member", "issuer" ].include?(group_invite.role)
+    unless group.is_owner(profile.id) && [ "member", "operator", "manager" ].include?(group_invite.role) || [ "member", "operator" ].include?(group_invite.role)
       raise AppError.new("invalid role")
     end
 
@@ -54,6 +53,7 @@ class Api::GroupInviteController < ApiController
     group = Group.find(params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
     role = params[:role]
+    expires_at = (DateTime.now + 30.days)
 
     group_invites = []
     params[:receivers].map do |receiver|
@@ -74,7 +74,7 @@ class Api::GroupInviteController < ApiController
             group_id: group.id,
             message: params[:message],
             role: role,
-            expires_at: (DateTime.now + 30.days),
+            expires_at: expires_at,
             receiver_id: receiver_id,
           )
           activity = Activity.create(item: invite, initiator_id: profile.id, action: "group_invite/send", receiver_type: "id", receiver_id: receiver.id)
@@ -91,7 +91,7 @@ class Api::GroupInviteController < ApiController
           group_id: group.id,
           message: params[:message],
           role: role,
-          expires_at: (DateTime.now + 30.days),
+          expires_at: expires_at,
           receiver_address_type: "email",
           receiver_address: receiver,
         )

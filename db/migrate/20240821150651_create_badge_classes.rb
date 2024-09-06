@@ -15,7 +15,7 @@ class CreateBadgeClasses < ActiveRecord::Migration[7.2]
       t.boolean "revocable", default: false, null: false
       t.boolean "weighted", default: false, null: false
       t.boolean "encrypted", default: false, null: false
-      t.string "permissions", default: [], array: true
+      t.jsonb  "permissions", default: {}
       t.string "chain_index"
       t.string "chain_space"
       t.string "chain_txhash"

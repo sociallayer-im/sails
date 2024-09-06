@@ -47,7 +47,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
     t.boolean "revocable", default: false, null: false
     t.boolean "weighted", default: false, null: false
     t.boolean "encrypted", default: false, null: false
-    t.string "permissions", default: [], array: true
+    t.jsonb "permissions", default: {}
     t.string "chain_index"
     t.string "chain_space"
     t.string "chain_txhash"
@@ -117,8 +117,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
     t.integer "source_id"
     t.integer "target_id"
     t.string "label"
-    t.string "role", default: "contact", null: false, comment: "contact | follow"
-    t.string "status", default: "normal", null: false, comment: "normal | freezed"
+    t.string "role", default: "contact", null: false, comment: "contact | follower"
+    t.string "status", default: "active", null: false, comment: "active | freezed"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -254,7 +254,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
     t.integer "event_id"
     t.integer "profile_id"
     t.text "message"
-    t.string "status", default: "applied", null: false, comment: "applied | pending | disapproved | checked | cancel"
+    t.string "status", default: "attending", null: false, comment: "attending | pending | disapproved | checked | cancel"
+    t.datetime "register_time"
     t.datetime "check_time"
     t.string "payment_status"
     t.jsonb "payment_data"
@@ -532,10 +533,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
   create_table "vouchers", force: :cascade do |t|
     t.integer "sender_id"
     t.integer "badge_class_id"
+    t.string "item_type"
+    t.integer "item_id"
     t.string "badge_title"
     t.string "badge_content"
     t.string "badge_image"
-    t.string "badge_data", comment: "start_time, end_time, value, transferable, revocable"
+    t.jsonb "badge_data", comment: "start_time, end_time, value, transferable, revocable"
     t.string "code"
     t.string "message"
     t.datetime "expires_at"

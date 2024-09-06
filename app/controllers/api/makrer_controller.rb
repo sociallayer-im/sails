@@ -32,6 +32,25 @@ class Api::MakrerController < ApiController
     render json: { result: "ok" }
   end
 
+  def checkin
+    profile = current_profile!
+    marker = Marker.find(params[:id])
+    authorize marker, :update?
+
+    comment = Comment.create(
+      item: marker,
+      comment_type: 'checkin',
+      profile: profile,
+      title: params[:title],
+      content: params[:content],
+      content_type: params[:content_type],
+      reply_parent_id: params[:reply_parent_id],
+      icon_url: params[:icon_url],
+      )
+
+    render json: { result: "ok", comment: comment.as_json }
+  end
+
   private
 
   def marker_params

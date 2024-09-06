@@ -105,7 +105,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
         order_usage_count: 0,
         expires_at: (DateTime.now + 7.days),
         discount_type: "ratio",
-        discount: 0,
+        discount_value: 0,
         event_id: event.id,
         )
 
@@ -144,7 +144,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
         order_usage_count: 0,
         expires_at: (DateTime.now + 7.days),
         discount_type: "ratio",
-        discount: 6000,
+        discount_value: 6000,
         event_id: event.id,
         )
 
@@ -187,7 +187,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
         order_usage_count: 0,
         expires_at: (DateTime.now + 7.days),
         discount_type: "ratio",
-        discount: 6000,
+        discount_value: 6000,
         event_id: event.id,
         )
 

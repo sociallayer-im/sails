@@ -3,10 +3,12 @@ class CreateVouchers < ActiveRecord::Migration[7.2]
     create_table :vouchers do |t|
       t.integer "sender_id"
       t.integer "badge_class_id"
+      t.string "item_type"
+      t.integer "item_id"
       t.string "badge_title"
       t.string "badge_content"
       t.string "badge_image"
-      t.string "badge_data", comment: "start_time, end_time, value, transferable, revocable"
+      t.jsonb "badge_data", comment: "start_time, end_time, value, transferable, revocable"
       t.string "code"
       t.string "message"
       t.datetime "expires_at"

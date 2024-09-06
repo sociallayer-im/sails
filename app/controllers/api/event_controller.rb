@@ -17,6 +17,8 @@ class Api::EventController < ApiController
       raise AppError.new("group is empty")
     end
 
+    # todo : allow group setting for pending event
+
     # todo : move badge_class to voucher
     if params[:badge_class_id]
       badge_class = BadgeClass.find(params[:badge_class_id])
@@ -29,8 +31,12 @@ class Api::EventController < ApiController
       owner: profile,
       group: group,
       display: "normal",
-      event_type: "event", # todo : could be "group_ticket"
+      event_type: params[:event_type] || "event", # todo : could be "group_ticket"
     )
+
+    if params[:event_type] == 'group_ticket'
+      group.update(group_ticket_event_id: event.id)
+    end
 
     group.increment!(:events_count) if group
 
@@ -47,11 +53,31 @@ class Api::EventController < ApiController
     render json: { result: "ok", event: event.as_json }
   end
 
+  def set_badge
+    profile = current_profile!
+    event = Event.find(params[:id])
+    badge_class = BadgeClass.find(params[:badge_class_id])
+    authorize event, :update?
+    authorize badge_class, :send?
+
+    voucher = Voucher.new(
+      sender: profile,
+      badge_class: badge_class,
+      item_type: "Event", item_id: event.id,
+      # need test
+      strategy: "event",
+      counter: 1,
+    )
+    voucher.save
+
+    render json: { result: "ok", event: event.as_json }
+  end
+
   def send_badge
     profile = current_profile!
     event = Event.find(params[:id])
-    badge_class = event.badge_class
-    raise AppError.new("event badge_class not set") unless badge_class
+    voucher = Voucher.find_by(item_type: "Event", item_id: event.id)
+    raise AppError.new("event voucher not set") unless voucher
 
     authorize event, :update?
 
@@ -85,7 +111,7 @@ class Api::EventController < ApiController
     event = Event.find(params[:id])
     authorize event, :update?
 
-    if params[:event][:venue_id] && params[:event][:venue_id] != event.venue_id
+    if params[:event][:venue_id] != event.venue_id
       venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
       raise AppError.new("group venue not exists") unless venue
 
@@ -192,17 +218,21 @@ class Api::EventController < ApiController
         profile: profile,
         event: event,
         status: status,
+        register_time: DateTime.now,
       )
+    else
+      participant.status = status
+      participant.register_time = DateTime.now
     end
 
     participant.save
 
     event.increment!(:participants_count)
 
-    # if profile.email.present?
-    #   recipient = profile.email
-    #   event.send_mail_new_event(recipient)
-    # end
+    if profile.email.present?
+      recipient = profile.email
+      event.send_mail_new_event(recipient)
+    end
 
     render json: { participant: participant.as_json }
   end

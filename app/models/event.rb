@@ -53,96 +53,96 @@ class Event < ApplicationRecord
   end
 
   def send_mail_new_event(recipient)
-    if self.geo_lat.present?
-      location_url = "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}"
-    else
-      location_url = ""
-    end
+    # if self.geo_lat.present?
+    #   location_url = "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}"
+    # else
+    #   location_url = ""
+    # end
 
-    mailer = EventMailer.with(
-      event_id: self.id,
-      recipient: recipient,
-      group_url: "https://app.sola.day/group/#{self.group.username}",
-      group_name: self.group.username,
-      title: self.title,
-      timeinfo: self.timeinfo,
-      location_url: location_url,
-      location: self.location,
-      url: "https://app.sola.day/event/detail/#{self.id}",
-      ).new_event
-    mailer.deliver_now!
+    # mailer = EventMailer.with(
+    #   event_id: self.id,
+    #   recipient: recipient,
+    #   group_url: "https://app.sola.day/group/#{self.group.handle}",
+    #   group_name: self.group.handle,
+    #   title: self.title,
+    #   timeinfo: self.timeinfo,
+    #   location_url: location_url,
+    #   location: self.location,
+    #   url: "https://app.sola.day/event/detail/#{self.id}",
+    #   ).new_event
+    # mailer.deliver_now!
   end
 
   def send_mail_event_invite(recipient)
-    if self.geo_lat.present?
-      location_url = "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}"
-    else
-      location_url = ""
-    end
+    # if self.geo_lat.present?
+    #   location_url = "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}"
+    # else
+    #   location_url = ""
+    # end
 
-    mailer = EventMailer.with(
-      event_id: self.id,
-      recipient: recipient,
-      group_url: "https://app.sola.day/group/#{self.group.username}",
-      group_name: self.group.username,
-      title: self.title,
-      timeinfo: self.timeinfo,
-      location_url: location_url,
-      location: self.location,
-      url: "https://app.sola.day/event/detail/#{self.id}",
-      ).event_invite
-    mailer.deliver_now!
+    # mailer = EventMailer.with(
+    #   event_id: self.id,
+    #   recipient: recipient,
+    #   group_url: "https://app.sola.day/group/#{self.group.handle}",
+    #   group_name: self.group.handle,
+    #   title: self.title,
+    #   timeinfo: self.timeinfo,
+    #   location_url: location_url,
+    #   location: self.location,
+    #   url: "https://app.sola.day/event/detail/#{self.id}",
+    #   ).event_invite
+    # mailer.deliver_now!
   end
 
   def send_mail_update_event(recipient)
-    if self.geo_lat.present?
-      location_url = "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}"
-    else
-      location_url = ""
-    end
+    # if self.geo_lat.present?
+    #   location_url = "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}"
+    # else
+    #   location_url = ""
+    # end
 
-    event_title = self.title
-    email_title = "Your event has been updated"
+    # event_title = self.title
+    # email_title = "Your event has been updated"
 
-    mailer = EventMailer.with(
-      subject: "Social Layer Event Updated",
-      event_id: self.id,
-      recipient: recipient,
-      group_url: "https://app.sola.day/group/#{self.group.username}",
-      group_name: self.group.username,
-      event_title: event_title,
-      email_title: email_title,
-      timeinfo: self.timeinfo,
-      location_url: location_url,
-      location: self.location,
-      url: "https://app.sola.day/event/detail/#{self.id}",
-      ).update_event
-    mailer.deliver_now!
+    # mailer = EventMailer.with(
+    #   subject: "Social Layer Event Updated",
+    #   event_id: self.id,
+    #   recipient: recipient,
+    #   group_url: "https://app.sola.day/group/#{self.group.handle}",
+    #   group_name: self.group.handle,
+    #   event_title: event_title,
+    #   email_title: email_title,
+    #   timeinfo: self.timeinfo,
+    #   location_url: location_url,
+    #   location: self.location,
+    #   url: "https://app.sola.day/event/detail/#{self.id}",
+    #   ).update_event
+    # mailer.deliver_now!
   end
 
   def send_mail_cancel_event(recipient)
-    if self.geo_lat.present?
-      location_url = "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}"
-    else
-      location_url = ""
-    end
+    # if self.geo_lat.present?
+    #   location_url = "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}"
+    # else
+    #   location_url = ""
+    # end
 
-    event_title = self.title
-    email_title = "Your event has been cancelled"
+    # event_title = self.title
+    # email_title = "Your event has been cancelled"
 
-    mailer = EventMailer.with(
-      subject: "Social Layer Event Updated",
-      event_id: self.id,
-      recipient: recipient,
-      group_url: "https://app.sola.day/group/#{self.group.username}",
-      group_name: self.group.username,
-      event_title: event_title,
-      email_title: email_title,
-      timeinfo: self.timeinfo,
-      location_url: location_url,
-      location: self.location,
-      url: "https://app.sola.day/event/detail/#{self.id}",
-      ).update_event
-    mailer.deliver_now!
+    # mailer = EventMailer.with(
+    #   subject: "Social Layer Event Updated",
+    #   event_id: self.id,
+    #   recipient: recipient,
+    #   group_url: "https://app.sola.day/group/#{self.group.handle}",
+    #   group_name: self.group.handle,
+    #   event_title: event_title,
+    #   email_title: email_title,
+    #   timeinfo: self.timeinfo,
+    #   location_url: location_url,
+    #   location: self.location,
+    #   url: "https://app.sola.day/event/detail/#{self.id}",
+    #   ).update_event
+    # mailer.deliver_now!
   end
 end
