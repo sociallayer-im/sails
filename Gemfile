@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "dotenv-rails"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.2.1"
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
@@ -20,6 +21,27 @@ gem "cssbundling-rails"
 gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
 gem "redis", ">= 4.0.1"
+
+gem "pundit"
+gem "rack-cors"
+gem "rest-client"
+gem "siwe"
+gem "jwt"
+gem "oga"
+gem "sanitize"
+gem "awesome_print"
+gem "resend"
+gem "icalendar"
+gem "hash_diff"
+gem "aws-sdk-s3"
+
+gem "aliyunsdkcore"
+gem "imagekitio"
+gem "bcrypt_pbkdf", "1.1.0"
+gem "ed25519", "1.3.0"
+gem "keccak", "~> 1.3"
+gem "eth"
+gem "stripe"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
