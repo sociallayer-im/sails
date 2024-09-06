@@ -37,7 +37,7 @@ gem "aws-sdk-s3"
 
 gem "aliyunsdkcore"
 gem "imagekitio"
-gem "bcrypt_pbkdf", "1.1.0"
+gem "bcrypt_pbkdf", "1.1.1"
 gem "ed25519", "1.3.0"
 gem "keccak", "~> 1.3"
 gem "eth"
