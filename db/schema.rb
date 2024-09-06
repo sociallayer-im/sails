@@ -195,7 +195,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
     t.string "tags", array: true
     t.string "event_taglist", array: true
     t.string "venue_taglist", array: true
-    t.boolean "group_ticket_enabled"
+    t.integer "group_ticket_event_id"
     t.string "can_publish_event"
     t.string "can_join_event"
     t.string "can_view_event"
@@ -205,8 +205,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
     t.string "banner_image_url"
     t.integer "memberships_count"
     t.integer "events_count", default: 0
-    t.string "timezone"
     t.string "location"
+    t.string "timezone"
+    t.date "start_date"
+    t.date "end_date"
+    t.string "kind", comment: "popup_city | community"
     t.jsonb "metadata"
     t.jsonb "extra"
     t.jsonb "social_links", default: {}
@@ -350,11 +353,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
     t.string "code"
     t.string "receiver_address"
     t.string "discount_type", comment: "ratio | amount"
-    t.integer "discount", comment: "0 to 100 for ratio, cent of dollar for amount"
+    t.integer "discount_value", comment: "0 to 100 for ratio, cent of dollar for amount"
     t.integer "event_id"
+    t.datetime "expires_at"
     t.integer "applicable_ticket_ids", array: true
     t.integer "ticket_item_ids", array: true
-    t.datetime "expiry_time"
     t.integer "max_allowed_usages"
     t.integer "order_usage_count"
     t.boolean "removed"
@@ -403,10 +406,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
     t.integer "group_id"
     t.integer "participant_id"
     t.integer "payment_method_id"
+    t.integer "promo_code_id"
     t.decimal "amount", precision: 40
     t.decimal "original_price", precision: 40
-    t.integer "token_address"
-    t.integer "receiver_address"
+    t.string "token_address"
+    t.string "receiver_address"
+    t.string "sender_address"
   end
 
   create_table "tickets", force: :cascade do |t|
