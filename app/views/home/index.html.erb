@@ -7,6 +7,10 @@
 <button class="btn btn-primary">Primary</button>
 </div>
 
+<div>
+current profile : <%= Current.session.try(:id) %>
+</div>
+
 <div class="card bg-base-100 w-96 shadow-xl">
   <figure>
     <img

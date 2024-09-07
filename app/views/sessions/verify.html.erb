@@ -1,0 +1,18 @@
+<h1>Verify</h1>
+
+<%= form_with(url: sign_in_path) do |form| %>
+  <div>
+    <%= form.label :email, style: "display: block" %>
+    <%= form.email_field :email, value: @email, required: true %>
+  </div>
+  <div>
+    <%= form.label :code, style: "display: block" %>
+    <%= form.text_field :code, required: true, autofocus: true, autocomplete: "code" %>
+  </div>
+
+  <div>
+    <%= form.submit "Verify" %>
+  </div>
+<% end %>
+
+<br>
