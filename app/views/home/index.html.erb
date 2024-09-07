@@ -11,6 +11,11 @@
 current profile : <%= Current.session.try(:id) %>
 </div>
 
+<%= form_with url: sign_out_path, method: "delete" do |form| %>
+  <%= form.text_field :title %>
+  <%= form.submit "sign out" %>
+<% end %>
+
 <div class="card bg-base-100 w-96 shadow-xl">
   <figure>
     <img

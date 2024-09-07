@@ -1,8 +1,6 @@
 class SessionsController < ApplicationController
   # skip_before_action :authenticate, only: %i[ new create ]
 
-  before_action :set_session, only: :destroy
-
   def index
     @profiles = Profile.order(created_at: :desc)
   end
@@ -33,7 +31,7 @@ class SessionsController < ApplicationController
     # token.update(verified: true)
 
     profile = Profile.find_or_create_by(email: params[:email])
-    cookies.signed[:profile_id] = profile.id
+    cookies.signed.permanent[:profile_id] = profile.id
 
     SigninActivity.create(
       app: "web",
@@ -45,27 +43,14 @@ class SessionsController < ApplicationController
       lang: params[:lang],
       remote_ip: request.remote_ip,
       )
+
     # render json: { result: "ok", auth_token: profile.gen_auth_token, email: params[:email], id: profile.id, address_type: "email" }
     redirect_to root_path, notice: "Signed in successfully"
   end
 
-  # def create
-  #   if user = User.authenticate_by(email: params[:email], password: params[:password])
-  #     @session = user.profiles.create!
-  #     cookies.signed.permanent[:session_token] = { value: @session.id, httponly: true }
-
-  #     redirect_to root_path, notice: "Signed in successfully"
-  #   else
-  #     redirect_to sign_in_path(email_hint: params[:email]), alert: "That email or password is incorrect"
-  #   end
-  # end
-
   def destroy
-    @session.destroy; redirect_to(sessions_path, notice: "That session has been logged out")
+    cookies.delete :profile_id
+    redirect_to(root_path, notice: "That session has been logged out")
   end
 
-  private
-    def set_session
-      @session = Current.user.profiles.find(params[:id])
-    end
 end

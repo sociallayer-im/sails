@@ -57,10 +57,11 @@ Rails.application.routes.draw do
     post "ticket/stripe_client_secret", to: "ticket#stripe_client_secret"
   end
 
-  get  "sign_in", to: "sessions#new"
-  post "verify", to: "sessions#verify"
-  post "sign_in", to: "sessions#create"
-  resources :sessions, only: [:index, :show, :destroy]
+  get    "sign_in",  to: "sessions#new"
+  post   "sign_in",  to: "sessions#create"
+  post   "verify",   to: "sessions#verify"
+  delete "sign_out", to: "sessions#destroy"
+  resources :sessions, only: [:index, :show]
 
   # Defines the root path route ("/")
   root "home#index"
