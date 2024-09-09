@@ -168,7 +168,7 @@ GEM
     icalendar (2.10.2)
       ice_cube (~> 0.16)
     ice_cube (0.17.0)
-    imagekitio (3.0.0)
+    imagekitio (3.1.0)
       addressable (~> 2.8)
       multipart-post (>= 2.1.0)
       rest-client (~> 2.1, >= 2.1)
