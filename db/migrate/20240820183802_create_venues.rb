@@ -11,6 +11,7 @@ class CreateVenues < ActiveRecord::Migration[7.2]
       t.decimal "geo_lat", precision: 10, scale: 6
       t.decimal "geo_lng", precision: 10, scale: 6
       t.datetime "created_at", null: false
+      t.datetime "updated_at", null: false
       t.date "start_date"
       t.date "end_date"
       t.string "link"

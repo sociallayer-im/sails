@@ -12,6 +12,7 @@ class CreateTickets < ActiveRecord::Migration[7.2]
       t.boolean "need_approval"
       t.string "status", default: "normal"
       t.datetime "created_at", null: false
+      t.datetime "updated_at", null: false
       t.string "zupass_event_id"
       t.string "zupass_product_id"
       t.string "zupass_product_name"

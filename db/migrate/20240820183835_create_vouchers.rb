@@ -25,6 +25,7 @@ class CreateVouchers < ActiveRecord::Migration[7.2]
       t.string "minted_address"
       t.string "minted_ids", array: true
       t.datetime "created_at", null: false
+      t.datetime "updated_at", null: false
       t.index ["sender_id"], name: "index_vouchers_on_sender_id"
     end
   end

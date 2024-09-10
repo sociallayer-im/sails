@@ -10,7 +10,7 @@ class CreateMarkers < ActiveRecord::Migration[7.2]
       t.string "title"
       t.text "about"
       t.string "link"
-      t.string "status", default: "normal", null: false, comment: "normal | removed"
+      t.string "status", default: "active", null: false, comment: "active | removed"
       t.string "location"
       t.string "formatted_address"
       t.text "location_viewport"
@@ -19,6 +19,7 @@ class CreateMarkers < ActiveRecord::Migration[7.2]
       t.datetime "start_time"
       t.datetime "end_time"
       t.jsonb "data"
+      t.datetime "updated_at", null: false
       t.datetime "created_at", null: false
     end
   end

@@ -4,8 +4,14 @@
 # model remove the "{}" from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-# column: value
+one:
+  id: 1
+  title: "marker1"
+  about: "description1"
+  group_id: 1
+  owner_id: 1
+  geo_lat: 22.3193
+  geo_lng: 114.1694
+  status: "active"
+  created_at: <%= Time.now.to_s %>
+

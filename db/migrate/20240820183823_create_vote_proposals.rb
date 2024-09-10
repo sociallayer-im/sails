@@ -19,6 +19,7 @@ class CreateVoteProposals < ActiveRecord::Migration[7.2]
       t.datetime "start_time"
       t.datetime "end_time"
       t.datetime "created_at", null: false
+      t.datetime "updated_at", null: false
     end
   end
 end

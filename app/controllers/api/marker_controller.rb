@@ -1,4 +1,4 @@
-class Api::MakrerController < ApiController
+class Api::MarkerController < ApiController
   def create
     profile = current_profile!
     group = Group.find(params[:group_id])
@@ -7,7 +7,7 @@ class Api::MakrerController < ApiController
     marker.update(
       owner: profile,
       group: group,
-      status: "normal"
+      status: "active"
     )
     render json: { marker: marker.as_json }
   end
