@@ -5,10 +5,9 @@
 # below each fixture, per the syntax in the comments below
 #
 one:
+  id: 1
   profile_id: 1
   group_id: 1
   role: "owner"
   status: "active"
 
-two: {}
-# column: value

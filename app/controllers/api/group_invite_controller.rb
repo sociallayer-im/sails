@@ -40,7 +40,7 @@ class Api::GroupInviteController < ApiController
     if membership
       membership.update(role: group_invite.role)
     else
-      membership = Membership.create(profile_id: group_invite.receiver_id, group_id: group.id, role: group_invite.role)
+      membership = Membership.create(profile_id: group_invite.receiver_id, group_id: group.id, role: group_invite.role, status: "active")
       group.increment!(:memberships_count)
     end
 
@@ -56,8 +56,8 @@ class Api::GroupInviteController < ApiController
     expires_at = (DateTime.now + 30.days)
 
     group_invites = []
-    params[:receivers].map do |receiver|
-      receiver = Profile.find_by(address: receiver) || Profile.find_by(handle: receiver) || Profile.find_by(email: receiver)
+    params[:receivers].map do |receiver_address|
+      receiver = Profile.find_by(address: receiver_address) || Profile.find_by(handle: receiver_address) || Profile.find_by(email: receiver_address)
 
       if receiver
         receiver_id = receiver.id
@@ -84,7 +84,7 @@ class Api::GroupInviteController < ApiController
         # todo : membership uniqueness
         # todo : test existing member and new member
         # todo : test existing member with manager or owner role
-      elsif receiver.include? "@"
+      elsif receiver_address.include? "@"
 
         invite = GroupInvite.create(
           sender_id: profile.id,
@@ -93,11 +93,11 @@ class Api::GroupInviteController < ApiController
           role: role,
           expires_at: expires_at,
           receiver_address_type: "email",
-          receiver_address: receiver,
+          receiver_address: receiver_address,
         )
 
-        mailer = GroupMailer.with(group_name: (group.nickname || group.handle), recipient: invite.receiver_address).group_invite_email
-        mailer.deliver_now!
+        # mailer = GroupMailer.with(group_name: (group.nickname || group.handle), recipient: invite.receiver_address).group_invite_email
+        # mailer.deliver_now!
       else
         invite = { receiver: receiver, result: "error", message: "invalid receiver handle" }
       end
