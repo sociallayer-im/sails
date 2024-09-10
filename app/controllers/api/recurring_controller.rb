@@ -1,4 +1,119 @@
 class Api::RecurringController < ApiController
+
+  def create
+    profile = current_profile!
+    group = Group.find_by(id: params[:group_id])
+
+    status = "published"
+    @send_approval_email_to_manager = false
+    if group && params[:venue_id]
+      venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
+      raise AppError.new("group venue not exists") unless venue
+
+      if venue.require_approval && !group.is_manager(profile.id)
+        status = "pending"
+        @send_approval_email_to_manager = true
+      end
+    elsif params[:venue_id]
+      raise AppError.new("group is empty")
+    end
+
+    # todo : allow group setting for pending event
+
+    # todo : move badge_class to voucher
+    if params[:badge_class_id]
+      badge_class = BadgeClass.find(params[:badge_class_id])
+      authorize badge_class, :send?
+    end
+
+    recurring = Recurring.create(
+      start_time: params[:event][:start_time],
+      interval: params[:interval],
+      event_count: params[:event_count],
+      timezone: params[:timezone],
+    )
+
+    events = []
+    event_count = params[:event_count].to_i
+    event_time = DateTime.parse(params[:event][:start_time])
+    duration = DateTime.parse(params[:event][:end_time]) - event_time
+
+    event_count.times do
+      event = Event.new(event_params)
+      event.update(
+        start_time: event_time,
+        end_time: (event_time + duration),
+        recurring_id: recurring.id,
+        status: status,
+        owner: profile,
+        group: group,
+        display: "normal",
+        event_type: "event",
+      )
+
+      events << event
+
+      case params[:interval]
+      when "day"
+        event_time = event_time.advance(days: 1)
+      when "week"
+        event_time = event_time.advance(weeks: 1)
+      when "month"
+        event_time = event_time.advance(months: 1)
+      end
+
+    end
+    group.increment!(:events_count, event_count) if group
+
+    # if @send_approval_email_to_manager
+    #   Membership.includes(:profile).where(profile_id: group.id, role: [ "owner", "manager" ]).each do |membership|
+    #     if membership.data.present? && membership.data.include?("venue") && membership.profile.email.present?
+    #       group_name = group ? (group.nickname || group.username) : ""
+    #       mailer = GroupMailer.with(group_name: group_name, event_id: event.id, recipient: membership.profile.email).venue_review_email
+    #       mailer.deliver_now!
+    #     end
+    #   end
+    # end
+
+    render json: { result: "ok", recurring: recurring.as_json }
+  end
+
+  def update
+    recurring = Recurring.find(params[:recurring_id])
+    events = Event.where(recurring_id: params[:recurring_id])
+    if params[:selector] == 'after'
+      events = events.where('id >= ?', params[:after_event_id])
+    # elsif params[:selector] == 'all'
+    end
+
+    profile = current_profile!
+    # todo : recurring owner column
+    # authorize event, :update?
+
+    # if params[:event][:venue_id] != event.venue_id
+    #   venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
+    #   raise AppError.new("group venue not exists") unless venue
+
+    #   if venue.require_approval && !group.is_manager(profile.id)
+    #     status = "pending"
+    #     send_approval_email_to_manager = true
+    #   end
+    # end
+
+    events.each do |event|
+      if params[:start_time_diff]
+        event.start_time += params[:start_time_diff].to_i.seconds
+      end
+      if params[:end_time_diff]
+        event.end_time += params[:end_time_diff].to_i.seconds
+      end
+      event.assign_attributes(event_params)
+      event.save
+    end
+
+    render json: { result: "ok" }
+  end
+
   def cancel_event
     profile = current_profile!
 
@@ -16,17 +131,68 @@ class Api::RecurringController < ApiController
     render json: { result: "ok" }
   end
 
+  private
+
   def event_params
-      params.require(:event).permit(
-        :title, :start_time, :end_time, :timezone, :meeting_url, :external_url,
-        :venue_id, :location, :formatted_address, :location_viewport, :geo_lat, :geo_lng,
-        :cover_url, :require_approval, :extra, :content, :notes, :display, :tags, :operators, :max_participant, :min_participant,
-        tickets: [
-          :title, :content, :check_badge_class_id, :quantity, :end_time, :need_approval, :status,
-          :payment_chain, :payment_token_name, :payment_token_address,
-          :payment_target_address, :payment_token_price, :payment_metadata, :_destroy,
-          payment_methods_attributes: [ :id, :chain, :kind, :token_name, :token_address, :receiver_address, :price, :_destroy ] ],
-        event_roles: [ :id, :role, :group_id, :event_id, :profile_id, :email, :nickname, :image_url, :_destroy ],
-        )
-    end
+    params.require(:event).permit(
+      :title,
+      :start_time,
+      :end_time,
+      :timezone,
+      :meeting_url,
+      :venue_id,
+      :location,
+      :formatted_address,
+      :location_viewport,
+      :geo_lat,
+      :geo_lng,
+      :cover_url,
+      :require_approval,
+      :content,
+      :tags,
+      :max_participant,
+      :min_participant,
+      :participants_count,
+      :badge_class_id,
+      :external_url,
+      :notes,
+      tags: [],
+      extra: {},
+      tickets_attributes: [
+        :id,
+        :title,
+        :content,
+        :ticket_type,
+        :group_id,
+        :event_id,
+        :check_badge_class_id,
+        :quantity,
+        :end_time,
+        :need_approval,
+        :status,
+        :zupass_event_id,
+        :zupass_product_id,
+        :zupass_product_name,
+        :start_date,
+        :end_date,
+        :days_allowed,
+        :tracks_allowed,
+        :_destroy,
+        payment_methods_attributes: [
+          :id,
+          :item_type,
+          :item_id,
+          :chain,
+          :kind,
+          :token_name,
+          :token_address,
+          :receiver_address,
+          :price,
+          :_destroy
+        ]
+      ],
+      promo_codes_attributes: [ :id, :selector, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expiry_time, :max_allowed_usages, :order_usage_count, :_destroy ],
+      event_roles_attributes: [ :id, :role, :group_id, :event_id, :profile_id, :email, :nickname, :image_url, :_destroy ],
+      )
+  end
 end

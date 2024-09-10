@@ -51,6 +51,9 @@ Rails.application.routes.draw do
     post "event/check", to: "event#check"
     post "event/cancel", to: "event#cancel"
 
+    post "recurring/create", to: "recurring#create"
+    post "recurring/update", to: "recurring#update"
+
     post "ticket/rsvp", to: "ticket#rsvp"
     post "ticket/set_payment_status", to: "ticket#set_payment_status"
     post "ticket/stripe_callback", to: "ticket#stripe_callback"

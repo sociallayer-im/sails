@@ -40,7 +40,7 @@ class Api::EventController < ApiController
 
     group.increment!(:events_count) if group
 
-    if @send_approval_email_to_manager && ENV["DO_NOT_SEND_EMAIL"].blank?
+    if @send_approval_email_to_manager
       Membership.includes(:profile).where(profile_id: group.id, role: [ "owner", "manager" ]).each do |membership|
         if membership.data.present? && membership.data.include?("venue") && membership.profile.email.present?
           group_name = group ? (group.nickname || group.username) : ""
