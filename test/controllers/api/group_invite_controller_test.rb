@@ -1,18 +1,17 @@
 require "test_helper"
 
 class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
-
   test "api/group/send_invite" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    assert_difference 'GroupInvite.count', 1 do
+    assert_difference "GroupInvite.count", 1 do
     post api_group_send_invite_url, params: {
       auth_token: auth_token,
       group_id: group.id,
       role: "member",
-      receivers: ["mooncake"],
+      receivers: [ "mooncake" ],
       message: "please join the group"
      }
     end
@@ -29,12 +28,12 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
 
     Membership.create(profile_id: profile2.id, group_id: group.id, role: "member", status: "active")
 
-    assert_difference 'GroupInvite.count', 0 do
+    assert_difference "GroupInvite.count", 0 do
     post api_group_send_invite_url, params: {
       auth_token: auth_token,
       group_id: group.id,
       role: "manager",
-      receivers: ["mooncake"],
+      receivers: [ "mooncake" ],
       message: "please join the group"
      }
     end
@@ -50,12 +49,12 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
 
     Membership.create(profile_id: profile2.id, group_id: group.id, role: "manager", status: "active")
 
-    assert_difference 'GroupInvite.count', 0 do
+    assert_difference "GroupInvite.count", 0 do
     post api_group_send_invite_url, params: {
       auth_token: auth_token,
       group_id: group.id,
       role: "member",
-      receivers: ["mooncake"],
+      receivers: [ "mooncake" ],
       message: "please join the group"
      }
     end
@@ -69,12 +68,12 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    assert_difference 'GroupInvite.count', 1 do
+    assert_difference "GroupInvite.count", 1 do
     post api_group_send_invite_url, params: {
       auth_token: auth_token,
       group_id: group.id,
       role: "manager",
-      receivers: ["dimsum@mail.com"],
+      receivers: [ "dimsum@mail.com" ],
       message: "please join the group"
      }
     end
@@ -162,7 +161,6 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert_equal "requesting", group_invite.status
     assert_equal "member", group_invite.role
     assert_equal "I would like to join the group", group_invite.message
-
   end
 
   test "api/group/accept_request" do
@@ -185,5 +183,4 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert membership
     assert_equal "member", membership.role
   end
-
 end

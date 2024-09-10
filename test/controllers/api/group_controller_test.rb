@@ -1,7 +1,6 @@
 require "test_helper"
 
 class Api::GroupControllerTest < ActionDispatch::IntegrationTest
-
   test "api#group/create" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
@@ -11,7 +10,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
         timezone: "asia/shanghai",
         can_publish_event: "all",
         can_join_event: "all",
-        can_view_event: "all",
+        can_view_event: "all"
       } }
     assert_response :success
     group = Group.find_by(handle: "newworld")
@@ -30,7 +29,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
 
     post api_group_update_url,
       params: { auth_token: auth_token, id: group.id, group: {
-        timezone: "asia/hongkong",
+        timezone: "asia/hongkong"
       } }
     assert_response :success
     end
@@ -277,7 +276,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
 
     post api_group_send_invite_url,
       params: { auth_token: auth_token, group_id: group.id,
-      receivers: [profile2.handle], role: 'member', message: "welcome" }
+      receivers: [ profile2.handle ], role: "member", message: "welcome" }
     assert_response :success
 
     group_invite = GroupInvite.find_by(receiver: profile2)
@@ -288,5 +287,4 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
 
     assert group.is_member(profile2.id)
   end
-
 end
