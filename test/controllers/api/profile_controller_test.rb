@@ -1,7 +1,6 @@
 require "test_helper"
 
 class Api::ProfileControllerTest < ActionDispatch::IntegrationTest
-
   test "api#profile/signin_with_email" do
     post api_service_send_email_url, params: { context: "email-signin", email: "example@gmail.com" }
     assert_response :success
@@ -41,5 +40,4 @@ class Api::ProfileControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     p Profile.find_by(handle: "cookie").nickname == "binggan"
   end
-
 end

@@ -15,7 +15,7 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
           title: "created venue",
           location: "new venue location",
           geo_lat: 22.3193,
-          geo_lng: 114.1694,
+          geo_lng: 114.1694
         }
       }
       assert Venue.find_by(title: "created venue").present?
@@ -30,7 +30,7 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
     post api_venue_update_url,
       params: { auth_token: auth_token, id: 540, venue: {
         title: "updated venue",
-        about: "updated venue description",
+        about: "updated venue description"
       } }
       assert Venue.find_by(title: "updated venue").present?
     end

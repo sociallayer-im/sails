@@ -17,8 +17,8 @@ class Api::VoteControllerTest < ActionDispatch::IntegrationTest
           start_time: DateTime.now,
           end_time: DateTime.now + 7.days,
           vote_options_attributes: [
-            {title: "yes", content: "yes we should save the planet"},
-            {title: "no", content: "no we should not save the planet"}
+            { title: "yes", content: "yes we should save the planet" },
+            { title: "no", content: "no we should not save the planet" }
           ]
         }
       }
@@ -42,8 +42,8 @@ class Api::VoteControllerTest < ActionDispatch::IntegrationTest
       start_time: DateTime.now,
       end_time: DateTime.now + 7.days,
       vote_options_attributes: [
-        {title: "yes", content: "yes we should save the planet"},
-        {title: "no", content: "no we should not save the planet"}
+        { title: "yes", content: "yes we should save the planet" },
+        { title: "no", content: "no we should not save the planet" }
       ]
     )
 
@@ -57,7 +57,7 @@ class Api::VoteControllerTest < ActionDispatch::IntegrationTest
         max_choice: 1,
         eligibile_group_id: 1,
         start_time: DateTime.now,
-        end_time: DateTime.now + 7.days,
+        end_time: DateTime.now + 7.days
 
       }
     }

@@ -10,7 +10,7 @@ class Api::PointControllerTest < ActionDispatch::IntegrationTest
         receivers: [
           {
             receiver: profiles(:four).address,
-            value: 100,
+            value: 100
           }
         ]
     }
@@ -23,7 +23,7 @@ class Api::PointControllerTest < ActionDispatch::IntegrationTest
     auth_token2 = profile2.gen_auth_token
     post api_point_accept_url, params: {
       auth_token: auth_token2,
-      point_transfer_id: point_transfer_id,
+      point_transfer_id: point_transfer_id
     }
     assert_response :success
     assert PointTransfer.find_by(id: point_transfer_id).status == "accepted"
@@ -33,7 +33,7 @@ class Api::PointControllerTest < ActionDispatch::IntegrationTest
       auth_token: auth_token2,
       point_class_id: 1,
       value: 20,
-      target_profile_id: profiles(:two).id,
+      target_profile_id: profiles(:two).id
     }
     assert_response :success
     assert_equal PointBalance.find_by(point_class_id: 1, owner: profiles(:two)).value, 20
@@ -51,7 +51,7 @@ class Api::PointControllerTest < ActionDispatch::IntegrationTest
         receivers: [
           {
             receiver: profiles(:four).address,
-            value: 100,
+            value: 100
           }
         ]
     }
@@ -64,7 +64,7 @@ class Api::PointControllerTest < ActionDispatch::IntegrationTest
     auth_token2 = profile2.gen_auth_token
     post api_point_reject_url, params: {
       auth_token: auth_token2,
-      point_transfer_id: point_transfer_id,
+      point_transfer_id: point_transfer_id
     }
     assert_response :success
     assert PointTransfer.find_by(id: point_transfer_id).status == "rejected"

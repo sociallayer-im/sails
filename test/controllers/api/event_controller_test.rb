@@ -21,13 +21,13 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       params: { auth_token: auth_token, group_id: group.id, event: {
         title: "new meetup",
         tags: %w[live art],
-        start_time: DateTime.new(2024,8,8,10,20,30),
-        end_time: DateTime.new(2024,8,8,12,20,30),
+        start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
+        end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
         location: "central park",
         content: "wonderful",
         display: "normal",
         event_type: "event"
-      }}
+      } }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -45,13 +45,13 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       params: { auth_token: auth_token, event: {
         title: "new meetup",
         tags: %w[live art],
-        start_time: DateTime.new(2024,8,8,10,20,30),
-        end_time: DateTime.new(2024,8,8,12,20,30),
+        start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
+        end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
         location: "central park",
         content: "wonderful",
         display: "normal",
         event_type: "event"
-      }}
+      } }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -70,14 +70,14 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       params: { auth_token: auth_token, group_id: group.id, event: {
         title: "new meetup",
         tags: %w[live art],
-        start_time: DateTime.new(2024,8,8,10,20,30),
-        end_time: DateTime.new(2024,8,8,12,20,30),
+        start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
+        end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
         location: venue.location,
         content: "wonderful",
         display: "normal",
         event_type: "event",
         venue_id: venue.id
-      }}
+      } }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -98,13 +98,13 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       params: { auth_token: auth_token, group_id: group.id, venue_id: venue.id, event: {
         title: "new meetup",
         tags: %w[live art],
-        start_time: DateTime.new(2024,8,8,10,20,30),
-        end_time: DateTime.new(2024,8,8,12,20,30),
+        start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
+        end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
         location: venue.location,
         content: "wonderful",
         display: "normal",
-        event_type: "event",
-      }}
+        event_type: "event"
+      } }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -132,7 +132,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     event.reload
     assert event.title == "new meetup"
-    assert event.tags == ["science"]
+    assert event.tags == [ "science" ]
   end
 
   test "api#event/unpublish" do
@@ -142,7 +142,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     event = Event.find_by(title: "my meetup")
 
     post api_event_unpublish_url,
-      params: { auth_token: auth_token, id: event.id}
+      params: { auth_token: auth_token, id: event.id }
     assert_response :success
     assert Event.find_by(title: "my meetup").status == "cancelled"
   end
@@ -157,12 +157,12 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     event = Event.find_by(title: "my meetup")
 
     post api_event_join_url,
-      params: { auth_token: attendee_auth_token, id: event.id}
+      params: { auth_token: attendee_auth_token, id: event.id }
     assert_response :success
     assert Participant.find_by(event: event).status == "attending"
 
     post api_event_check_url,
-      params: { auth_token: auth_token, id: event.id, profile_id: profile.id}
+      params: { auth_token: auth_token, id: event.id, profile_id: profile.id }
     assert_response :success
     assert Participant.find_by(event: event).status == "checked"
   end
@@ -177,14 +177,13 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     event = Event.find_by(title: "my meetup")
 
     post api_event_join_url,
-      params: { auth_token: attendee_auth_token, id: event.id}
+      params: { auth_token: attendee_auth_token, id: event.id }
     assert_response :success
     assert Participant.find_by(event: event).status == "attending"
 
     post api_event_cancel_url,
-      params: { auth_token: auth_token, id: event.id, profile_id: profile.id}
+      params: { auth_token: auth_token, id: event.id, profile_id: profile.id }
     assert_response :success
     assert Participant.find_by(event: event).status == "cancelled"
-
   end
 end

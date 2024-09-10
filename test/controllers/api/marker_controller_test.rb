@@ -14,7 +14,7 @@ class Api::MarkerControllerTest < ActionDispatch::IntegrationTest
         title: "created marker",
         about: "new marker description",
         geo_lat: 22.3193,
-        geo_lng: 114.1694,
+        geo_lng: 114.1694
       } }
     assert_response :success
     end
@@ -28,7 +28,7 @@ class Api::MarkerControllerTest < ActionDispatch::IntegrationTest
     post api_marker_update_url,
       params: { auth_token: auth_token, id: 1, marker: {
         title: "updated marker",
-        about: "updated marker description",
+        about: "updated marker description"
       } }
     assert_response :success
     end

@@ -12,37 +12,37 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     post api_event_create_url,
       params: { auth_token: auth_token, group_id: group.id, event: {
         title: "new meetup with tickets",
-        start_time: DateTime.new(2024,8,8,10,20,30),
-        end_time: DateTime.new(2024,8,8,12,20,30),
+        start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
+        end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
         location: "central park",
         display: "normal",
         event_type: "event",
         tickets_attributes: [
           {
-            title: 'free', content: 'free ticket', quantity: 5,
+            title: "free", content: "free ticket", quantity: 5,
             payment_methods_attributes: []
           },
           {
-            title: 'crypto', content: 'crypto ticket', quantity: 5,
+            title: "crypto", content: "crypto ticket", quantity: 5,
             payment_methods_attributes: [
-              { chain: 'op', token_name: 'USDT', token_address: '0x1234', price: 5000000 },
-              { chain: 'arb', token_name: 'USDT', token_address: '0x3456', price: 4000000 }
+              { chain: "op", token_name: "USDT", token_address: "0x1234", price: 5000000 },
+              { chain: "arb", token_name: "USDT", token_address: "0x3456", price: 4000000 }
             ]
           },
           {
-            title: 'fiat', content: 'fiat ticket', quantity: 5,
+            title: "fiat", content: "fiat ticket", quantity: 5,
             payment_methods_attributes: [
-              { chain: 'stripe', token_name: 'USD', token_address: '', price: 500 }
+              { chain: "stripe", token_name: "USD", token_address: "", price: 500 }
             ]
           }
         ]
-      }}
+      } }
 
     assert_response :success
     event = Event.find_by(title: "new meetup with tickets")
-    ticket = Ticket.find_by(event: event, title: 'fiat')
+    ticket = Ticket.find_by(event: event, title: "fiat")
     assert ticket
-    assert PaymentMethod.find_by(item: ticket, chain: 'stripe', token_name: 'USD')
+    assert PaymentMethod.find_by(item: ticket, chain: "stripe", token_name: "USD")
   end
 
   test "api#ticket/rsvp with free ticket" do
@@ -51,7 +51,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     event = events(:with_ticket)
-    ticket = Ticket.find_by(event: event, title: 'free')
+    ticket = Ticket.find_by(event: event, title: "free")
 
     post api_ticket_rsvp_url,
          params: { auth_token: auth_token, id: event.id, ticket_id: ticket.id, payment_method_id: nil }
@@ -64,8 +64,8 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     event = events(:with_ticket)
-    ticket = Ticket.find_by(event: event, title: 'crypto')
-    op_paymethod = PaymentMethod.find_by(item: ticket, chain: 'op')
+    ticket = Ticket.find_by(event: event, title: "crypto")
+    op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
 
     post api_ticket_rsvp_url,
          params: { auth_token: auth_token, id: event.id, ticket_id: ticket.id, payment_method_id: op_paymethod.id }
@@ -74,10 +74,10 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     ticket_item = TicketItem.find_by(event: event)
     assert ticket_item.status == "pending"
 
-    ENV['NEXT_TOKEN'] = "WXYZ"
+    ENV["NEXT_TOKEN"] = "WXYZ"
 
     post api_ticket_set_payment_status_url,
-         params: { next_token: ENV['NEXT_TOKEN'], chain: ticket_item.chain, product_id: event.id, item_id: ticket_item.order_number, amount: ticket_item.amount, txhash: "0x7890"}
+         params: { next_token: ENV["NEXT_TOKEN"], chain: ticket_item.chain, product_id: event.id, item_id: ticket_item.order_number, amount: ticket_item.amount, txhash: "0x7890" }
     assert_response :success
 
     ticket_item.reload
@@ -94,8 +94,8 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     event = events(:with_ticket)
-    ticket = Ticket.find_by(event: event, title: 'crypto')
-    op_paymethod = PaymentMethod.find_by(item: ticket, chain: 'op')
+    ticket = Ticket.find_by(event: event, title: "crypto")
+    op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
 
     promo = PromoCode.create(
         selector: "code",
@@ -116,10 +116,10 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     ticket_item = TicketItem.find_by(event: event)
     assert ticket_item.status == "succeeded"
 
-    ENV['NEXT_TOKEN'] = "WXYZ"
+    ENV["NEXT_TOKEN"] = "WXYZ"
 
     post api_ticket_set_payment_status_url,
-         params: { next_token: ENV['NEXT_TOKEN'], chain: ticket_item.chain, product_id: event.id, item_id: ticket_item.order_number, amount: ticket_item.amount, txhash: "0x7890"}
+         params: { next_token: ENV["NEXT_TOKEN"], chain: ticket_item.chain, product_id: event.id, item_id: ticket_item.order_number, amount: ticket_item.amount, txhash: "0x7890" }
     assert_response :success
     assert response.body == "{\"result\":\"ok\",\"message\":\"skip verify succeeded ticket_item\"}"
 
@@ -133,8 +133,8 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     event = events(:with_ticket)
-    ticket = Ticket.find_by(event: event, title: 'crypto')
-    op_paymethod = PaymentMethod.find_by(item: ticket, chain: 'op')
+    ticket = Ticket.find_by(event: event, title: "crypto")
+    op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
 
     promo = PromoCode.create(
         selector: "code",
@@ -156,10 +156,10 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     assert ticket_item.status == "pending"
     assert ticket_item.amount == 3000000
 
-    ENV['NEXT_TOKEN'] = "WXYZ"
+    ENV["NEXT_TOKEN"] = "WXYZ"
 
     post api_ticket_set_payment_status_url,
-         params: { next_token: ENV['NEXT_TOKEN'], chain: ticket_item.chain, product_id: event.id, item_id: ticket_item.order_number, amount: 3000000, txhash: "0x7890"}
+         params: { next_token: ENV["NEXT_TOKEN"], chain: ticket_item.chain, product_id: event.id, item_id: ticket_item.order_number, amount: 3000000, txhash: "0x7890" }
     assert_response :success
 
     ticket_item.reload
@@ -176,8 +176,8 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     event = events(:with_ticket)
-    ticket = Ticket.find_by(event: event, title: 'fiat')
-    stripe_paymethod = PaymentMethod.find_by(item: ticket, chain: 'stripe')
+    ticket = Ticket.find_by(event: event, title: "fiat")
+    stripe_paymethod = PaymentMethod.find_by(item: ticket, chain: "stripe")
 
     promo = PromoCode.create(
         selector: "code",
@@ -205,12 +205,12 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     data = JSON.parse(response.body)
 
     post api_ticket_stripe_callback_url,
-    params: { auth_token: auth_token, 
+    params: { auth_token: auth_token,
         "type" => "charge.succeeded",
         "data" => {
             "object" => {
                 "status" => "succeeded",
-                "payment_intent" => data["payment_intent_id"],
+                "payment_intent" => data["payment_intent_id"]
             }
         }
     }
@@ -226,11 +226,10 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     event = events(:with_ticket)
-    ticket = Ticket.find_by(event: event, title: 'free')
+    ticket = Ticket.find_by(event: event, title: "free")
 
     post api_ticket_rsvp_url,
          params: { auth_token: auth_token, id: event.id, ticket_id: ticket.id, payment_method_id: nil }
     assert_response :success
   end
 end
-

@@ -9,7 +9,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
         auth_token: auth_token,
         badge_class_id: 1,
         badge_title: "super hello",
-        message: "send hello badge",
+        message: "send hello badge"
       }
     end
     code = JSON.parse(response.body)["voucher"]["code"]
@@ -30,7 +30,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
     post api_voucher_use_url, params: {
       auth_token: auth_token,
       id: 1,
-      code: "11111",
+      code: "11111"
     }
     assert_response :success
     assert_equal Voucher.find_by(code: "11111").counter, 4
@@ -43,7 +43,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
     voucher = vouchers(:one) # Assuming you have a fixture for vouchers
     post api_voucher_revoke_url, params: {
       auth_token: auth_token,
-      id: 1,
+      id: 1
     }
     assert_response :success
     assert_equal Voucher.find_by(code: voucher.code).counter, 0
@@ -57,7 +57,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
       badge_class_id: 1,
       badge_title: "super hello",
       message: "send hello badge",
-      receivers: ["mooncake"],
+      receivers: [ "mooncake" ]
     }
     assert_response :success
     assert_equal Voucher.find_by(badge_title: "super hello").counter, 1
@@ -67,7 +67,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
     auth_token2 = profile2.gen_auth_token
     post api_voucher_use_url, params: {
       auth_token: auth_token2,
-      id: Voucher.find_by(badge_title: "super hello").id,
+      id: Voucher.find_by(badge_title: "super hello").id
     }
     assert_response :success
     assert_equal 0, Voucher.find_by(badge_title: "super hello").counter
@@ -82,7 +82,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
       badge_class_id: 1,
       badge_title: "super hello",
       message: "send hello badge",
-      receivers: [profiles(:two).email],
+      receivers: [ profiles(:two).email ]
     }
     assert_response :success
     assert_equal Voucher.find_by(badge_title: "super hello").counter, 1
@@ -92,7 +92,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
     auth_token2 = profile2.gen_auth_token
     post api_voucher_use_url, params: {
       auth_token: auth_token2,
-      id: Voucher.find_by(badge_title: "super hello").id,
+      id: Voucher.find_by(badge_title: "super hello").id
     }
     assert_response :success
     assert_equal 0, Voucher.find_by(badge_title: "super hello").counter
@@ -107,7 +107,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
       badge_class_id: 1,
       badge_title: "super hello",
       message: "send hello badge",
-      receivers: [profiles(:four).address],
+      receivers: [ profiles(:four).address ]
     }
     assert_response :success
     assert_equal Voucher.find_by(badge_title: "super hello").counter, 1
@@ -117,7 +117,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
     auth_token2 = profile2.gen_auth_token
     post api_voucher_use_url, params: {
       auth_token: auth_token2,
-      id: Voucher.find_by(badge_title: "super hello").id,
+      id: Voucher.find_by(badge_title: "super hello").id
     }
     assert_response :success
     assert_equal 0, Voucher.find_by(badge_title: "super hello").counter
@@ -132,7 +132,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
       badge_class_id: 1,
       badge_title: "super hello",
       message: "send hello badge",
-      receivers: ["mooncake"],
+      receivers: [ "mooncake" ]
     }
     assert_response :success
     assert_equal Voucher.find_by(badge_title: "super hello").counter, 1
@@ -142,11 +142,10 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
     auth_token2 = profile2.gen_auth_token
     post api_voucher_reject_badge_url, params: {
       auth_token: auth_token2,
-      id: Voucher.find_by(badge_title: "super hello").id,
+      id: Voucher.find_by(badge_title: "super hello").id
     }
     assert_response :success
     assert_equal 0, Voucher.find_by(badge_title: "super hello").counter
     assert_equal 0, profile2.owned_badges.count
   end
-
 end
