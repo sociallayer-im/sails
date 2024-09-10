@@ -60,6 +60,9 @@ Rails.application.routes.draw do
     post "marker/update", to: "marker#update"
     post "marker/remove", to: "marker#remove"
     post "marker/checkin", to: "marker#checkin"
+
+    post "badge_class/create", to: "badge_class#create"
+
     post "venue/create", to: "venue#create"
     post "venue/update", to: "venue#update"
     post "venue/remove", to: "venue#remove"

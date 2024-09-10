@@ -45,7 +45,6 @@ class Api::MarkerControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # generate test for api#marker/check
   test "api#marker/checkin" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
