@@ -19,9 +19,11 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     assert group.active?
     assert group.is_owner(profile.id)
     assert group.memberships_count == 1
+    assert Domain.find_by(handle: "newworld", item_type: "Group", item_id: group.id).present?
   end
 
-  test "api#group/update" do
+  test "api#group/update" do # optimize this test function
+    assert_changes "Group.find_by(handle: 'guildx').timezone" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
@@ -31,8 +33,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
         timezone: "asia/hongkong",
       } }
     assert_response :success
-    group = Group.find_by(handle: "guildx")
-    assert group.timezone == "asia/hongkong"
+    end
   end
 
   test "api#group/transfer_owner fails for non-member recipient" do

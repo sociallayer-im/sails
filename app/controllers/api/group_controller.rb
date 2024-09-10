@@ -14,9 +14,12 @@ class Api::GroupController < ApiController
     end
 
     group = Group.new(group_params)
-    group.update(
-      handle: handle
-    )
+    ActiveRecord::Base.transaction do
+      group.update(
+        handle: handle
+      )
+      Domain.create(handle: handle, fullname: "#{handle}.sola.day", item_type: "Group", item_id: group.id)
+    end
 
     Membership.create(profile_id: profile.id, group_id: group.id, role: "owner", status: "active")
     group.increment!(:memberships_count)

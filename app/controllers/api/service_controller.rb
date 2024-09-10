@@ -36,8 +36,8 @@ class Api::ServiceController < ApiController
     code = rand(10_000..100_000)
     token = ProfileToken.create(context: params[:context], sent_to: params[:email], code: code)
 
-    mailer = SigninMailer.with(code: code, recipient: params[:email]).signin_email
-    mailer.deliver_now!
+    # mailer = SigninMailer.with(code: code, recipient: params[:email]).signin_email
+    # mailer.deliver_now!
 
     render json: { result: "ok", email: params[:email] }
   end

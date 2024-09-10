@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_10_055659) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -119,6 +119,15 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_21_170124) do
     t.string "label"
     t.string "role", default: "contact", null: false, comment: "contact | follower"
     t.string "status", default: "active", null: false, comment: "active | freezed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "domains", force: :cascade do |t|
+    t.string "handle"
+    t.string "fullname"
+    t.string "item_type"
+    t.integer "item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

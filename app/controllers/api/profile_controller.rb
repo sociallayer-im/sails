@@ -240,8 +240,10 @@ class Api::ProfileController < ApiController
       render json: { result: "error", message: "profile handle exists" }
       return
     end
-
-    profile.update(handle: handle)
+    ActiveRecord::Base.transaction do
+      profile.update(handle: handle)
+      Domain.create(handle: handle, fullname: "#{handle}.sola.day", item_type: "Profile", item_id: profile.id)
+    end
     render json: { result: "ok" }
   end
 
