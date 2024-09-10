@@ -44,4 +44,16 @@ class Api::MarkerControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
     end
   end
+
+  # generate test for api#marker/check
+  test "api#marker/checkin" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    assert_changes "Comment.where(item_type: 'Marker', item_id: 1).count" do
+    post api_marker_checkin_url,
+      params: { auth_token: auth_token, id: 1, title: "checkin", content: "checkin content" }
+    assert_response :success
+    end
+  end
 end

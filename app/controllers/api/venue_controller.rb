@@ -7,7 +7,7 @@ class Api::VenueController < ApiController
     venue.update(
       owner: profile,
       group: group,
-      visibility: 'all'
+      visibility: "all"
     )
     render json: { venue: venue.as_json }
   end

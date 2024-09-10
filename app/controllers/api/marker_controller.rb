@@ -39,7 +39,7 @@ class Api::MarkerController < ApiController
 
     comment = Comment.create(
       item: marker,
-      comment_type: 'checkin',
+      comment_type: "checkin",
       profile: profile,
       title: params[:title],
       content: params[:content],
