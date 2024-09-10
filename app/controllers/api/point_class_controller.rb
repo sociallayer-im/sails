@@ -1,7 +1,7 @@
 class Api::PointClassController < ApiController
   def create
     profile = current_profile!
-    name = params[:name]
+    name = params[:point_class][:name]
 
     # todo : verify label in model callback
     unless check_badge_domain_label(name)
@@ -13,15 +13,24 @@ class Api::PointClassController < ApiController
       authorize group, :manage?, policy_class: GroupPolicy
     end
 
-    params.permit(
-      :name, :title, :sym, :metadata, :content, :image_url,
-      :transferable, :revocable
-    )
-    point_class = PointClass.new(params)
+    # todo : check sym and name
+
+    point_class = PointClass.new(point_class_params)
     point_class.update(
       group: group,
       creator: profile,
     )
+
     render json: { result: "ok", point_class: point_class.as_json }
+  end
+
+
+  private
+
+  def point_class_params
+    params.require(:point_class).permit(
+      :name, :title, :sym, :metadata, :content, :image_url,
+      :transferable, :revocable
+    )
   end
 end

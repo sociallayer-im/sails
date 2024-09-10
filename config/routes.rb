@@ -63,9 +63,25 @@ Rails.application.routes.draw do
 
     post "badge_class/create", to: "badge_class#create"
 
+    post "voucher/create", to: "voucher#create"
+    post "voucher/use", to: "voucher#use"
+    get "voucher/get_code", to: "voucher#get_code"
+    post "voucher/revoke", to: "voucher#revoke"
+    post "voucher/send_badge", to: "voucher#send_badge"
+    post "voucher/send_badge_by_address", to: "voucher#send_badge_by_address"
+    post "voucher/send_badge_by_email", to: "voucher#send_badge_by_email"
+    post "voucher/accept_badge", to: "voucher#accept_badge"
+    post "voucher/reject_badge", to: "voucher#reject_badge"
+
     post "venue/create", to: "venue#create"
     post "venue/update", to: "venue#update"
     post "venue/remove", to: "venue#remove"
+
+    post "point_class/create", to: "point_class#create"
+    post "point/create", to: "point#create"
+    post "point/accept", to: "point#accept"
+    post "point/reject", to: "point#reject"
+    post "point/transfer", to: "point#transfer"
   end
 
   get    "sign_in",  to: "sessions#new"

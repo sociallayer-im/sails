@@ -10,7 +10,7 @@ class Api::PointController < ApiController
     authorize point_class, :send?
     # need test for group
 
-    point_items = params[:receivers].map do |receiver_value|
+    point_transfers = params[:receivers].map do |receiver_value|
       target = receiver_value[:receiver]
       value = receiver_value[:value]
       receiver = Profile.find_by(address: target) || Profile.find_by(handle: target)
@@ -25,7 +25,7 @@ class Api::PointController < ApiController
       point_transfer
     end
 
-    render json: { result: "ok", point_items: point_items.as_json }
+    render json: { result: "ok", point_transfers: point_transfers.as_json }
   end
 
   def accept
@@ -52,18 +52,20 @@ class Api::PointController < ApiController
   def transfer
     profile = current_profile!
 
-    source_point = PointBalance.find(params[:point_id])
-    raise AppError.new("invalid balance") if source_point.value < params[:amount].to_i
+    point_class = PointClass.find(params[:point_class_id])
+
+    source_point = PointBalance.find_by(point_class_id: params[:point_class_id], owner_id: profile.id)
+    raise AppError.new("invalid balance") if source_point.value < params[:value].to_i
     raise AppError.new("untransferable") unless source_point.point_class.transferable
     point = PointBalance.find_by(point_class_id: source_point.point_class_id, owner_id: params[:target_profile_id])
     if point
-      source_point.decrement!(:value, params[:amount].to_i)
-      point.increment!(:value, params[:amount].to_i)
+      source_point.decrement!(:value, params[:value].to_i)
+      point.increment!(:value, params[:value].to_i)
     else
-      source_point.decrement!(:value, params[:amount].to_i)
-      point = PointBalance.create(point_class_id: source_point.point_class_id, creator_id: source_point.creator_id, owner_id: params[:target_profile_id], value: params[:amount])
+      source_point.decrement!(:value, params[:value].to_i)
+      point = PointBalance.create(point_class_id: source_point.point_class_id, creator_id: source_point.creator_id, owner_id: params[:target_profile_id], value: params[:value])
     end
-    point_transfer = PointTransfer.create(point_class_id: point.point_class_id, sender_id: source_point.owner_id, owner_id: params[:target_profile_id], value: params[:amount].to_i, status: "transfered")
+    point_transfer = PointTransfer.create(point_class_id: point.point_class_id, sender_id: source_point.owner_id, receiver_id: params[:target_profile_id], value: params[:value].to_i, status: "transfered")
     render json: { result: "ok", point_transfer: point_transfer.as_json }
   end
 
@@ -71,7 +73,7 @@ class Api::PointController < ApiController
     profile = current_profile!
 
     point_transfer = PointTransfer.find(params[:point_transfer_id])
-    raise AppError.new("access denied") unless point_transfer.owner_id == profile.id
+    raise AppError.new("access denied") unless point_transfer.receiver_id == profile.id
     raise AppError.new("invalid state") unless point_transfer.status == "pending"
 
     point_transfer.update(status: "rejected")

@@ -7,5 +7,5 @@ class Voucher < ApplicationRecord
   has_many :activities, as: :item
 
   validates :receiver_address_type, inclusion: { in: %w(id email address) }
-  validates :strategy, inclusion: { in: %w(code account address event) }
+  validates :strategy, inclusion: { in: %w(code account address email event) }
 end

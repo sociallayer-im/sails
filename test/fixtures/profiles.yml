@@ -11,3 +11,8 @@ two:
 three:
   id: 3
   handle: biscuit
+
+four:
+  id: 4
+  handle: dimsum
+  address: "0x1234567890123456789012345678901234567890"

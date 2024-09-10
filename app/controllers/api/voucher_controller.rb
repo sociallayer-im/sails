@@ -1,4 +1,4 @@
-class Api::VoucherController < ApplicationController
+class Api::VoucherController < ApiController
 
   def get_code
     voucher = Voucher.find(params[:id])
@@ -47,6 +47,11 @@ class Api::VoucherController < ApplicationController
         render json: { result: "error", message: "voucher is not for this user" }
         return
       end
+    elsif voucher.strategy == 'email'
+      unless voucher.receiver_address == profile.email
+        render json: { result: "error", message: "voucher is not for this user" }
+        return
+      end
     end
 
     # todo : check by voucher instead!!!
@@ -59,7 +64,7 @@ class Api::VoucherController < ApplicationController
       index: badge_class.counter,
       content: voucher.badge_content || voucher.message || badge_class.content,
       metadata: badge_class.metadata,
-      status: "accepted",
+      status: "minted",
       badge_class_id: badge_class.id,
       creator_id: voucher.sender.id,
       owner_id: profile.id,
@@ -121,6 +126,7 @@ class Api::VoucherController < ApplicationController
       code: rand(1_000_000..10_000_000),
       expires_at: expires_at,
     )
+
     # need test
     if !badge_class.weighted && params[:value].present?
       raise AppError.new("invalid value for unweighted badge")
@@ -146,8 +152,8 @@ class Api::VoucherController < ApplicationController
     authorize badge_class, :send?
 
     # TODO: add check again with email input
-    receivers = params[:receivers].map do |username|
-      Profile.find_by(username: username) || Profile.find_by(address: username)
+    receivers = params[:receivers].map do |handle|
+      Profile.find_by(handle: handle) || Profile.find_by(address: handle)
     end
     raise AppError.new("invalid receiver") if receivers.any?{ |e| e.nil? }
     expires_at = params[:expires_at] || DateTime.now + 90.days
@@ -214,6 +220,56 @@ class Api::VoucherController < ApplicationController
         strategy: 'address',
         counter: 1,
         receiver_address_type: 'address',
+        receiver_address: receiver,
+        # need test
+        expires_at: expires_at,
+      )
+      if !badge_class.weighted && params[:value].present?
+        raise AppError.new("invalid value for unweighted badge_class")
+      end
+      # need test
+      if params[:value] || params[:start_time] || params[:end_time]
+        voucher.badge_data = {
+          value: params[:value],
+          start_time: params[:start_time],
+          end_time: params[:end_time],
+        }
+      end
+      voucher.save
+      activity = Activity.create(item: badge_class, initiator_id: profile.id, receiver_type: 'address', receiver_id: receiver, action: "voucher/send_badge_by_address")
+
+      voucher
+    end
+
+    render json: { vouchers: vouchers.as_json }
+  end
+
+  def send_badge_by_email
+    profile = current_profile!
+
+    badge_class = BadgeClass.find(params[:badge_class_id])
+    authorize badge_class, :send?
+
+    # TODO: add check again with email input
+    receivers = params[:receivers]
+    receivers.map do |address|
+      raise AppError.new("invalid receiver") unless check_address_or_email(address)
+    end
+    expires_at = params[:expires_at] || DateTime.now + 90.days
+
+    vouchers = receivers.map do |receiver|
+      voucher = Voucher.new(
+        sender: profile,
+        badge_class: badge_class,
+        # need test
+        badge_title: params[:badge_title],
+        badge_content: (params[:badge_content].present? && sanitize_text(params[:badge_content]) || nil),
+        badge_image: params[:badge_image],
+        # need test
+        message: params[:message],
+        strategy: 'email',
+        counter: 1,
+        receiver_address_type: 'email',
         receiver_address: receiver,
         # need test
         expires_at: expires_at,
