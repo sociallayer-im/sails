@@ -59,6 +59,10 @@ Rails.application.routes.draw do
     post "marker/create", to: "marker#create"
     post "marker/update", to: "marker#update"
     post "marker/remove", to: "marker#remove"
+
+    post "venue/create", to: "venue#create"
+    post "venue/update", to: "venue#update"
+    post "venue/remove", to: "venue#remove"
   end
 
   get    "sign_in",  to: "sessions#new"

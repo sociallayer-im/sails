@@ -7,6 +7,7 @@ class Api::VenueController < ApiController
     venue.update(
       owner: profile,
       group: group,
+      visibility: 'all'
     )
     render json: { venue: venue.as_json }
   end
@@ -34,7 +35,7 @@ class Api::VenueController < ApiController
   private
 
   def venue_params
-    params.permit(
+    params.require(:venue).permit(
       :title, :location, :about, :link, :capacity, :formatted_address, :location_viewport, :geo_lat, :geo_lng, :start_date, :end_date, :require_approval, :visibility, :tags,
       venue_overrides: [ :id, :venue_id, :day, :disabled, :start_at, :end_at, :_destroy ],
       venue_timeslots: [ :id, :venue_id, :day_of_week, :disabled, :start_at, :end_at, :_destroy ])
