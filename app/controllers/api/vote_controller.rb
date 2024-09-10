@@ -62,7 +62,8 @@ class Api::VoteController < ApiController
       raise AppError.new("voting time is ended") if DateTime.now > proposal.end_time
     end
 
-    # TODO: multi choice
+    # TODO : multi choice
+    # TODO : eligibile group is only the parent group
 
     weight = 1
 
@@ -99,7 +100,7 @@ class Api::VoteController < ApiController
     params.require(:vote_proposal).permit(:title, :content, :show_voters, :max_choice,
           :eligibile_group_id, :eligibile_badge_class_id, :eligibile_point_id,
           :verification, :eligibility, :can_update_vote, :start_time, :end_time,
-          vote_options_attributes: [ :id, :title, :link, :_destroy ]
+          vote_options_attributes: [ :id, :title, :link, :content, :image_url, :_destroy ]
         )
   end
 end

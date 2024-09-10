@@ -1,7 +1,7 @@
 require "test_helper"
 
 class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
-  test "api/group/send_invite" do
+  test "api#group/send_invite" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
@@ -20,7 +20,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert group_invite.status == "sending"
   end
 
-  test "api/group/send_invite to existing member for upgrading" do
+  test "api#group/send_invite to existing member for upgrading" do
     profile = Profile.find_by(handle: "cookie")
     profile2 = Profile.find_by(handle: "mooncake")
     auth_token = profile.gen_auth_token
@@ -41,7 +41,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert Membership.find_by(profile_id: profile2.id, group_id: group.id).role == "manager"
   end
 
-  test "api/group/send_invite to existing manager without downgrading" do
+  test "api#group/send_invite to existing manager without downgrading" do
     profile = Profile.find_by(handle: "cookie")
     profile2 = Profile.find_by(handle: "mooncake")
     auth_token = profile.gen_auth_token
@@ -62,7 +62,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert Membership.find_by(profile_id: profile2.id, group_id: group.id).role == "manager"
   end
 
-  test "api/group/send_invite to new email and accept" do
+  test "api#group/send_invite to new email and accept" do
     profile = Profile.find_by(handle: "cookie")
     profile2 = Profile.find_by(handle: "dimsum")
     auth_token = profile.gen_auth_token
@@ -94,7 +94,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert_equal "manager", group_member.role
   end
 
-  test "api/group/accept_invite" do
+  test "api#group/accept_invite" do
     profile = Profile.find_by(handle: "mooncake")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
@@ -111,7 +111,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert_equal "member", group_member.role
   end
 
-  test "api/group/cancel_invite" do
+  test "api#group/cancel_invite" do
     profile = Profile.find_by(handle: "mooncake")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
@@ -127,7 +127,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert group_invite.status == "cancelled"
   end
 
-  test "api/group/revoke_invite" do
+  test "api#group/revoke_invite" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
@@ -143,7 +143,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert group_invite.status == "cancelled"
   end
 
-  test "api/group/request_invite" do
+  test "api#group/request_invite" do
     profile = Profile.find_by(handle: "mooncake")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
@@ -163,7 +163,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     assert_equal "I would like to join the group", group_invite.message
   end
 
-  test "api/group/accept_request" do
+  test "api#group/accept_request" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")

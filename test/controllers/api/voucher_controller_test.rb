@@ -137,7 +137,7 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal Voucher.find_by(badge_title: "super hello").counter, 1
 
-    # test accept badge
+    # test reject badge
     profile2 = profiles(:two)
     auth_token2 = profile2.gen_auth_token
     post api_voucher_reject_badge_url, params: {

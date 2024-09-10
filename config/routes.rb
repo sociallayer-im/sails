@@ -65,7 +65,7 @@ Rails.application.routes.draw do
 
     post "voucher/create", to: "voucher#create"
     post "voucher/use", to: "voucher#use"
-    get "voucher/get_code", to: "voucher#get_code"
+    get  "voucher/get_code", to: "voucher#get_code"
     post "voucher/revoke", to: "voucher#revoke"
     post "voucher/send_badge", to: "voucher#send_badge"
     post "voucher/send_badge_by_address", to: "voucher#send_badge_by_address"
@@ -82,6 +82,11 @@ Rails.application.routes.draw do
     post "point/accept", to: "point#accept"
     post "point/reject", to: "point#reject"
     post "point/transfer", to: "point#transfer"
+
+    post "vote/create", to: "vote#create"
+    post "vote/update", to: "vote#update"
+    post "vote/cancel", to: "vote#cancel"
+    post "vote/cast_vote", to: "vote#cast_vote"
   end
 
   get    "sign_in",  to: "sessions#new"
