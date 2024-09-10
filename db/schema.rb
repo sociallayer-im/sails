@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_10_055659) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -130,6 +130,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_055659) do
     t.integer "item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["handle"], name: "index_domains_on_handle", unique: true
   end
 
   create_table "event_roles", force: :cascade do |t|
@@ -257,6 +258,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_055659) do
     t.jsonb "data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["profile_id", "group_id"], name: "index_memberships_on_profile_id_and_group_id", unique: true
   end
 
   create_table "participants", force: :cascade do |t|
@@ -270,6 +272,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_055659) do
     t.jsonb "payment_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["profile_id", "event_id"], name: "index_participants_on_profile_id_and_event_id", unique: true
   end
 
   create_table "payment_methods", force: :cascade do |t|
