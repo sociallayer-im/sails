@@ -122,10 +122,18 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
     event = Event.find_by(title: "my meetup")
 
+    participant = Participant.create(
+      profile_id: profile.id,
+      event_id: event.id,
+      status: "attending",
+      register_time: DateTime.now
+    )
+
     post api_event_update_url,
       params: { auth_token: auth_token, id: event.id, event: {
         title: "new meetup",
         tags: %w[science],
+        end_time: DateTime.parse("2024-08-10T10:20:30+00:00"),
         extra: { message: "random" }
       }
     }
@@ -133,6 +141,10 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     event.reload
     assert event.title == "new meetup"
     assert event.tags == [ "science" ]
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal [profile.email], email.to
+    assert_equal 'Social Layer Event Updated', email.subject
   end
 
   test "api#event/unpublish" do
@@ -158,8 +170,8 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
 
     assert_emails 1 do
       post api_event_join_url,
-      params: { auth_token: attendee_auth_token, id: event.id }
-    assert_response :success
+        params: { auth_token: attendee_auth_token, id: event.id }
+      assert_response :success
     end
     assert Participant.find_by(event: event).status == "attending"
 
@@ -179,7 +191,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     attendee = Profile.find_by(handle: "mooncake")
-    attendee_auth_token = profile.gen_auth_token
+    attendee_auth_token = attendee.gen_auth_token
 
     group = Group.find_by(handle: "guildx")
     event = Event.find_by(title: "my meetup")
@@ -190,8 +202,13 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert Participant.find_by(event: event).status == "attending"
 
     post api_event_cancel_url,
-      params: { auth_token: auth_token, id: event.id, profile_id: profile.id }
+      params: { auth_token: attendee_auth_token, id: event.id, profile_id: attendee.id }
+
     assert_response :success
     assert Participant.find_by(event: event).status == "cancelled"
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal [attendee.email], email.to
+    assert_equal 'Social Layer Event Updated', email.subject
   end
 end

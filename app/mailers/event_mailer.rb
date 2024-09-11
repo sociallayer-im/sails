@@ -12,7 +12,7 @@ class EventMailer < ApplicationMailer
 
   def event_updated()
     @recipient = params[:recipient]
-    @event = Event.find(params[:event_id])
+    @event = params[:event]
     subject = 'Social Layer Event Updated'
     attachments['invite.ics'] = {:mime_type => 'text/calendar', :content => @event.to_cal}
 
@@ -21,7 +21,7 @@ class EventMailer < ApplicationMailer
 
   def event_invited()
     @recipient = params[:recipient]
-    @event = Event.find(params[:event_id])
+    @event = params[:event]
     subject = 'Social Layer Event Invited'
     attachments['invite.ics'] = {:mime_type => 'text/calendar', :content => @event.to_cal}
 

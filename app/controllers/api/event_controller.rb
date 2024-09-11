@@ -120,15 +120,17 @@ class Api::EventController < ApiController
       end
     end
 
-    old_start_time = event.start_time
-    old_end_time = event.end_time
-    old_location = event.location
+    event.assign_attributes(event_params)
+    if ["start_time", "end_time", "location"] - event.changed
+      @send_update_email = true
+    else
+      @send_update_email = false
+    end
+    event.save
 
-    event.update(event_params)
-
-    if old_start_time != event.start_time || old_end_time != event.end_time || old_location != event.location
+    if @send_update_email
       event.participants.each do |participant|
-        if participant.profile.email.present?
+        if participant.profile.email
           recipient = participant.profile.email
           event.send_mail_update_event(recipient)
         end
@@ -260,7 +262,8 @@ class Api::EventController < ApiController
     event.decrement!(:participants_count)
 
     if profile.email.present?
-      # event.notify_event_registration(profile.email, "You have calcelled an event")
+      recipient = profile.email
+      event.send_mail_cancel_event(recipient)
     end
 
     render json: { participant: participant.as_json }
