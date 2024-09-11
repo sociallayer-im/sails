@@ -43,6 +43,8 @@ Rails.application.routes.draw do
     post "group/accept_request", to: "group_invite#accept_request"
     post "group/send_invite_by_email", to: "group_invite#send_invite_by_email"
 
+    get "event/get", to: "event#get"
+    get "event/list", to: "event#list"
     post "event/create", to: "event#create"
     post "event/update", to: "event#update"
     post "event/unpublish", to: "event#unpublish"

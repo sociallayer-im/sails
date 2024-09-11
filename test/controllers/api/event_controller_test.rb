@@ -211,4 +211,33 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_equal [attendee.email], email.to
     assert_equal 'Social Layer Event Updated', email.subject
   end
+
+  test "api#event/get" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    event = Event.find_by(title: "my meetup")
+
+    get api_event_get_url(id: event.id), params: { auth_token: auth_token }
+    assert_response :success
+
+    response_event = JSON.parse(response.body)
+    assert_equal event.id, response_event["id"]
+    assert_equal event.title, response_event["title"]
+    assert_equal event.start_time.as_json, response_event["start_time"]
+    assert_equal event.end_time.as_json, response_event["end_time"]
+    assert_equal event.location, response_event["location"]
+  end
+
+  test "api#event/list" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    get api_event_list_url, params: { auth_token: auth_token }
+    assert_response :success
+
+    response_events = JSON.parse(response.body)
+    assert_equal Event.all.count, response_events.count
+  end 
+
 end

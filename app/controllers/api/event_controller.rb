@@ -269,6 +269,16 @@ class Api::EventController < ApiController
     render json: { participant: participant.as_json }
   end
 
+  def get
+    @event = Event.find(params[:id])
+    render json: @event, status: :ok
+  end
+
+  def list
+    @events = Event.all
+    render json: @events, status: :ok
+  end
+
   private
 
   def event_params
