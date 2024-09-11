@@ -151,18 +151,26 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     attendee = Profile.find_by(handle: "mooncake")
-    attendee_auth_token = profile.gen_auth_token
+    attendee_auth_token = attendee.gen_auth_token
 
     group = Group.find_by(handle: "guildx")
     event = Event.find_by(title: "my meetup")
 
-    post api_event_join_url,
+    assert_emails 1 do
+      post api_event_join_url,
       params: { auth_token: attendee_auth_token, id: event.id }
     assert_response :success
+    end
     assert Participant.find_by(event: event).status == "attending"
 
+    event = Event.find_by(title: "my meetup")
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal [attendee.email], email.to
+    assert_equal 'Social Layer Event', email.subject
+
     post api_event_check_url,
-      params: { auth_token: auth_token, id: event.id, profile_id: profile.id }
+      params: { auth_token: auth_token, id: event.id, profile_id: attendee.id }
     assert_response :success
     assert Participant.find_by(event: event).status == "checked"
   end

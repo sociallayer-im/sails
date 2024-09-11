@@ -212,7 +212,6 @@ class Api::EventController < ApiController
 
     participant = Participant.find_by(event_id: event.id, profile_id: profile.id)
     if !participant
-      # return render json: { participant: participant.as_json }
       participant = Participant.new(
         profile: profile,
         event: event,

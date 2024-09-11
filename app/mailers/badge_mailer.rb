@@ -1,0 +1,2 @@
+class BadgeMailer < ApplicationMailer
+end
