@@ -31,10 +31,9 @@ class Api::EventController < ApiController
       owner: profile,
       group: group,
       display: "normal",
-      event_type: params[:event_type] || "event", # todo : could be "group_ticket"
+      event_type: event_params[:event_type] || "event", # todo : could be "group_ticket"
     )
-
-    if params[:event_type] == 'group_ticket'
+    if event_params[:event_type] == 'group_ticket'
       group.update(group_ticket_event_id: event.id)
     end
 
@@ -111,7 +110,7 @@ class Api::EventController < ApiController
     event = Event.find(params[:id])
     authorize event, :update?
 
-    if params[:event][:venue_id] != event.venue_id
+    if event_params[:venue_id] != event.venue_id
       venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
       raise AppError.new("group venue not exists") unless venue
 
@@ -272,6 +271,7 @@ class Api::EventController < ApiController
 
   def event_params
     params.require(:event).permit(
+      :event_type,
       :title,
       :start_time,
       :end_time,

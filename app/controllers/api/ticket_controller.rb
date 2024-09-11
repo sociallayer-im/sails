@@ -45,6 +45,7 @@ class Api::TicketController < ApiController
       end
       status = amount == 0 ? "succeeded" : "pending"
       ticket_item = TicketItem.create(
+        ticket_type: ticket.ticket_type,
         status: status,
         profile_id: profile.id,
         ticket_id: ticket.id,
@@ -59,6 +60,7 @@ class Api::TicketController < ApiController
       )
     else
       ticket_item = TicketItem.create(
+        ticket_type: ticket.ticket_type,
         status: "succeeded",
         profile_id: profile.id,
         ticket_id: ticket.id,
@@ -75,8 +77,17 @@ class Api::TicketController < ApiController
       order_number: (ticket_item.id + 1000000).to_s,
       )
 
+    if ticket_item.ticket_type == 'group'
+      ticket_item.update(
+        group_id: ticket.group_id,
+        )
+    end
+
     if ticket_item.status == "succeeded" && participant.status != "succeeded"
       participant.update(payment_status: "succeeded")
+      if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: profile.id, group_id: ticket.group_id).blank?
+        Membership.create(profile: profile, group: ticket.group, role: "member", status: "active")
+      end
       if profile.email.present?
         # event.send_mail_new_event(profile.email)
       end
@@ -117,6 +128,10 @@ class Api::TicketController < ApiController
       status: "succeeded",
       txhash: params[:txhash],
       )
+
+    if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: ticket_item.profile_id, group_id: ticket_item.group_id).blank?
+      Membership.create(profile: ticket_item.profile, group: ticket_item.group, role: "member", status: "active")
+    end
 
     if ticket_item.participant.payment_status != "succeeded"
       ticket_item.participant.update(payment_status: "succeeded")

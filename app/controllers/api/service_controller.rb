@@ -20,7 +20,6 @@ class Api::ServiceController < ApiController
     end
 
     # todo : log username
-    # todo : calculate filename from filehash
     # key = SecureRandom.hex(10)
 
     key = sha.hexdigest.slice(0...16)
@@ -63,5 +62,25 @@ class Api::ServiceController < ApiController
         total_event_hosts: total_event_hosts,
         total_participants: total_participants,
       }
+  end
+
+  def icalendar_for_group
+    group = Group.find(params[:group_id])
+    cal = Icalendar::Calendar.new
+    Event.where(group_id: group.id, status: ['published']).where('start_time > ?', DateTime.now - 7.days).each do |ev|
+        cal.event do |e|
+          e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time.in_time_zone("Etc/UTC"))
+          e.dtend       = Icalendar::Values::DateTime.new(ev.end_time.in_time_zone("Etc/UTC"))
+          e.summary     = ev.title || ""
+          e.uid         = "sola-#{ev.id}"
+          e.status      = "CONFIRMED"
+          e.organizer   = Icalendar::Values::CalAddress.new("mailto:send@app.sola.day", cn: group.username)
+          e.url         = "https://app.sola.day/event/detail/#{ev.id}"
+          e.location    = "https://app.sola.day/event/detail/#{ev.id}"
+        end
     end
+    ics = cal.to_ical
+
+    render plain: ics
+  end
 end

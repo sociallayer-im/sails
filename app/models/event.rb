@@ -13,7 +13,7 @@ class Event < ApplicationRecord
   validates :end_time, comparison: { greater_than: :start_time }
   validates :status, inclusion: { in: %w(draft pending published closed cancelled) }
   validates :display, inclusion: { in: %w(normal hidden pinned) }
-  validates :event_type, inclusion: { in: %w(event) }
+  validates :event_type, inclusion: { in: %w(event group_ticket) }
 
   accepts_nested_attributes_for :tickets, allow_destroy: true
   accepts_nested_attributes_for :event_roles, allow_destroy: true
