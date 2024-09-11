@@ -45,6 +45,7 @@ Rails.application.routes.draw do
 
     get "event/get", to: "event#get"
     get "event/list", to: "event#list"
+    get "event/private_list", to: "event#private_list"
     post "event/create", to: "event#create"
     post "event/update", to: "event#update"
     post "event/unpublish", to: "event#unpublish"

@@ -275,7 +275,24 @@ class Api::EventController < ApiController
   end
 
   def list
-    @events = Event.all
+    group_id = params[:group_id]
+    @events = Event.where(status: "published").where(group_id: group_id)
+    @events = @events.where(display: ["normal", "pinned"])
+    @events = @events.order(start_time: :desc).limit(10)
+    render json: @events, status: :ok
+  end
+
+  def private_list
+    profile = current_profile!
+    group_id = params[:group_id]
+    @events = Event.where(group_id: group_id)
+
+    @events = @events.where(owner: profile)
+    .or(@events.where(group_id: Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:group_id)))
+    .or(@events.where(id: EventRole.where(profile_id: profile.id).pluck(:event_id)))
+
+    @events = @events.where(status: "published").where(display: ["hidden"])
+    @events = @events.order(start_time: :desc).limit(10)
     render json: @events, status: :ok
   end
 
