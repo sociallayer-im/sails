@@ -40,4 +40,8 @@ class Group < ApplicationRecord
   def is_member(profile_id)
     Membership.find_by(profile_id: profile_id, group_id: id, role: %w[member operator manager owner])
   end
+
+  def display_name
+    self.nickname || self.handle
+  end
 end

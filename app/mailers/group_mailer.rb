@@ -1,8 +1,8 @@
 class GroupMailer < ApplicationMailer
   default from: 'Social Layer <send@app.sola.day>'
-  def signin_email
-    @code = params[:code]
+  def group_invite
+    @group = params[:group]
     @recipient = params[:recipient]
-    mail(to: [@recipient], subject: 'Social Layer Sign-In')
+    mail(to: [@recipient], subject: 'Social Layer Group Invite')
   end
 end

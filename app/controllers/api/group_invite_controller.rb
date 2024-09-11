@@ -96,8 +96,8 @@ class Api::GroupInviteController < ApiController
           receiver_address: receiver_address,
         )
 
-        # mailer = GroupMailer.with(group_name: (group.nickname || group.handle), recipient: invite.receiver_address).group_invite_email
-        # mailer.deliver_now!
+        mailer = GroupMailer.with(group: group, recipient: invite.receiver_address).group_invite
+        mailer.deliver_now!
       else
         invite = { receiver: receiver, result: "error", message: "invalid receiver handle" }
       end

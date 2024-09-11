@@ -79,6 +79,10 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :success
 
+    email = ActionMailer::Base.deliveries.last
+    assert_equal ["dimsum@mail.com"], email.to
+    assert_equal 'Social Layer Group Invite', email.subject
+
     profile2.update(email: "dimsum@mail.com")
     auth_token2 = profile2.gen_auth_token
     invite = GroupInvite.find_by(group: group, sender: profile)
