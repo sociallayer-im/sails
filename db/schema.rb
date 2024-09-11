@@ -238,7 +238,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.string "title"
     t.text "about"
     t.string "link"
-    t.string "status", default: "normal", null: false, comment: "normal | removed"
+    t.string "status", default: "active", null: false, comment: "active | removed"
     t.string "location"
     t.string "formatted_address"
     t.text "location_viewport"
@@ -247,6 +247,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.datetime "start_time"
     t.datetime "end_time"
     t.jsonb "data"
+    t.datetime "updated_at", null: false
     t.datetime "created_at", null: false
   end
 
@@ -254,7 +255,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.integer "profile_id"
     t.integer "group_id"
     t.string "role", default: "member", null: false, comment: "member | operator | guardian | manager | owner"
-    t.string "status", default: "normal", null: false, comment: "normal | freezed"
+    t.string "status", default: "active", null: false, comment: "active | freezed"
     t.jsonb "data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -439,6 +440,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.boolean "need_approval"
     t.string "status", default: "normal"
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "zupass_event_id"
     t.string "zupass_product_id"
     t.string "zupass_product_name"
@@ -492,6 +494,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.decimal "geo_lat", precision: 10, scale: 6
     t.decimal "geo_lng", precision: 10, scale: 6
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.date "start_date"
     t.date "end_date"
     t.string "link"
@@ -531,6 +534,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.datetime "start_time"
     t.datetime "end_time"
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "vote_records", force: :cascade do |t|
@@ -567,6 +571,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.string "minted_address"
     t.string "minted_ids", array: true
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["sender_id"], name: "index_vouchers_on_sender_id"
   end
 end

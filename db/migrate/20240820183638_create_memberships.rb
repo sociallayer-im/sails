@@ -4,7 +4,7 @@ class CreateMemberships < ActiveRecord::Migration[7.2]
       t.integer "profile_id"
       t.integer "group_id"
       t.string "role", default: "member", null: false, comment: "member | operator | guardian | manager | owner"
-      t.string "status", default: "normal", null: false, comment: "normal | freezed"
+      t.string "status", default: "active", null: false, comment: "active | freezed"
       t.jsonb "data"
       t.timestamps
     end
