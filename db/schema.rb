@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_12_110911) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -176,6 +176,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.string "external_url"
     t.text "notes"
     t.jsonb "extra"
+    t.integer "track_id"
   end
 
   create_table "group_invites", force: :cascade do |t|
@@ -448,6 +449,15 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_10_061102) do
     t.date "end_date"
     t.date "days_allowed", array: true
     t.string "tracks_allowed", array: true
+  end
+
+  create_table "track_roles", force: :cascade do |t|
+    t.integer "track_id"
+    t.integer "profile_id"
+    t.string "receiver_address"
+    t.string "role", default: "member"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "tracks", force: :cascade do |t|

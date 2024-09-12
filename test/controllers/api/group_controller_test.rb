@@ -21,6 +21,66 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     assert Domain.find_by(handle: "newworld", item_type: "Group", item_id: group.id).present?
   end
 
+  test "api#group/create with track" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    post api_group_create_url,
+      params: { auth_token: auth_token, handle: "newworld", group: {
+        timezone: "asia/shanghai",
+        can_publish_event: "all",
+        can_join_event: "all",
+        can_view_event: "all",
+        tracks_attributes: [
+          { tag: "track1", title: "Track 1", kind: "public", icon_url: "https://example.com/icon1.png", about: "About Track 1", start_date: "2024-01-01", end_date: "2024-12-31" }
+        ]
+      } }
+    assert_response :success
+    group = Group.find_by(handle: "newworld")
+    assert group
+    assert group.active?
+    assert group.is_owner(profile.id)
+    assert group.memberships_count == 1
+    assert Domain.find_by(handle: "newworld", item_type: "Group", item_id: group.id).present?
+    assert group.tracks.count == 1
+    track = group.tracks.first
+    assert_equal "track1", track.tag
+    assert_equal "Track 1", track.title
+    assert_equal "public", track.kind
+    assert_equal "https://example.com/icon1.png", track.icon_url
+    assert_equal "About Track 1", track.about
+    assert_equal Date.parse("2024-01-01"), track.start_date
+    assert_equal Date.parse("2024-12-31"), track.end_date
+  end
+
+  test "api#group/update_track" do
+    profile = Profile.find_by(handle: "cookie")
+    profile2 = Profile.find_by(handle: "mooncake")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    track = group.tracks.create(tag: "track1", title: "Track 1", kind: "public", icon_url: "https://example.com/icon1.png", about: "About Track 1", start_date: "2024-01-01", end_date: "2024-12-31")
+
+    post api_group_update_track_url,
+      params: { auth_token: auth_token, track_id: track.id, track: {
+        title: "Updated Track 1", kind: "private", icon_url: "https://example.com/icon1_updated.png", about: "Updated About Track 1", start_date: "2024-02-01", end_date: "2024-11-30",
+        track_roles_attributes: [
+          { role: "manager", profile_id: profile2.id }
+        ]
+      } }
+    assert_response :success
+
+    track.reload
+    assert_equal "Updated Track 1", track.title
+    assert_equal "private", track.kind
+    assert_equal "https://example.com/icon1_updated.png", track.icon_url
+    assert_equal "Updated About Track 1", track.about
+    assert_equal Date.parse("2024-02-01"), track.start_date
+    assert_equal Date.parse("2024-11-30"), track.end_date
+    assert track.track_roles.count == 1
+    assert track.track_roles.first.role == "manager"
+    assert track.track_roles.first.profile_id == profile2.id
+  end
+
   test "api#group/update" do # optimize this test function
     assert_changes "Group.find_by(handle: 'guildx').timezone" do
     profile = Profile.find_by(handle: "cookie")

@@ -34,6 +34,15 @@ class Api::GroupController < ApiController
     render json: { result: "ok", group: group }
   end
 
+  def update_track
+    profile = current_profile!
+    track = Track.find(params[:track_id])
+    authorize track.group, :manage?, policy_class: GroupPolicy
+
+    track.update(track_params)
+    render json: { result: "ok", track: track }
+  end
+
   def transfer_owner
     profile = current_profile!
     group = Group.find(params[:id])
@@ -153,10 +162,18 @@ class Api::GroupController < ApiController
 
   def group_params
     params.require(:group).permit(
-          :chain, :image_url, :nickname, :about, :parent_id, :status, :group_ticket_enabled,
+          :chain, :image_url, :nickname, :about, :status, :group_ticket_enabled,
           :tags, :event_taglist, :venue_taglist, :can_publish_event, :can_join_event, :can_view_event,
           :customizer, :logo_url, :banner_link_url, :banner_image_url,
           :timezone, :location, :metadata, :social_links,
-            )
+          tracks_attributes: [ :id, :tag, :title, :kind, :icon_url, :about, :start_date, :end_date, :_destroy ],
+          )
+  end
+
+  def track_params
+    params.require(:track).permit(
+      :tag, :title, :kind, :icon_url, :about, :start_date, :end_date,
+      track_roles_attributes: [ :id, :role, :receiver_address, :profile_id, :_destroy ],
+    )
   end
 end

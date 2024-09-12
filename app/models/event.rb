@@ -1,6 +1,7 @@
 class Event < ApplicationRecord
   belongs_to :owner, class_name: "Profile", foreign_key: "owner_id"
   belongs_to :group, optional: true
+  belongs_to :track, optional: true
   belongs_to :venue, optional: true
   belongs_to :badge_class, optional: true
   belongs_to :recurring, optional: true
