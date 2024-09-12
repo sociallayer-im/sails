@@ -210,6 +210,10 @@ class Api::EventController < ApiController
       raise AppError.new("need processing tickets, use rsvp instead")
     end
 
+    if event.group.can_join_event == "ticket" && !event.check_group_event_permission(profile)
+      raise AppError.new("group ticket check failed")
+    end
+
     participant = Participant.find_by(event_id: event.id, profile_id: profile.id)
     if !participant
       participant = Participant.new(

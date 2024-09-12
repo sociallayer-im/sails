@@ -22,6 +22,25 @@ class Event < ApplicationRecord
 
   ### methods
 
+  def check_group_event_permission(profile)
+    event = self
+    group = event.group
+    tz = group.timezone
+
+    if !group.group_ticket_event_id
+      return render json: { result: "ok", check: true, message: "action allowed" }
+    end
+
+    if event.owner_id == profile.id || group.is_manager(profile.id) ||
+        EventRole.find_by(event_id: event.id, profile_id: profile.id) ||
+        EventRole.find_by(event_id: event.id, email: profile.email)
+
+      return true
+    end
+
+    ok = TicketItem.where(ticket_type: "group", group_id: group.id, profile_id: profile.id).any? { |ticket_item| ticket_item.check_permission(event) }
+  end
+
   def to_cal
     $SENDER_EMAIL = "send@app.sola.day"
     $SOLA_HOST = "https://app.sola.day"

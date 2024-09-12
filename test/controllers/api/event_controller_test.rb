@@ -2,16 +2,9 @@ require "test_helper"
 
 class Api::EventControllerTest < ActionDispatch::IntegrationTest
   # with badge_class
-  # email notify
   # invite guest
   # event roles
   # event roles of email
-  # ticket
-  # promo code
-  # group member only
-  # group manager only
-  # private event
-  # private track
   test "api#event/create for group" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
@@ -183,6 +176,59 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       params: { auth_token: auth_token, id: event.id, profile_id: attendee.id }
     assert_response :success
     assert Participant.find_by(event: event).status == "checked"
+  end
+
+  test "api#event/join with ticket restriction and valid for specific date" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    attendee = Profile.find_by(handle: "mooncake")
+    attendee_auth_token = attendee.gen_auth_token
+
+    group = Group.find_by(handle: "guildx")
+
+    group_ticket_event = Event.create!(
+      title: "group ticket meetup",
+      owner: profile,
+      group: group,
+      start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
+      end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
+      status: "published",
+      event_type: "group_ticket"
+    )
+    group.update(group_ticket_event_id: group_ticket_event.id, can_join_event: "ticket")
+
+    event = Event.create!(
+      title: "restricted meetup",
+      owner: profile,
+      group: group,
+      start_time: DateTime.new(2024, 8, 18, 10, 20, 30),
+      end_time: DateTime.new(2024, 8, 18, 12, 20, 30),
+      status: "published",
+      event_type: "event"
+    )
+
+    ticket = Ticket.create!(
+      title: "valid ticket",
+      group: group,
+      event: group_ticket_event,
+      start_date: Date.new(2024, 8, 8),
+      end_date: Date.new(2024, 8, 10),
+      ticket_type: "group"
+    )
+
+    TicketItem.create!(
+      profile: attendee,
+      ticket: ticket,
+      event: group_ticket_event,
+      group: group,
+      status: "succeeded",
+      ticket_type: "group"
+    )
+
+    post api_event_join_url,
+    params: { auth_token: attendee_auth_token, id: event.id }
+    assert_response 400
+    assert response.body == "{\"result\":\"error\",\"message\":\"group ticket check failed\"}"
   end
 
   test "api#event/cancel" do

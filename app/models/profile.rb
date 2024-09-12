@@ -30,6 +30,7 @@ class Profile < ApplicationRecord
   has_many :contact_sources, :through => :target_contacts, :source => "source", foreign_key: "target_id"
   has_many :contact_targets, :through => :source_contacts, :source => "target", foreign_key: "source_id"
 
+  has_many :ticket_items
   enum :status, { active: 'active', freezed: 'freezed' }
 
   def gen_auth_token
