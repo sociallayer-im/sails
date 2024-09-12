@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_12_110911) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_12_154107) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -109,6 +109,17 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_12_110911) do
     t.date "end_date"
     t.string "kind", comment: "popup_city | community"
     t.string "group_tags", array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "configs", force: :cascade do |t|
+    t.integer "group_id"
+    t.integer "item_id"
+    t.string "item_type"
+    t.string "name"
+    t.string "value"
+    t.jsonb "data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

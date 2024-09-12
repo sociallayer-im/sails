@@ -66,6 +66,7 @@ Rails.application.routes.draw do
     post "ticket/set_payment_status", to: "ticket#set_payment_status"
     post "ticket/stripe_callback", to: "ticket#stripe_callback"
     post "ticket/stripe_client_secret", to: "ticket#stripe_client_secret"
+    post "ticket/stripe_config", to: "ticket#stripe_config"
 
     post "marker/create", to: "marker#create"
     post "marker/update", to: "marker#update"

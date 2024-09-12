@@ -49,6 +49,20 @@ class Api::EventController < ApiController
       end
     end
 
+    p event.dump_json
+
+    if group
+      webhook = Config.find_by(name: "event_webhook_url", group_id: group.id).try(:value)
+    if webhook
+      payload = {
+        resource: "event",
+        action: "create",
+        data: event.dump_json,
+      }
+      RestClient.post(webhook, payload)
+      end
+    end
+
     render json: { result: "ok", event: event.as_json }
   end
 

@@ -41,6 +41,51 @@ class Event < ApplicationRecord
     ok = TicketItem.where(ticket_type: "group", group_id: group.id, profile_id: profile.id).any? { |ticket_item| ticket_item.check_permission(event) }
   end
 
+  def dump_json
+    {
+      id: self.id,
+      owner_id: self.owner_id,
+      owner_name: self.owner.handle,
+      owner_nickname: self.owner.nickname,
+      group_id: self.group_id,
+      group_name: self.group.try(:handle),
+      group_nickname: self.group.try(:nickname),
+      title: self.title,
+      start_time: self.start_time,
+      end_time: self.end_time,
+      timezone: self.timezone,
+      event_url: self.event_url,
+      group_url: self.group_url,
+      meeting_url: self.meeting_url,
+      external_url: self.external_url,
+      location: self.location,
+      formatted_address: self.formatted_address,
+      location_viewport: self.location_viewport,
+      geo_lat: self.geo_lat,
+      geo_lng: self.geo_lng,
+      cover_url: self.cover_url,
+      require_approval: self.require_approval,
+      content: self.content,
+      tags: self.tags,
+      max_participant: self.max_participant,
+      participants_count: self.participants_count,
+      event_type: self.event_type,
+      status: self.status,
+      display: self.display,
+      venue_id: self.venue_id,
+      # track_id: self.track_id,
+      # recurring_id: self.recurring_id,
+      event_roles: self.event_roles.map do |x|
+        {
+          nickname: x.nickname || x.profile.try(:handle),
+          image_url: x.image_url,
+          role: x.role,
+          about: x.about,
+        }
+      end
+    }
+  end
+
   def to_cal
     $SENDER_EMAIL = "send@app.sola.day"
     $SOLA_HOST = "https://app.sola.day"

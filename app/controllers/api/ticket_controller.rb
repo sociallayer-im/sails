@@ -1,6 +1,7 @@
 Stripe.api_version = "2020-08-27"
 Stripe.api_key = ENV["STRIPE_APP_SECRET"]
 
+
 class Api::TicketController < ApiController
   def rsvp
     profile = current_profile!
@@ -160,6 +161,11 @@ class Api::TicketController < ApiController
     render json: { result: "ok" }
   end
 
+  def stripe_config
+    stripe_public_key = Config.find_by(name: "stripe_public_key", group_id: params[:group_id]).try(:value)
+    render json: { stripe_public_key: stripe_public_key }
+  end
+
   def stripe_client_secret
     p "create payment_intent"
     ticket_item = TicketItem.find(params[:ticket_item_id])
@@ -171,6 +177,9 @@ class Api::TicketController < ApiController
     if ticket_item.chain != "stripe"
       return render json: { result: "error", message: "ticket_item is not for stripe" }
     end
+
+    # todo : stripe_secret_key from config
+    # Stripe.api_key = Config.find_by(name: "stripe_secret_key", group_id: ticket_item.ticket.group_id).try(:value)
 
     payment_intent = Stripe::PaymentIntent.create({
       amount: ticket_item.amount,
