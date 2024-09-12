@@ -130,10 +130,7 @@ class Api::EventController < ApiController
 
     if @send_update_email
       event.participants.each do |participant|
-        if participant.profile.email
-          recipient = participant.profile.email
-          event.send_mail_update_event(recipient)
-        end
+        participant.profile.send_mail_update_event(event)
       end
     end
 
@@ -150,19 +147,20 @@ class Api::EventController < ApiController
     event.group.decrement!(:events_count)
 
     event.participants.each do |participant|
-      participant.email_notify!(:cancel)
+      participant.profile.send_mail_cancel_event(event)
     end
 
     render json: { result: "ok", event: event.as_json }
   end
 
+  # todo test
   def check_group_permission
     profile = current_profile!
     event = Event.find(params[:id])
     group = event.group
     tz = group.timezone
 
-    if !group.group_ticket_enabled
+    if !group.group_ticket_event_id
       return render json: { result: "ok", check: true, message: "action allowed" }
     end
 
@@ -229,10 +227,7 @@ class Api::EventController < ApiController
 
     event.increment!(:participants_count)
 
-    if profile.email.present?
-      recipient = profile.email
-      event.send_mail_new_event(recipient)
-    end
+    profile.send_mail_new_event(event)
 
     render json: { participant: participant.as_json }
   end
@@ -261,10 +256,7 @@ class Api::EventController < ApiController
     participant.update(status: "cancelled")
     event.decrement!(:participants_count)
 
-    if profile.email.present?
-      recipient = profile.email
-      event.send_mail_cancel_event(recipient)
-    end
+    profile.send_mail_cancel_event(event)
 
     render json: { participant: participant.as_json }
   end

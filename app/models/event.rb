@@ -62,26 +62,4 @@ class Event < ApplicationRecord
     self.geo_lat.present? ? "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}" : ""
   end
 
-  ### legacy
-
-
-  def send_mail_new_event(recipient)
-    mailer = EventMailer.with(event: self, recipient: recipient).event_created
-    mailer.deliver_now!
-  end
-
-  def send_mail_event_invite(recipient)
-    mailer = EventMailer.with(event: self, recipient: recipient).event_invited
-    mailer.deliver_now!
-  end
-
-  def send_mail_update_event(recipient)
-    mailer = EventMailer.with(event: self, recipient: recipient).event_updated
-    mailer.deliver_now!
-  end
-
-  def send_mail_cancel_event(recipient)
-    mailer = EventMailer.with(event: self, recipient: recipient).event_updated
-    mailer.deliver_now!
-  end
 end

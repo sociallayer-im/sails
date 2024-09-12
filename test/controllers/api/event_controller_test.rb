@@ -233,7 +233,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
 
-    get api_event_list_url, params: { auth_token: auth_token }
+    get api_event_list_url, params: { auth_token: auth_token, group_id: 1 }
     assert_response :success
 
     response_events = JSON.parse(response.body)
@@ -245,7 +245,6 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
 
     get api_event_private_list_url, params: { auth_token: auth_token }
-    p response.body
     assert_response :success
 
     response_events = JSON.parse(response.body)

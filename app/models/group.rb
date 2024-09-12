@@ -26,19 +26,30 @@ class Group < ApplicationRecord
   end
 
   def is_owner(profile_id)
-    Membership.find_by(profile_id: profile_id, group_id: id, role: 'owner')
+    Membership.find_by(profile_id: profile_id, group_id: id, role: 'owner', status: "active")
   end
 
   def is_manager(profile_id)
-    Membership.find_by(profile_id: profile_id, group_id: id, role: %w[manager owner])
+    Membership.find_by(profile_id: profile_id, group_id: id, role: %w[manager owner], status: "active")
   end
 
   def is_operator(profile_id)
-    Membership.find_by(profile_id: profile_id, group_id: id, role: %w[operator manager owner])
+    Membership.find_by(profile_id: profile_id, group_id: id, role: %w[operator manager owner], status: "active")
   end
 
   def is_member(profile_id)
-    Membership.find_by(profile_id: profile_id, group_id: id, role: %w[member operator manager owner])
+    Membership.find_by(profile_id: profile_id, group_id: id, role: %w[member operator manager owner], status: "active")
+  end
+
+  def add_member(profile_id, role)
+    membership = Membership.find_by(profile_id: profile_id, group_id: self.id)
+    if membership
+      membership.update(role: role)
+    else
+      membership = Membership.create(profile_id: profile_id, group_id: id, role: role, status: "active")
+      self.increment!(:memberships_count)
+    end
+    membership
   end
 
   def display_name

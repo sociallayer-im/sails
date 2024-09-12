@@ -36,13 +36,7 @@ class Api::GroupInviteController < ApiController
     end
 
     group_invite.update(status: "accepted")
-    membership = Membership.find_by(profile_id: group_invite.receiver_id, group_id: group.id)
-    if membership
-      membership.update(role: group_invite.role)
-    else
-      membership = Membership.create(profile_id: group_invite.receiver_id, group_id: group.id, role: group_invite.role, status: "active")
-      group.increment!(:memberships_count)
-    end
+    membership = group.add_member(group_invite.receiver_id, group_invite.role)
 
     render json: { result: "ok", membership: membership.as_json }
   end
@@ -63,8 +57,9 @@ class Api::GroupInviteController < ApiController
         receiver_id = receiver.id
 
         membership = Membership.find_by(profile_id: receiver.id, group_id: group.id)
-        if membership && membership.role == "member"
+        if membership && membership.role == "member" && role != "member"
           membership.update(role: role)
+          activity = Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: receiver.id)
           invite = { receiver_id: receiver_id, result: "ok", message: "membership updated" }
         elsif membership
           invite = { receiver_id: receiver_id, result: "error", message: "membership exists" }
@@ -118,12 +113,7 @@ class Api::GroupInviteController < ApiController
     group_invite.update(status: "accepted")
     raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
 
-    if Membership.find_by(profile_id: profile.id, group_id: group.id)
-      raise AppError.new("membership exists")
-      return
-    end
-    Membership.create(profile_id: profile.id, group_id: group.id, role: group_invite.role, status: "active")
-    group.increment!(:memberships_count)
+    group.add_member(profile.id, group_invite.role)
     render json: { result: "ok" }
   end
 

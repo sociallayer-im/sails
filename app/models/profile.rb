@@ -44,4 +44,32 @@ class Profile < ApplicationRecord
     }
     auth_token = JWT.encode payload, $hmac_secret, "HS256"
   end
+
+  def send_mail_new_event(event)
+    if self.email.present?
+      mailer = EventMailer.with(event: event, recipient: self.email).event_created
+      mailer.deliver_now!
+    end
+  end
+
+  def send_mail_event_invite(event)
+    if self.email.present?
+      mailer = EventMailer.with(event: event, recipient: self.email).event_invited
+      mailer.deliver_now!
+    end
+  end
+
+  def send_mail_update_event(event)
+    if self.email.present?
+      mailer = EventMailer.with(event: event, recipient: self.email).event_updated
+      mailer.deliver_now!
+    end
+  end
+
+  def send_mail_cancel_event(event)
+    if self.email.present?
+      mailer = EventMailer.with(event: event, recipient: self.email).event_updated
+      mailer.deliver_now!
+    end
+  end
 end

@@ -33,10 +33,7 @@ class Api::ProfileController < ApiController
         data = RestClient.get("https://sola.deno.dev/seedao/getname/#{address}")
         domain = JSON.parse(data.body)["domain"]
         if domain.present? && seedao_group
-          membership = Membership.find_by(profile_id: profile.id, target_id: seedao_group.id)
-          if !membership
-            Membership.create(profile_id: profile.id, target_id: seedao_group.id, role: "member", status: "normal")
-          end
+          seedao_group.add_member(profile.id, "member")
         end
       end
       render json: { result: "ok", auth_token: profile.gen_auth_token, address: address, id: profile.id }

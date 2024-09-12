@@ -21,8 +21,7 @@ class Api::GroupController < ApiController
       Domain.create(handle: handle, fullname: "#{handle}.sola.day", item_type: "Group", item_id: group.id)
     end
 
-    Membership.create(profile_id: profile.id, group_id: group.id, role: "owner", status: "active")
-    group.increment!(:memberships_count)
+    group.add_member(profile.id, "owner")
     render json: { result: "ok", group: group }
   end
 
