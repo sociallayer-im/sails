@@ -452,6 +452,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_12_110911) do
   end
 
   create_table "track_roles", force: :cascade do |t|
+    t.integer "group_id"
     t.integer "track_id"
     t.integer "profile_id"
     t.string "receiver_address"

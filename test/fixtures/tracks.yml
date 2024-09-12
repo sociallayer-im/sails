@@ -1,11 +1,22 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+public_track:
+  id: 1
+  group_id: 1
+  tag: "public_track"
+  title: "Public Track"
+  kind: "public"
+  icon_url: "https://example.com/icon_public.png"
+  about: "This is a public track."
+  start_date: "2024-01-01"
+  end_date: "2024-12-31"
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+private_track:
+  id: 2
+  group_id: 1
+  tag: "private_track"
+  title: "Private Track"
+  kind: "private"
+  icon_url: "https://example.com/icon_private.png"
+  about: "This is a private track."
+  start_date: "2024-01-01"
+  end_date: "2024-12-31"
+

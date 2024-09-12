@@ -8,9 +8,6 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     post api_group_create_url,
       params: { auth_token: auth_token, handle: "newworld", group: {
         timezone: "asia/shanghai",
-        can_publish_event: "all",
-        can_join_event: "all",
-        can_view_event: "all"
       } }
     assert_response :success
     group = Group.find_by(handle: "newworld")
@@ -28,9 +25,6 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     post api_group_create_url,
       params: { auth_token: auth_token, handle: "newworld", group: {
         timezone: "asia/shanghai",
-        can_publish_event: "all",
-        can_join_event: "all",
-        can_view_event: "all",
         tracks_attributes: [
           { tag: "track1", title: "Track 1", kind: "public", icon_url: "https://example.com/icon1.png", about: "About Track 1", start_date: "2024-01-01", end_date: "2024-12-31" }
         ]

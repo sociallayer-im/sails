@@ -25,3 +25,47 @@ with_ticket:
   status: "published"
   display: "normal"
   event_type: "event"
+
+private_event:
+  id: 901
+  group_id: 1
+  owner_id: 1
+  title: "private event"
+  tags: ["music"]
+  start_time: "2024-08-08T10:20:30+00:00"
+  end_time: "2024-08-08T10:22:30+00:00"
+  display: "hidden"
+  status: "published"
+  event_type: "event"
+  location: "central park"
+  content: "wonderful"
+
+private_track_event:
+  id: 1001
+  group_id: 1
+  owner_id: 1
+  title: "private track event"
+  tags: ["music"]
+  start_time: "2024-08-08T10:20:30+00:00"
+  end_time: "2024-08-08T10:22:30+00:00"
+  display: "normal"
+  status: "published"
+  event_type: "event"
+  location: "central park"
+  content: "wonderful"
+  track_id: 2
+
+public_track_event:
+  id: 1002
+  group_id: 1
+  owner_id: 1
+  title: "private track event"
+  tags: ["music"]
+  start_time: "2024-08-08T10:20:30+00:00"
+  end_time: "2024-08-08T10:22:30+00:00"
+  display: "normal"
+  status: "published"
+  event_type: "event"
+  location: "central park"
+  content: "wonderful"
+  track_id: 1

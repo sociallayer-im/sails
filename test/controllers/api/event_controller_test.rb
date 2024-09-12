@@ -108,12 +108,10 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
-    # p event
-    # p Membership.find_by(profile: profile2)
-    # assert event.status == "pending"
-    # assert event.display == "normal"
-    # assert event.owner == profile2
-    # assert (Group.find_by(handle: "guildx").events_count - group.events_count) == 1
+    assert event.status == "pending"
+    assert event.display == "normal"
+    assert event.owner == profile2
+    assert (Group.find_by(handle: "guildx").events_count - group.events_count) == 1
   end
 
   test "api#event/update" do
@@ -237,16 +235,46 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     response_events = JSON.parse(response.body)
-    assert_equal Event.all.count, response_events.count
+    assert_equal Event.where(display: "normal").all.count - 1, response_events.count
   end 
 
   test "api#event/private_list" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
 
-    get api_event_private_list_url, params: { auth_token: auth_token }
+    get api_event_private_list_url, params: { auth_token: auth_token, group_id: 1 }
     assert_response :success
 
     response_events = JSON.parse(response.body)
+    assert_equal 1, response_events.count
+  end
+
+  test "api#event/private_track_list" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    get api_event_private_track_list_url, params: { auth_token: auth_token, group_id: 1 }
+    assert_response :success
+
+    response_events = JSON.parse(response.body)
+    assert_equal Event.where(display: "normal").all.count - 1, response_events.count
+  end
+
+  test "api#event/private_track_list with track role" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    TrackRole.create(
+      group_id: 1,
+      profile_id: profile.id,
+      track_id: 2,
+      role: "member"
+    )
+
+    get api_event_private_track_list_url, params: { auth_token: auth_token, group_id: 1 }
+    assert_response :success
+
+    response_events = JSON.parse(response.body)
+    assert_equal Event.where(display: "normal").all.count, response_events.count
   end
 end

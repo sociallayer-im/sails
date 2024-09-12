@@ -268,8 +268,25 @@ class Api::EventController < ApiController
 
   def list
     group_id = params[:group_id]
+    group = Group.find(group_id)
+    pub_tracks = Track.where(group_id: group_id, kind: "public").ids
+    pub_tracks << nil
     @events = Event.where(status: "published").where(group_id: group_id)
     @events = @events.where(display: ["normal", "pinned"])
+    @events = @events.where(track_id: pub_tracks)
+    @events = @events.order(start_time: :desc).limit(10)
+    render json: @events, status: :ok
+  end
+
+  def private_track_list
+    profile = current_profile!
+    group_id = params[:group_id]
+    group = Group.find(group_id)
+    my_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
+    my_tracks << nil
+    @events = Event.where(status: "published").where(group_id: group_id)
+    @events = @events.where(display: ["normal", "pinned"])
+    @events = @events.where(track_id: my_tracks)
     @events = @events.order(start_time: :desc).limit(10)
     render json: @events, status: :ok
   end
@@ -284,6 +301,20 @@ class Api::EventController < ApiController
     .or(@events.where(id: EventRole.where(profile_id: profile.id).pluck(:event_id)))
 
     @events = @events.where(status: "published").where(display: ["hidden"])
+    @events = @events.order(start_time: :desc).limit(10)
+    render json: @events, status: :ok
+  end
+
+  def my_event_list
+    profile = current_profile!
+    @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: "attending" })
+    @events = @events.order(start_time: :desc).limit(10)
+    render json: @events, status: :ok
+  end
+
+  def created_by_me
+    profile = current_profile!
+    @events = Event.where(owner: profile)
     @events = @events.order(start_time: :desc).limit(10)
     render json: @events, status: :ok
   end
