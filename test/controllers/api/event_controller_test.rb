@@ -30,6 +30,33 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert (Group.find_by(handle: "guildx").events_count - group.events_count) == 1
   end
 
+  test "api#event/create with webhook" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+
+    url = nil
+    Config.create(group_id: group.id, name: "event_webhook_url", value: url)
+
+    post api_event_create_url,
+      params: { auth_token: auth_token, group_id: group.id, event: {
+        title: "new meetup",
+        tags: %w[live art],
+        start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
+        end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
+        location: "central park",
+        content: "wonderful",
+        display: "normal",
+        event_type: "event"
+      } }
+    assert_response :success
+    event = Event.find_by(title: "new meetup")
+    assert event
+    assert event.status == "published"
+    assert event.display == "normal"
+    assert event.owner == profile
+  end
+
   test "api#event/create without group" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token

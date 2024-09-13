@@ -73,16 +73,20 @@ class Event < ApplicationRecord
       status: self.status,
       display: self.display,
       venue_id: self.venue_id,
+      created_at: self.created_at,
+      updated_at: self.updated_at,
+
       # track_id: self.track_id,
       # recurring_id: self.recurring_id,
-      event_roles: self.event_roles.map do |x|
-        {
-          nickname: x.nickname || x.profile.try(:handle),
-          image_url: x.image_url,
-          role: x.role,
-          about: x.about,
-        }
-      end
+      event_roles: self.event_roles.map {|x| x.nickname || x.profile.try(:handle) },
+      # event_roles: self.event_roles.map do |x|
+      #   {
+      #     nickname: x.nickname || x.profile.try(:handle),
+      #     image_url: x.image_url,
+      #     role: x.role,
+      #     about: x.about,
+      #   }
+      # end
     }
   end
 
