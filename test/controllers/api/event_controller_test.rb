@@ -35,7 +35,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    url = nil
+    url = ENV["TEST_EVENT_WEBHOOK_URL"]
     Config.create(group_id: group.id, name: "event_webhook_url", value: url)
 
     post api_event_create_url,

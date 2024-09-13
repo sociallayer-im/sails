@@ -90,6 +90,22 @@ class Event < ApplicationRecord
     }
   end
 
+  def create_event_webhook
+    begin
+      if group_id
+        webhook = Config.find_by(name: "event_webhook_url", group_id: group_id).try(:value)
+        if webhook
+          payload = self.dump_json
+          payload[:resource] = "event"
+          payload[:action] ="create"
+          RestClient.post(webhook, payload)
+        end
+      end
+    rescue => e
+      Rails.logger.error("Error creating event webhook: #{e.message}")
+    end
+  end
+
   def to_cal
     $SENDER_EMAIL = "send@app.sola.day"
     $SOLA_HOST = "https://app.sola.day"
