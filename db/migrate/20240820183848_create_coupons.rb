@@ -1,6 +1,6 @@
-class CreatePromoCodes < ActiveRecord::Migration[7.2]
+class CreateCoupons < ActiveRecord::Migration[7.2]
   def change
-    create_table :promo_codes do |t|
+    create_table :coupons do |t|
       t.string "selector", comment: "code | email | zupass | badge"
       t.string "label"
       t.string "code"

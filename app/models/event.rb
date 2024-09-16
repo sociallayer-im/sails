@@ -9,7 +9,7 @@ class Event < ApplicationRecord
   has_many :tickets, dependent: :delete_all
   has_many :ticket_items, dependent: :delete_all
   has_many :event_roles, dependent: :delete_all
-  has_many :promo_codes, dependent: :delete_all
+  has_many :coupons, dependent: :delete_all
 
   validates :end_time, comparison: { greater_than: :start_time }
   validates :status, inclusion: { in: %w(draft pending published closed cancelled) }
@@ -18,7 +18,7 @@ class Event < ApplicationRecord
 
   accepts_nested_attributes_for :tickets, allow_destroy: true
   accepts_nested_attributes_for :event_roles, allow_destroy: true
-  accepts_nested_attributes_for :promo_codes, allow_destroy: true
+  accepts_nested_attributes_for :coupons, allow_destroy: true
 
   ### methods
 

@@ -147,10 +147,10 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     ticket = Ticket.find_by(event: @event, title: "crypto")
     op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
 
-    promo = create_promo_code(@event, 0)
+    coupon = create_coupon(@event, 0)
 
     post api_ticket_rsvp_url,
-         params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: op_paymethod.id, promo_code: promo.code }
+         params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: op_paymethod.id, coupon: coupon.code }
     assert_response :success
 
     ticket_item = TicketItem.find_by(event: @event)
@@ -168,10 +168,10 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     ticket = Ticket.find_by(event: @event, title: "crypto")
     op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
 
-    promo = create_promo_code(@event, 6000)
+    coupon = create_coupon(@event, 6000)
 
     post api_ticket_rsvp_url,
-         params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: op_paymethod.id, promo_code: promo.code }
+         params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: op_paymethod.id, coupon: coupon.code }
     assert_response :success
 
     ticket_item = TicketItem.find_by(event: @event)
@@ -193,10 +193,10 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
   #   ticket = Ticket.find_by(event: @event, title: "fiat")
   #   stripe_paymethod = PaymentMethod.find_by(item: ticket, chain: "stripe")
 
-  #   promo = create_promo_code(@event, 6000)
+  #   coupon = create_coupon(@event, 6000)
 
   #   post api_ticket_rsvp_url,
-  #        params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: stripe_paymethod.id, promo_code: promo.code }
+  #        params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: stripe_paymethod.id, coupon: coupon.code }
   #   assert_response :success
 
   #   ticket_item = TicketItem.find_by(event: @event)
@@ -235,8 +235,8 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
 
   private
 
-  def create_promo_code(event, discount_value)
-    PromoCode.create(
+  def create_coupon(event, discount_value)
+    Coupon.create(
       selector: "code",
       label: "community",
       code: "abcdef",

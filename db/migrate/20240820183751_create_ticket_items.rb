@@ -17,7 +17,8 @@ class CreateTicketItems < ActiveRecord::Migration[7.2]
       t.integer "group_id"
       t.integer "participant_id"
       t.integer "payment_method_id"
-      t.integer "promo_code_id"
+      t.integer "ticket_order_id"
+      t.integer "coupon_id"
       t.decimal "amount", precision: 40
       t.decimal "original_price", precision: 40
       t.string "token_address"

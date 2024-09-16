@@ -37,11 +37,11 @@ class Api::TicketController < ApiController
       discount_value = nil
       discount_data = nil
 
-      if params[:promo_code].present?
-        promo_code = PromoCode.find_by(selector: "code", event_id: event.id, code: params[:promo_code])
-        amount, discount_value, discount_data = promo_code.get_discounted_price(amount)
+      if params[:coupon].present?
+        coupon = Coupon.find_by(selector: "code", event_id: event.id, code: params[:coupon])
+        amount, discount_value, discount_data = coupon.get_discounted_price(amount)
         if discount_value
-          promo_code.increment!(:order_usage_count)
+          coupon.increment!(:order_usage_count)
         end
       end
       status = amount == 0 ? "succeeded" : "pending"
@@ -191,20 +191,20 @@ class Api::TicketController < ApiController
     render json: { result: "ok", payment_intent_id: payment_intent.id, client_secret: payment_intent.client_secret }
   end
 
-  def check_promo_code
-    promo_code = PromoCode.find_by(event_id: params[:event_id], code: params[:code])
-    render json: { promo_code: promo_code.as_json }
+  def check_coupon
+    coupon = Coupon.find_by(event_id: params[:event_id], code: params[:code])
+    render json: { coupon: coupon.as_json }
   end
 
-  def get_promo_code
-    promo_code = PromoCode.find(params[:id])
-    authorize promo_code.event, :update?
-    render json: { promo_code_id: promo_code.id, code: promo_code.code }
+  def get_coupon
+    coupon = Coupon.find(params[:id])
+    authorize coupon.event, :update?
+    render json: { coupon_id: coupon.id, code: coupon.code }
   end
 
-  def promo_code_price
-    promo_code = PromoCode.find_by(selector: "code", code: params[:promo_code])
-    amount, discount_value, discount_data = promo_code.get_discounted_price(params[:amount])
-    render json: { promo_code_id: promo_code.id, amount: amount }
+  def coupon_price
+    coupon = Coupon.find_by(selector: "code", code: params[:coupon])
+    amount, discount_value, discount_data = coupon.get_discounted_price(params[:amount])
+    render json: { coupon_id: coupon.id, amount: amount }
   end
 end

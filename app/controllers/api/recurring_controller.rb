@@ -191,7 +191,7 @@ class Api::RecurringController < ApiController
           :_destroy
         ]
       ],
-      promo_codes_attributes: [ :id, :selector, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expiry_time, :max_allowed_usages, :order_usage_count, :_destroy ],
+      coupons_attributes: [ :id, :selector, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expiry_time, :max_allowed_usages, :order_usage_count, :_destroy ],
       event_roles_attributes: [ :id, :role, :group_id, :event_id, :profile_id, :email, :nickname, :image_url, :_destroy ],
       )
   end

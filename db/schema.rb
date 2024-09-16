@@ -134,6 +134,24 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_12_154107) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "coupons", force: :cascade do |t|
+    t.string "selector", comment: "code | email | zupass | badge"
+    t.string "label"
+    t.string "code"
+    t.string "receiver_address"
+    t.string "discount_type", comment: "ratio | amount"
+    t.integer "discount_value", comment: "0 to 100 for ratio, cent of dollar for amount"
+    t.integer "event_id"
+    t.datetime "expires_at"
+    t.integer "applicable_ticket_ids", array: true
+    t.integer "ticket_item_ids", array: true
+    t.integer "max_allowed_usages"
+    t.integer "order_usage_count"
+    t.boolean "removed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "domains", force: :cascade do |t|
     t.string "handle"
     t.string "fullname"
@@ -373,24 +391,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_12_154107) do
     t.index ["phone"], name: "index_profiles_on_phone", unique: true
   end
 
-  create_table "promo_codes", force: :cascade do |t|
-    t.string "selector", comment: "code | email | zupass | badge"
-    t.string "label"
-    t.string "code"
-    t.string "receiver_address"
-    t.string "discount_type", comment: "ratio | amount"
-    t.integer "discount_value", comment: "0 to 100 for ratio, cent of dollar for amount"
-    t.integer "event_id"
-    t.datetime "expires_at"
-    t.integer "applicable_ticket_ids", array: true
-    t.integer "ticket_item_ids", array: true
-    t.integer "max_allowed_usages"
-    t.integer "order_usage_count"
-    t.boolean "removed"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "recurrings", force: :cascade do |t|
     t.datetime "start_time"
     t.datetime "end_time"
@@ -432,7 +432,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_12_154107) do
     t.integer "group_id"
     t.integer "participant_id"
     t.integer "payment_method_id"
-    t.integer "promo_code_id"
+    t.integer "ticket_order_id"
+    t.integer "coupon_id"
     t.decimal "amount", precision: 40
     t.decimal "original_price", precision: 40
     t.string "token_address"
