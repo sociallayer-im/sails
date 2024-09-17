@@ -167,7 +167,6 @@ class Api::TicketController < ApiController
   end
 
   def stripe_client_secret
-    p "create payment_intent"
     ticket_item = TicketItem.find(params[:ticket_item_id])
 
     if !ticket_item

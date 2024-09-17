@@ -92,7 +92,7 @@ class Api::GroupInviteController < ApiController
         )
 
         mailer = GroupMailer.with(group: group, recipient: invite.receiver_address).group_invite
-        mailer.deliver_now!
+        mailer.deliver_later
       else
         invite = { receiver: receiver, result: "error", message: "invalid receiver handle" }
       end

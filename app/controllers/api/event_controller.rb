@@ -44,7 +44,7 @@ class Api::EventController < ApiController
         if membership.data.present? && membership.data.include?("venue") && membership.profile.email.present?
           group_name = group ? (group.nickname || group.username) : ""
           mailer = GroupMailer.with(group_name: group_name, event_id: event.id, recipient: membership.profile.email).venue_review_email
-          mailer.deliver_now!
+          mailer.deliver_later
         end
       end
     end

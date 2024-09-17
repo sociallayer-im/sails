@@ -1,6 +1,8 @@
 require "test_helper"
 
 class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   test "api#group/send_invite" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
@@ -79,6 +81,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :success
 
+    perform_enqueued_jobs
     email = ActionMailer::Base.deliveries.last
     assert_equal ["dimsum@mail.com"], email.to
     assert_equal 'Social Layer Group Invite', email.subject

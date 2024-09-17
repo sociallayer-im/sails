@@ -49,28 +49,28 @@ class Profile < ApplicationRecord
   def send_mail_new_event(event)
     if self.email.present?
       mailer = EventMailer.with(event: event, recipient: self.email).event_created
-      mailer.deliver_now!
+      mailer.deliver_later
     end
   end
 
   def send_mail_event_invite(event)
     if self.email.present?
       mailer = EventMailer.with(event: event, recipient: self.email).event_invited
-      mailer.deliver_now!
+      mailer.deliver_later
     end
   end
 
   def send_mail_update_event(event)
     if self.email.present?
       mailer = EventMailer.with(event: event, recipient: self.email).event_updated
-      mailer.deliver_now!
+      mailer.deliver_later
     end
   end
 
   def send_mail_cancel_event(event)
     if self.email.present?
       mailer = EventMailer.with(event: event, recipient: self.email).event_updated
-      mailer.deliver_now!
+      mailer.deliver_later
     end
   end
 end

@@ -1,6 +1,8 @@
 require "test_helper"
 
 class Api::EventControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   # with badge_class
   # invite guest
   # event roles
@@ -160,6 +162,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert event.title == "new meetup"
     assert event.tags == [ "science" ]
 
+    perform_enqueued_jobs
     email = ActionMailer::Base.deliveries.last
     assert_equal [profile.email], email.to
     assert_equal 'Social Layer Event Updated', email.subject
@@ -278,6 +281,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert Participant.find_by(event: event).status == "cancelled"
 
+    perform_enqueued_jobs
     email = ActionMailer::Base.deliveries.last
     assert_equal [attendee.email], email.to
     assert_equal 'Social Layer Event Updated', email.subject
