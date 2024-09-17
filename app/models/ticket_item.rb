@@ -30,4 +30,24 @@ class TicketItem < ApplicationRecord
 
     return true
   end
+
+  def cancel
+    if self.participant.payment_status == "pending"
+      self.participant.update(payment_status: "cancelled", status: "cancelled")
+    end
+    self.update(status: "cancelled", participant_id: nil)
+    if self.coupon_id
+      self.coupon.increment!(:order_usage_count)
+    end
+  end
+
+  def timeout
+    if self.participant.payment_status == "pending"
+      self.participant.update(payment_status: "cancelled", status: "cancelled")
+    end
+    self.update(status: "timeout", participant_id: nil)
+    if self.coupon_id
+      self.coupon.increment!(:order_usage_count)
+    end
+  end
 end

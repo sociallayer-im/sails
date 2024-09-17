@@ -114,16 +114,7 @@ class Api::TicketController < ApiController
       return render json: { result: "ok", message: "only for pending ticket_item" }
     end
 
-    if ticket_item.participant.payment_status == "pending"
-      ticket_item.participant.update(payment_status: "cancelled", status: "cancelled")
-    end
-    ticket_item.update(
-      status: "cancelled",
-      participant_id: nil,
-      )
-    if ticket_item.coupon_id
-      ticket_item.coupon.increment!(:order_usage_count)
-    end
+    ticket_item.cancel
 
     render json: { ticket_item: ticket_item.as_json }
   end
