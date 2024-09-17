@@ -13,7 +13,7 @@ class SessionsController < ApplicationController
     token = ProfileToken.create(context: params[:context], sent_to: params[:email], code: code)
 
     p token
-    mailer = SigninMailer.with(code: code, recipient: params[:email]).signin_email
+    mailer = SigninMailer.with(code: code, recipient: params[:email]).signin
     mailer.deliver_now!
     @email = params[:email]
   end

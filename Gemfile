@@ -81,3 +81,5 @@ group :test do
 end
 
 gem "good_job", "~> 4.3"
+
+gem "doorkeeper", "~> 5.7"

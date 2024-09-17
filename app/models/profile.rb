@@ -33,6 +33,10 @@ class Profile < ApplicationRecord
   has_many :ticket_items
   enum :status, { active: 'active', freezed: 'freezed' }
 
+  def admin?
+    self.permissions["admin"]
+  end
+
   def gen_auth_token
     payload = {
       id: self.id,
