@@ -64,6 +64,7 @@ Rails.application.routes.draw do
 
     post "ticket/rsvp", to: "ticket#rsvp"
     post "ticket/set_payment_status", to: "ticket#set_payment_status"
+    post "ticket/cancel_unpaid_item", to: "ticket#cancel_unpaid_item"
     post "ticket/stripe_callback", to: "ticket#stripe_callback"
     post "ticket/stripe_client_secret", to: "ticket#stripe_client_secret"
     post "ticket/stripe_config", to: "ticket#stripe_config"

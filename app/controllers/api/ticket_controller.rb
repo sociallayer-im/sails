@@ -24,6 +24,7 @@ class Api::TicketController < ApiController
         profile: profile,
         event: event,
         status: status,
+        payment_status: "pending",
         message: params[:message],
       )
     end
@@ -36,12 +37,16 @@ class Api::TicketController < ApiController
       amount = paymethod.price
       discount_value = nil
       discount_data = nil
+      coupon_id = nil
+
+      # todo : check account-bounded coupon
 
       if params[:coupon].present?
         coupon = Coupon.find_by(selector: "code", event_id: event.id, code: params[:coupon])
         amount, discount_value, discount_data = coupon.get_discounted_price(amount)
         if discount_value
           coupon.increment!(:order_usage_count)
+          coupon_id = coupon.id
         end
       end
       status = amount == 0 ? "succeeded" : "pending"
@@ -58,6 +63,7 @@ class Api::TicketController < ApiController
         payment_method_id: paymethod.id,
         discount_value: discount_value,
         discount_data: discount_data,
+        coupon_id: coupon_id,
       )
     else
       ticket_item = TicketItem.create(
@@ -95,6 +101,31 @@ class Api::TicketController < ApiController
     end
 
     render json: { participant: participant.as_json, ticket_item: ticket_item.as_json }
+  end
+
+  def cancel_unpaid_item
+    ticket_item = TicketItem.find_by(chain: params[:chain], event_id: params[:product_id], order_number: params[:item_id].to_s)
+
+    unless ticket_item
+      return render json: { result: "error", message: "ticket_item not found" }
+    end
+
+    if ticket_item.status != "pending"
+      return render json: { result: "ok", message: "only for pending ticket_item" }
+    end
+
+    if ticket_item.participant.payment_status == "pending"
+      ticket_item.participant.update(payment_status: "cancelled", status: "cancelled")
+    end
+    ticket_item.update(
+      status: "cancelled",
+      participant_id: nil,
+      )
+    if ticket_item.coupon_id
+      ticket_item.coupon.increment!(:order_usage_count)
+    end
+
+    render json: { ticket_item: ticket_item.as_json }
   end
 
   def set_payment_status

@@ -162,6 +162,9 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
          params: { next_token: ENV["NEXT_TOKEN"], chain: ticket_item.chain, product_id: @event.id, item_id: ticket_item.order_number, amount: ticket_item.amount, txhash: "0x7890" }
     assert_response :success
     assert response.body == "{\"result\":\"ok\",\"message\":\"skip verify succeeded ticket_item\"}"
+
+    ticket_item.reload
+    assert ticket_item.coupon_id == coupon.id
   end
 
   test "api#ticket/rsvp with crypto ticket and discount" do
@@ -177,6 +180,9 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     ticket_item = TicketItem.find_by(event: @event)
     assert ticket_item.status == "pending"
     assert ticket_item.amount == 3000000
+    assert Participant.find_by(event: @event, profile: @profile).payment_status == "pending"
+    assert Participant.find_by(event: @event, profile: @profile).status == "attending"
+
 
     ENV["NEXT_TOKEN"] = "WXYZ"
 
@@ -187,6 +193,34 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     ticket_item.reload
     assert ticket_item.txhash == "0x7890"
     assert ticket_item.status == "succeeded"
+    assert ticket_item.coupon_id == coupon.id
+    assert Participant.find_by(event: @event, profile: @profile).payment_status == "succeeded"
+    assert Participant.find_by(event: @event, profile: @profile).status == "attending"
+
+  end
+
+  test "api#ticket/cancel_unpaid_item" do
+    ticket = Ticket.find_by(event: @event, title: "crypto")
+    op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
+
+    post api_ticket_rsvp_url,
+         params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: op_paymethod.id }
+    assert_response :success
+
+    ticket_item = TicketItem.find_by(event: @event)
+    assert ticket_item.status == "pending"
+    assert Participant.find_by(event: @event, profile: @profile).payment_status == "pending"
+    assert Participant.find_by(event: @event, profile: @profile).status == "attending"
+
+    post api_ticket_cancel_unpaid_item_url,
+         params: { auth_token: @auth_token, chain: ticket_item.chain, product_id: @event.id, item_id: ticket_item.order_number }
+    assert_response :success
+
+    ticket_item.reload
+    assert ticket_item.status == "cancelled"
+    assert ticket_item.participant_id.nil?
+    assert Participant.find_by(event: @event, profile: @profile).payment_status == "cancelled"
+    assert Participant.find_by(event: @event, profile: @profile).status == "cancelled"
   end
 
   # test "api#ticket/rsvp with fiat ticket" do
@@ -222,6 +256,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
 
   #   ticket_item.reload
   #   assert ticket_item.status == "succeeded"
+  #   assert ticket_item.coupon_id == coupon.id
   # end
 
   test "api#ticket/rsvp with free group ticket" do
