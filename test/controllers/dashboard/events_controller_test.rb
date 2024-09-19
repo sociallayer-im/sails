@@ -1,6 +1,6 @@
 require "test_helper"
 
-class EventsControllerTest < ActionDispatch::IntegrationTest
+class Dashboard::EventsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @event = events(:one)
   end
