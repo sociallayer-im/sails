@@ -41,6 +41,14 @@ class Api::ServiceController < ApiController
     render json: { result: "ok", email: params[:email] }
   end
 
+  def get_stats
+    render json: {
+      total_events: Event.count,
+      total_event_hosts: Event.pluck(:owner_id).uniq.count,
+      total_participants: Participant.count,
+    }
+  end
+
   def stats
       group = Group.find(params[:group_id])
       group_id = group.id

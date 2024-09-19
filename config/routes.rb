@@ -105,6 +105,8 @@ Rails.application.routes.draw do
     post "vote/update", to: "vote#update"
     post "vote/cancel", to: "vote#cancel"
     post "vote/cast_vote", to: "vote#cast_vote"
+
+    get "service/get_stats", to: "service#get_stats"
   end
 
   get    "sign_in",  to: "sessions#new"
