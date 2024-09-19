@@ -1,45 +1,161 @@
-<h1 class="text-3xl font-bold underline">
-    Hello world!
-</h1>
+<div class="drawer lg:drawer-open">
+    <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-content flex flex-col p-6">
+        <!-- Page content here -->
+        <div class="navbar bg-base-100 lg:hidden">
+            <div class="flex-none">
+                 <label for="my-drawer" class="btn btn-primary btn-outline drawer-button lg:hidden">
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            class="inline-block h-5 w-5 stroke-current">
+                        <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </label>
+            </div>
+            <div class="flex-1">
+                <a class="btn btn-ghost text-xl">Social Layer Dashboard</a>
+            </div>
+            <div class="flex-none">
+                <button class="btn btn-square btn-ghost">
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            class="inline-block h-5 w-5 stroke-current">
+                        <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
 
-<div>
-<button class="btn">Button</button>
-<button class="btn btn-primary">Primary</button>
-</div>
+        <div class="breadcrumbs text-sm">
+            <ul>
+                <li>
+                    <a>
+                        <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        class="h-4 w-4 stroke-current">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a>
+                        <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        class="h-4 w-4 stroke-current">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                        </svg>
+                        Events
+                    </a>
+                </li>
+            </ul>
+         </div>
 
-<div>
-current profile : <%= Current.session.try(:id) %>
-</div>
+        <div>
+            <h1 class="font-semibold text-2xl my-6">Events</h1>
+        </div>
+        
+        <div class="flex flex-row flex-nowarp my-4">
+            <div class="mr-3">
+                <%= render_input name: "search", id: "search" %>
+            </div>
+            <div class="mr-3">
+                <%= render_dropdown_menu do %>
+                    <%= dropdown_menu_trigger do %>
+                        <%= render_button "Tags", variant: :outline %>
+                    <% end %>
+                    <%= dropdown_menu_content do %>
+                        <%= dropdown_menu_item "Tag1" %>
+                        <%= dropdown_menu_item "Tag2" %>
+                    <% end %>
+                <% end %>
+            </div>
+            <div class="mr-3">
+                <%= render_dropdown_menu do %>
+                    <%= dropdown_menu_trigger do %>
+                        <%= render_button "Status", variant: :outline %>
+                    <% end %>
+                    <%= dropdown_menu_content do %>
+                        <%= dropdown_menu_item "Coming" %>
+                        <%= dropdown_menu_item "Ongoing" %>
+                        <%= dropdown_menu_item "Past" %>
+                        <%= dropdown_menu_item "Canceled" %>
+                    <% end %>
+                <% end %>
+            </div>
+        </div>
 
-<%= form_with url: sign_out_path, method: "delete" do |form| %>
-  <%= form.text_field :title %>
-  <%= form.submit "sign out" %>
-<% end %>
+        <div>
+        <% @tracks = [
+            {title: "Total Eclipse of the Heart", artist: "Bonnie Tyler"},
+            {title: "I Will Always Love You", artist: "Whitney Houston"},
+            {title: "I Wanna Dance with Somebody", artist: "Whitney Houston"},
+            {title: "I Will Survive", artist: "Gloria Gaynor"},
+            {title: "My Heart Will Go On", artist: "Celine Dion"},
+            ] %>
 
-<div class="card bg-base-100 w-96 shadow-xl">
-  <figure>
-    <img
-      src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-      alt="Shoes" />
-  </figure>
-  <div class="card-body">
-    <h2 class="card-title">Shoes!</h2>
-    <p>If a dog chews shoes whose shoes does he choose?</p>
-    <div class="card-actions justify-end">
-      <button class="btn btn-primary">Buy Now</button>
+            <%= render_table do %>
+            <%= table_head do %>
+                <%= table_header "", class: "w-1" %>
+                <%= table_header class: "" do %>
+                Title
+                <% end %>
+                <%= table_header "Artist" %>
+            <% end %>
+            <%= table_body do %>
+                <% @tracks.each.with_index do |track, i| %>
+                <%= table_row do %>
+                    <%= table_column do %>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                    </svg>
+                    <% end %>
+                    <%= table_column do %>
+                    <%= track[:title] %>
+                    <% end %>
+                    <%= table_column track[:artist] %>
+                <% end %>
+                <% end %>
+            <% end %>
+            <% end %>
+        </div>
     </div>
-  </div>
-</div>
-
-
-<div class="diff aspect-[16/9]">
-  <div class="diff-item-1">
-    <img alt="daisy" src="https://img.daisyui.com/images/stock/photo-1560717789-0ac7c58ac90a.webp" />
-  </div>
-  <div class="diff-item-2">
-    <img
-      alt="daisy"
-      src="https://img.daisyui.com/images/stock/photo-1560717789-0ac7c58ac90a-bw.webp" />
-  </div>
-  <div class="diff-resizer"></div>
+    <div class="drawer-side">
+        <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+        <ul class="menu bg-base-200 text-base-content min-h-full w-60 p-4">
+            <!-- Sidebar content here -->
+            <li><a>Events</a></li>
+            <li><a>Venues</a></li>
+            <li><a>Ticket</a></li>
+            <li><a>Profile</a></li>
+            <li><a>Group</a></li>
+        </ul>
+    </div>
 </div>
