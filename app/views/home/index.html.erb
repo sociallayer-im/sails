@@ -1,44 +1,50 @@
 <div class="p-4">
-    <div class="flex flex-row flex-nowarp my-4 w-full">
-            <div class="mr-3 flex-1">
-                <%= render_input name: "search", id: "search", placeholder: "Search" %>
+    <div class="flex flex-row flex-nowarp justify-between my-4 w-full">
+            <div class="flex flex-row items-center">
+                <div class="mr-3 flex-1">
+                    <%= render_input name: "search", id: "search", placeholder: "Search" %>
+                </div>
+                <div class="mr-3">
+                    <%= render_dropdown_menu do %>
+                        <%= dropdown_menu_trigger do %>
+                            <%= render_button "Tags", variant: :outline %>
+                        <% end %>
+                        <%= dropdown_menu_content do %>
+                            <%= dropdown_menu_item "Tag1" %>
+                            <%= dropdown_menu_item "Tag2" %>
+                        <% end %>
+                    <% end %>
+                </div>
+                <div class="mr-3">
+                    <%= render_dropdown_menu do %>
+                        <%= dropdown_menu_trigger do %>
+                            <%= render_button "Status", variant: :outline %>
+                        <% end %>
+                        <%= dropdown_menu_content do %>
+                            <%= dropdown_menu_item "Coming" %>
+                            <%= dropdown_menu_item "Ongoing" %>
+                            <%= dropdown_menu_item "Pending" %>
+                            <%= dropdown_menu_item "Past" %>
+                            <%= dropdown_menu_item "Canceled" %>
+                        <% end %>
+                    <% end %>
+                </div>
             </div>
-            <div class="mr-3">
-                <%= render_dropdown_menu do %>
-                    <%= dropdown_menu_trigger do %>
-                        <%= render_button "Tags", variant: :outline %>
+             <div class="flex flex-row items-center">
+               <div class="mr-3">
+                    <%= render_button variant: :outline do %>
+                        <i class="uil-download-alt text-lg"></i>
                     <% end %>
-                    <%= dropdown_menu_content do %>
-                        <%= dropdown_menu_item "Tag1" %>
-                        <%= dropdown_menu_item "Tag2" %>
-                    <% end %>
-                <% end %>
-            </div>
-            <div class="mr-3">
-                <%= render_dropdown_menu do %>
-                    <%= dropdown_menu_trigger do %>
-                        <%= render_button "Status", variant: :outline %>
-                    <% end %>
-                    <%= dropdown_menu_content do %>
-                        <%= dropdown_menu_item "Coming" %>
-                        <%= dropdown_menu_item "Ongoing" %>
-                        <%= dropdown_menu_item "Past" %>
-                        <%= dropdown_menu_item "Canceled" %>
-                    <% end %>
-                <% end %>
-            </div>
-             <div class="mr-3">
+               </div>
                <%= render_button "Add Event" %>
             </div>
 </div>
 
-        <div class="border border-base rounded-md ">
+        <div class="border border-base rounded-md w-full overflow-auto">
         <% @tracks = [
-            {title: "Total Eclipse of the Heart", artist: "Bonnie Tyler"},
-            {title: "I Will Always Love You", artist: "Whitney Houston"},
-            {title: "I Wanna Dance with Somebody", artist: "Whitney Houston"},
-            {title: "I Will Survive", artist: "Gloria Gaynor"},
-            {title: "My Heart Will Go On", artist: "Celine Dion"},
+            {title: "Total Eclipse of the Heart", artist: "Bonnie Tyler", field1: "Bonnie Tyler", field2: "Total Eclipse of the Heart", field3: "Bonnie Tyler"},
+            {title: "I Will Always Love You", artist: "Whitney Houston", field1: "Bonnie Tyler", field2: "Total Eclipse of the Heart", field3: "Bonnie Tyler"},
+            {title: "I Wanna Dance with Somebody", artist: "Whitney Houston", field1: "Bonnie Tyler", field2: "Total Eclipse of the Heart", field3: "Bonnie Tyler"},
             ] %>
             <%= render_table do %>
             <%= table_head do %>
@@ -47,6 +53,9 @@
                 Title
                 <% end %>
                 <%= table_header "Artist" %>
+                <%= table_header "field1" %>
+                <%= table_header "field2" %>
+                <%= table_header "field3" %>
             <% end %>
             <%= table_body do %>
                 <% @tracks.each.with_index do |track, i| %>
@@ -63,6 +72,9 @@
                     <%= track[:title] %>
                     <% end %>
                     <%= table_column track[:artist] %>
+                    <%= table_column track[:field1] %>
+                    <%= table_column track[:field2] %>
+                    <%= table_column track[:field3] %>
                 <% end %>
                 <% end %>
             <% end %>
