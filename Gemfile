@@ -83,3 +83,5 @@ end
 gem "good_job", "~> 4.3"
 
 gem "doorkeeper", "~> 5.7"
+
+gem "shadcn-ui", "~> 0.0.15"
