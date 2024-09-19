@@ -1,0 +1,97 @@
+<%= form_with(model: event) do |form| %>
+  <% if event.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(event.errors.count, "error") %> prohibited this event from being saved:</h2>
+
+      <ul>
+        <% event.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :title, style: "display: block" %>
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
+    <%= form.label :start_time, style: "display: block" %>
+    <%= form.datetime_field :start_time %>
+  </div>
+
+  <div>
+    <%= form.label :end_time, style: "display: block" %>
+    <%= form.datetime_field :end_time %>
+  </div>
+
+  <div>
+    <%= form.label :timezone, style: "display: block" %>
+    <%= form.text_field :timezone %>
+  </div>
+
+  <div>
+    <%= form.label :meeting_url, style: "display: block" %>
+    <%= form.text_field :meeting_url %>
+  </div>
+
+  <div>
+    <%= form.label :venue_id, style: "display: block" %>
+    <%= form.number_field :venue_id %>
+  </div>
+
+  <div>
+    <%= form.label :location, style: "display: block" %>
+    <%= form.text_field :location %>
+  </div>
+
+  <div>
+    <%= form.label :owner_id, style: "display: block" %>
+    <%= form.number_field :owner_id %>
+  </div>
+
+  <div>
+    <%= form.label :group_id, style: "display: block" %>
+    <%= form.number_field :group_id %>
+  </div>
+
+  <div>
+    <%= form.label :cover_url, style: "display: block" %>
+    <%= form.text_field :cover_url %>
+  </div>
+
+  <div>
+    <%= form.label :status, style: "display: block" %>
+    <%= form.text_field :status %>
+  </div>
+
+  <div>
+    <%= form.label :require_approval, style: "display: block" %>
+    <%= form.check_box :require_approval %>
+  </div>
+
+  <div>
+    <%= form.label :tags, style: "display: block" %>
+    <%= form.text_field :tags %>
+  </div>
+
+  <div>
+    <%= form.label :event_type, style: "display: block" %>
+    <%= form.text_field :event_type %>
+  </div>
+
+  <div>
+    <%= form.label :display, style: "display: block" %>
+    <%= form.text_field :display %>
+  </div>
+
+  <div>
+    <%= form.label :track_id, style: "display: block" %>
+    <%= form.number_field :track_id %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
