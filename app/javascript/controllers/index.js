@@ -10,4 +10,10 @@ application.register("hello", HelloController)
 import CheckboxController from "./ui/checkbox_controller"
 application.register("ui--checkbox", CheckboxController)
 
+import UIDropdownController from './ui/dropdown_controller'
+application.register("ui--dropdown", UIDropdownController)
+
+import UIPopoverController from './ui/popover_controller'
+application.register("ui--popover", UIPopoverController)
+
 console.log("stimulus:register")
