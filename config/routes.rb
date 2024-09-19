@@ -110,5 +110,6 @@ Rails.application.routes.draw do
   resources :sessions, only: [:index, :show]
 
   # Defines the root path route ("/")
+  get  "demo",  to: "home#demo"
   root "home#index"
 end
