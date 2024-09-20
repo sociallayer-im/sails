@@ -11,7 +11,6 @@ export default class UIPopover extends Controller {
   static targets = ["content", "wrapper", "trigger"];
 
   connect() {
-    console.log('connect')
     useClickOutside(this);
     this.popperInstance = createPopper(this.triggerTarget, this.contentTarget, {
       placement: this.contentTarget.dataset.side || "bottom",

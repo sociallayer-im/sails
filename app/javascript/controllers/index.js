@@ -16,4 +16,7 @@ application.register("ui--dropdown", UIDropdownController)
 import UIPopoverController from './ui/popover_controller'
 application.register("ui--popover", UIPopoverController)
 
+import UIColumnPlantTextController from './ui/column_plant_text_controller'
+application.register("ui--column-plant-text", UIColumnPlantTextController)
+
 console.log("stimulus:register")

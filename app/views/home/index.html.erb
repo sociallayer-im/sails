@@ -40,9 +40,9 @@
         </div>
     </div>
 
-    <div class="border border-base rounded-md w-full overflow-auto">
+    <div class="border border-base rounded-md w-full overflow-auto relative">
         <% @tracks = [
-            {title: "Total Eclipse of the Heart", artist: "Bonnie Tyler", field1: "Bonnie Tyler", field2: "Total Eclipse of the Heart", field3: "Bonnie Tyler"},
+            {title: "Total Eclipse of the Heart Total Eclipse of the Heart Total Eclipse of the Heart Total Eclipse of the Heart Total Eclipse of the Heart", artist: "Bonnie Tyler", field1: "Bonnie Tyler", field2: "Total Eclipse of the Heart", field3: "Bonnie Tyler"},
             {title: "I Will Always Love You", artist: "Whitney Houston", field1: "Bonnie Tyler", field2: "Total Eclipse of the Heart", field3: "Bonnie Tyler"},
             {title: "I Wanna Dance with Somebody", artist: "Whitney Houston", field1: "Bonnie Tyler", field2: "Total Eclipse of the Heart", field3: "Bonnie Tyler"},
             ] %>
@@ -55,19 +55,28 @@
                 <%= table_header "field1" %>
                 <%= table_header "field2" %>
                 <%= table_header "field3" %>
-                <%= table_header "Actions" %>
+                <%= table_header "Actions", class: "sticky right-0 bg-[hsl(var(--background))]" %>
             <% end %>
             <%= table_body do %>
                 <% @tracks.each.with_index do |track, i| %>
                     <%= table_row do %>
                         <%= table_column do %>
-                        <%= track[:title] %>
+                            <%= render_column_plant_text value: track[:title], field: "title" %>
                         <% end %>
-                        <%= table_column track[:artist] %>
-                        <%= table_column track[:field1] %>
-                        <%= table_column track[:field2] %>
-                        <%= table_column track[:field3] %>
                         <%= table_column do %>
+                            <%= render_column_plant_text value: track[:artist], field: "artist" %>
+                        <% end %>
+                        <%= table_column do %>
+                            <%= render_column_plant_text value: track[:field1], field: "field1" %>
+                        <% end %>
+                        <%= table_column do %>
+                            <%= render_column_plant_text value: track[:field2], field: "field2" %>
+                        <% end %>
+                        <%= table_column do %>
+                            <%= render_column_plant_text value: track[:field3], field: "field3" %>
+                        <% end %>
+              
+                        <%= table_column class: "sticky right-0 bg-[hsl(var(--background))] focus-within:z-[9999]" do %>
                             <%= render_dropdown_menu do %>
                                 <%= dropdown_menu_trigger do %>    
                                     <%= render_button variant: :outline do %>
@@ -84,6 +93,15 @@
                     <% end %>
                 <% end %>
             <% end %>
+        <% end %>
+    </div>
+
+    <div class="flex items-center flex-row my-4 justify-end">
+        <%= render_button  variant: :outline, class: "mr-3 w-[100px]" do %>
+          <i class="uil-angle-left text-xl"></i> Previous
+        <% end %>
+         <%= render_button  variant: :outline, class: "w-[100px]" do %>
+            Next <i class="uil-angle-right text-xl"></i>
         <% end %>
     </div>
 </div>

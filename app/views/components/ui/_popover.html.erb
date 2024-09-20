@@ -3,7 +3,7 @@
     <%= content_for(:popover_trigger) %>
   </div>
 
-  <div class="popover-wrapper" data-ui--popover-target="wrapper">
+  <div class="popover-wrapper z-[999] relative" data-ui--popover-target="wrapper">
     <div
       date-side="bottom"
       data-controller="ui--transition"
@@ -11,7 +11,7 @@
       data-align="center"
       data-state="closed"
       role="dialog"
-      class="<%= tw("hidden z-50 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none #{content_for(:popover_content_class)}") %>"
+      class="<%= tw("hidden rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none #{content_for(:popover_content_class)}") %>"
       tabindex=" -1 ">
       <%= content_for(:popover_content) %>
     </div>
