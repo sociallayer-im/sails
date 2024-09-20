@@ -19,4 +19,7 @@ application.register("ui--popover", UIPopoverController)
 import UIColumnPlantTextController from './ui/column_plant_text_controller'
 application.register("ui--column-plant-text", UIColumnPlantTextController)
 
+import UIRowEventController from './ui/row_event_controller'
+application.register("ui--row-event", UIRowEventController)
+
 console.log("stimulus:register")

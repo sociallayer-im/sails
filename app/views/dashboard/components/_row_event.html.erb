@@ -1,19 +1,20 @@
  <tr  data-eventid="<%= eventid %>" 
       id="<%= options[:id] %>" 
       class="<%= options[:class] %>"
+      data-controller="ui--row-event" 
      >
     <%= content %>
 
-    <%= table_column class: "sticky right-0 bg-[hsl(var(--background))] focus-within:z-[9999]" do %>
-      <div class="edit-actions hidden">
-        <%= render_button variant: :outline, class: "border-[var(--checked)]" do %>
+    <%= table_column class: "sticky right-0 bg-[hsl(var(--background))] focus-within:z-[9999] w-[150px] flex flex-row justify-center" do %>
+      <div class="edit-actions hidden flex flex-row flex-nowrap" data-ui--row-event-target="edit">
+        <%= render_button variant: :outline, class: "border-[var(--checked)] mr-2", data: {action: "click->ui--row-event#confirmEdit"} do %>
           <i class="uil-check text-lg text-[var(--checked)]"></i>
         <% end %>
-        <%= render_button variant: :outline, class: "border-[hsl(var(--destructive))]" do %>
-          <i class="uil-times text-xl text-[hsl(var(--destructive))]"></i>
+        <%= render_button variant: :outline, class: "border-[hsl(var(--destructive))]", data: {action: "click->ui--row-event#cancelEdit"} do %>
+          <i class="uil-times text-xl text-[hsl(var(--destructive))]" ></i>
         <% end %>
       </div>
-      <div class="nornal-actions">
+      <div class="nornal-actions" data-ui--row-event-target="normal">
           <%= render_dropdown_menu do %>
               <%= dropdown_menu_trigger do %>    
                 <%= render_button variant: :outline do %>
@@ -22,7 +23,7 @@
               <% end %>
               <%= dropdown_menu_content do %>
                 <%= dropdown_menu_item class: "text-nowrap" do %>
-                  <div class="text-nowrap">Edit Event</div>
+                  <div class="text-nowrap" data-action="click->ui--row-event#startEdit">Edit Event</div>
                 <% end %>
                 <%= dropdown_menu_item class: "text-nowrap" do %>
                   <div class="text-nowrap">Cancel Event</div>

@@ -55,7 +55,7 @@
                 <%= table_header "field1" %>
                 <%= table_header "field2" %>
                 <%= table_header "field3" %>
-                <%= table_header "Actions", class: "sticky right-0 bg-[hsl(var(--background))]" %>
+                <%= table_header "Actions", class: "sticky right-0 bg-[hsl(var(--background))] w-[150px] text-center" %>
             <% end %>
             <%= table_body do %>
                 <% @tracks.each.with_index do |track, i| %>

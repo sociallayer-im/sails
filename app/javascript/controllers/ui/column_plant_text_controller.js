@@ -7,8 +7,28 @@ export default class extends Controller {
         const value = this.element.querySelector('input').value
         this.element.innerHTML = value
     }
+
+    getParentRow (element) {
+        const parentElement = element.parentElement
+        if (!parentElement) return undefined
+        if (parentElement.nodeName === 'TR') {
+            return parentElement
+        } else {
+            if (parentElement.nodeName === 'BODY') {
+                return undefined
+            } else {
+                return this.getParentRow(parentElement)
+            }
+        }
+    }
   
     edit() {
+        const parentRow = this.getParentRow(this.element)
+        console.log('parentRow', parentRow)
+        if (!parentRow || !parentRow.dataset.editable) {
+            return
+        }
+        
         const input = document.createElement('input')
         input.value = this.element.dataset.value
         input.style.width = '100%'
@@ -23,5 +43,4 @@ export default class extends Controller {
         this.element.appendChild(input)
         input.focus()
     }
-    
   }
