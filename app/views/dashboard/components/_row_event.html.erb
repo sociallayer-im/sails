@@ -1,0 +1,37 @@
+ <tr  data-eventid="<%= eventid %>" 
+      id="<%= options[:id] %>" 
+      class="<%= options[:class] %>"
+     >
+    <%= content %>
+
+    <%= table_column class: "sticky right-0 bg-[hsl(var(--background))] focus-within:z-[9999]" do %>
+      <div class="edit-actions hidden">
+        <%= render_button variant: :outline, class: "border-[var(--checked)]" do %>
+          <i class="uil-check text-lg text-[var(--checked)]"></i>
+        <% end %>
+        <%= render_button variant: :outline, class: "border-[hsl(var(--destructive))]" do %>
+          <i class="uil-times text-xl text-[hsl(var(--destructive))]"></i>
+        <% end %>
+      </div>
+      <div class="nornal-actions">
+          <%= render_dropdown_menu do %>
+              <%= dropdown_menu_trigger do %>    
+                <%= render_button variant: :outline do %>
+                  <i class="uil-ellipsis-h text-base"></i>
+                <% end %>
+              <% end %>
+              <%= dropdown_menu_content do %>
+                <%= dropdown_menu_item class: "text-nowrap" do %>
+                  <div class="text-nowrap">Edit Event</div>
+                <% end %>
+                <%= dropdown_menu_item class: "text-nowrap" do %>
+                  <div class="text-nowrap">Cancel Event</div>
+                <% end %>
+                <%= dropdown_menu_item class: "text-nowrap" do %>
+                  <div class="text-nowrap">Approvel Event</div>
+                <% end %>
+              <% end %>
+            <% end %> 
+      </div>  
+    <% end %>
+  </tr>

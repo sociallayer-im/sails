@@ -59,7 +59,7 @@
             <% end %>
             <%= table_body do %>
                 <% @tracks.each.with_index do |track, i| %>
-                    <%= table_row do %>
+                    <%= row_event eventid: i do %>
                         <%= table_column do %>
                             <%= render_column_plant_text value: track[:title], field: "title" %>
                         <% end %>
@@ -74,21 +74,6 @@
                         <% end %>
                         <%= table_column do %>
                             <%= render_column_plant_text value: track[:field3], field: "field3" %>
-                        <% end %>
-              
-                        <%= table_column class: "sticky right-0 bg-[hsl(var(--background))] focus-within:z-[9999]" do %>
-                            <%= render_dropdown_menu do %>
-                                <%= dropdown_menu_trigger do %>    
-                                    <%= render_button variant: :outline do %>
-                                        <i class="uil-ellipsis-h text-base"></i>
-                                    <% end %>
-                                <% end %>
-                                <%= dropdown_menu_content do %>
-                                    <%= dropdown_menu_item "Edit" %>
-                                    <%= dropdown_menu_item "Cancel" %>
-                                    <%= dropdown_menu_item "Approvel" %>
-                                <% end %>
-                            <% end %>   
                         <% end %>
                     <% end %>
                 <% end %>
