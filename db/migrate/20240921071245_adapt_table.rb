@@ -2,13 +2,15 @@ class AdaptTable < ActiveRecord::Migration[7.2]
   def change
     remove_column :activities, :context
     change_column :badge_classes, :updated_at, :datetime, null: true
+    add_column :badge_classes, :extras, :jsonb, default: {}
     add_column :badges, :extras, :jsonb, default: {}
     change_column :comments, :updated_at, :datetime, null: true
     change_column :comments, :created_at, :datetime, null: true
     change_column :contacts, :updated_at, :datetime, null: true
     rename_column :event_roles, :profile_id, :item_id
     add_column :event_roles, :item_type, :string, default: "Profile"
-    add_column :events, :extras, :jsonb, default: {}
+    rename_column :events, :extra, :extras
+    change_column :events, :extras, :jsonb, default: {}
     change_column :events, :updated_at, :datetime, null: true
     change_column :group_invites, :data, :jsonb, default: {}
     change_column :group_invites, :updated_at, :datetime, null: true
@@ -19,6 +21,7 @@ class AdaptTable < ActiveRecord::Migration[7.2]
     remove_column :groups, :can_view_event
     rename_column :groups, :extra, :extras
     change_column :groups, :extras, :jsonb, default: {}
+    change_column :groups, :updated_at, :datetime, null: true
     change_column :markers, :updated_at, :datetime, null: true
     change_column :markers, :data, :jsonb, default: {}
     remove_column :participants, :payment_data, :jsonb
@@ -36,5 +39,7 @@ class AdaptTable < ActiveRecord::Migration[7.2]
     add_column :venues, :timeslots, :jsonb, default: {}
     add_column :venues, :overrides, :jsonb, default: {}
     change_column :venues, :updated_at, :datetime, null: true
+    change_column :vouchers, :updated_at, :datetime, null: true
+    rename_column :vouchers, :badge_data, :data
   end
 end

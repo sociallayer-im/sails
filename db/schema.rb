@@ -54,6 +54,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_21_071245) do
     t.datetime "updated_at"
     t.string "status", default: "active"
     t.string "display", default: "normal"
+    t.jsonb "extras", default: {}
     t.index ["creator_id"], name: "index_badge_classes_on_creator_id"
   end
 
@@ -205,9 +206,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_21_071245) do
     t.datetime "updated_at"
     t.string "external_url"
     t.text "notes"
-    t.jsonb "extra"
-    t.integer "track_id"
     t.jsonb "extras", default: {}
+    t.integer "track_id"
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -342,7 +342,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_21_071245) do
     t.jsonb "social_links", default: {}
     t.jsonb "permissions", default: {}
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
   end
 
   create_table "markers", force: :cascade do |t|
@@ -706,7 +706,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_21_071245) do
     t.string "badge_title"
     t.string "badge_content"
     t.string "badge_image"
-    t.jsonb "badge_data", comment: "start_time, end_time, value, transferable, revocable"
+    t.jsonb "data", comment: "start_time, end_time, value, transferable, revocable"
     t.string "code"
     t.string "message"
     t.datetime "expires_at"
@@ -723,7 +723,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_21_071245) do
     t.string "minted_address"
     t.string "minted_ids", array: true
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
     t.index ["sender_id"], name: "index_vouchers_on_sender_id"
   end
 
