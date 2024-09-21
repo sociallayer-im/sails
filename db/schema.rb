@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_21_071245) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,7 +21,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.integer "initiator_id"
     t.integer "target_type"
     t.integer "target_id"
-    t.string "context"
     t.string "action"
     t.string "data"
     t.string "memo"
@@ -52,7 +51,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "chain_space"
     t.string "chain_txhash"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
     t.string "status", default: "active"
     t.string "display", default: "normal"
     t.index ["creator_id"], name: "index_badge_classes_on_creator_id"
@@ -80,6 +79,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.integer "voucher_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.jsonb "extras", default: {}
   end
 
   create_table "comments", force: :cascade do |t|
@@ -95,8 +95,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "content_type", default: "text/plain"
     t.integer "reply_parent_id"
     t.integer "edit_parent_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "communities", force: :cascade do |t|
@@ -131,7 +131,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "role", default: "contact", null: false, comment: "contact | follower"
     t.string "status", default: "active", null: false, comment: "active | freezed"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
   end
 
   create_table "coupons", force: :cascade do |t|
@@ -164,7 +164,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
 
   create_table "event_roles", force: :cascade do |t|
     t.integer "event_id"
-    t.integer "profile_id"
+    t.integer "item_id"
     t.string "email"
     t.string "nickname"
     t.string "image_url"
@@ -172,6 +172,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "about"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "item_type", default: "Profile"
   end
 
   create_table "events", force: :cascade do |t|
@@ -201,11 +202,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "event_type", comment: "event"
     t.string "display", default: "normal", comment: "normal | hidden | pinned"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
     t.string "external_url"
     t.text "notes"
     t.jsonb "extra"
     t.integer "track_id"
+    t.jsonb "extras", default: {}
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -308,14 +310,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "status", default: "sending"
     t.string "receiver_address_type", default: "id"
     t.string "receiver_address"
-    t.jsonb "data"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.jsonb "data", default: {}
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "groups", force: :cascade do |t|
     t.string "handle"
-    t.string "chain"
     t.string "image_url"
     t.string "nickname"
     t.text "about"
@@ -325,9 +326,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "event_taglist", array: true
     t.string "venue_taglist", array: true
     t.integer "group_ticket_event_id"
-    t.string "can_publish_event"
-    t.string "can_join_event"
-    t.string "can_view_event"
     t.string "customizer"
     t.string "logo_url"
     t.string "banner_link_url"
@@ -340,7 +338,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.date "end_date"
     t.string "kind", comment: "popup_city | community"
     t.jsonb "metadata"
-    t.jsonb "extra"
+    t.jsonb "extras", default: {}
     t.jsonb "social_links", default: {}
     t.jsonb "permissions", default: {}
     t.datetime "created_at", null: false
@@ -365,8 +363,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.decimal "geo_lng", precision: 10, scale: 6
     t.datetime "start_time"
     t.datetime "end_time"
-    t.jsonb "data"
-    t.datetime "updated_at", null: false
+    t.jsonb "data", default: {}
+    t.datetime "updated_at"
     t.datetime "created_at", null: false
   end
 
@@ -431,9 +429,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.datetime "register_time"
     t.datetime "check_time"
     t.string "payment_status"
-    t.jsonb "payment_data"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
+    t.jsonb "extras", default: {}
     t.index ["profile_id", "event_id"], name: "index_participants_on_profile_id_and_event_id", unique: true
   end
 
@@ -445,9 +443,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "token_name"
     t.string "token_address"
     t.string "receiver_address"
-    t.decimal "price", precision: 40
+    t.integer "price"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
   end
 
   create_table "point_balances", force: :cascade do |t|
@@ -474,7 +472,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.integer "total_supply", default: 0
     t.integer "max_supply"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
     t.index ["creator_id"], name: "index_point_classes_on_creator_id"
   end
 
@@ -502,7 +500,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "phone"
     t.string "address"
     t.string "sol_address"
-    t.string "chain"
     t.string "zupass"
     t.string "status", default: "active"
     t.string "image_url"
@@ -515,7 +512,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.jsonb "permissions", default: {}
     t.jsonb "social_links", default: {}
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
     t.index ["address"], name: "index_profiles_on_address", unique: true
     t.index ["email"], name: "index_profiles_on_email", unique: true
     t.index ["handle"], name: "index_profiles_on_handle", unique: true
@@ -529,8 +526,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.string "timezone"
     t.integer "event_count"
     t.jsonb "data"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "signin_activities", force: :cascade do |t|
@@ -563,7 +560,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.integer "group_id"
     t.integer "participant_id"
     t.integer "payment_method_id"
-    t.integer "ticket_order_id"
     t.integer "coupon_id"
     t.decimal "amount", precision: 40
     t.decimal "original_price", precision: 40
@@ -584,7 +580,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.boolean "need_approval"
     t.string "status", default: "normal"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
     t.string "zupass_event_id"
     t.string "zupass_product_id"
     t.string "zupass_product_name"
@@ -648,7 +644,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.decimal "geo_lat", precision: 10, scale: 6
     t.decimal "geo_lng", precision: 10, scale: 6
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "updated_at"
     t.date "start_date"
     t.date "end_date"
     t.string "link"
@@ -656,6 +652,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_17_194149) do
     t.boolean "require_approval", default: false
     t.string "tags", array: true
     t.string "visibility", comment: "all | manager | none"
+    t.jsonb "timeslots", default: {}
+    t.jsonb "overrides", default: {}
   end
 
   create_table "vote_options", force: :cascade do |t|
