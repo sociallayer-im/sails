@@ -32,7 +32,7 @@ class Event < ApplicationRecord
     end
 
     if event.owner_id == profile.id || group.is_manager(profile.id) ||
-        EventRole.find_by(event_id: event.id, profile_id: profile.id) ||
+        EventRole.find_by(event_id: event.id, item_type: "Profile", item_id: profile.id) ||
         EventRole.find_by(event_id: event.id, email: profile.email)
 
       return true

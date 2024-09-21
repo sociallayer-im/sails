@@ -74,8 +74,8 @@ class Api::VoucherController < ApiController
     badge.title = voucher.badge_title || badge_class.title
     badge.image_url = voucher.badge_image || badge_class.image_url
     # need test
-    if voucher.badge_data
-      data = JSON.parse(voucher.badge_data)
+    if voucher.data
+      data = JSON.parse(voucher.data)
       badge.value = data["value"] if data["value"]
       badge.start_time = data["start_time"] if data["start_time"]
       badge.end_time = data["end_time"] if data["end_time"]
@@ -133,7 +133,7 @@ class Api::VoucherController < ApiController
     end
     # need test
     if params[:value] || params[:start_time] || params[:end_time]
-      voucher.badge_data = {
+      voucher.data = {
         value: params[:value],
         start_time: params[:start_time],
         end_time: params[:end_time],
@@ -180,7 +180,7 @@ class Api::VoucherController < ApiController
       end
       # need test
       if params[:value] || params[:start_time] || params[:end_time]
-        voucher.badge_data = {
+        voucher.data = {
           value: params[:value],
           start_time: params[:start_time],
           end_time: params[:end_time],
@@ -229,7 +229,7 @@ class Api::VoucherController < ApiController
       end
       # need test
       if params[:value] || params[:start_time] || params[:end_time]
-        voucher.badge_data = {
+        voucher.data = {
           value: params[:value],
           start_time: params[:start_time],
           end_time: params[:end_time],
@@ -279,7 +279,7 @@ class Api::VoucherController < ApiController
       end
       # need test
       if params[:value] || params[:start_time] || params[:end_time]
-        voucher.badge_data = {
+        voucher.data = {
           value: params[:value],
           start_time: params[:start_time],
           end_time: params[:end_time],

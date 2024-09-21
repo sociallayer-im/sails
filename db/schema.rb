@@ -326,6 +326,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_21_071245) do
     t.string "event_taglist", array: true
     t.string "venue_taglist", array: true
     t.integer "group_ticket_event_id"
+    t.string "can_publish_event"
+    t.string "can_join_event"
+    t.string "can_view_event"
     t.string "customizer"
     t.string "logo_url"
     t.string "banner_link_url"

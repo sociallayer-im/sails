@@ -304,7 +304,7 @@ class Api::EventController < ApiController
 
     @events = @events.where(owner: profile)
     .or(@events.where(group_id: Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:group_id)))
-    .or(@events.where(id: EventRole.where(profile_id: profile.id).pluck(:event_id)))
+    .or(@events.where(id: EventRole.where(item_type: "Profile", item_id: profile.id).pluck(:event_id)))
 
     @events = @events.where(status: "published").where(display: ["hidden"])
     @events = @events.order(start_time: :desc).limit(10)
@@ -352,7 +352,7 @@ class Api::EventController < ApiController
       :external_url,
       :notes,
       tags: [],
-      extra: {},
+      extras: {},
       tickets_attributes: [
         :id,
         :title,
@@ -387,7 +387,7 @@ class Api::EventController < ApiController
         ]
       ],
       coupons_attributes: [ :id, :selector, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expiry_time, :max_allowed_usages, :order_usage_count, :_destroy ],
-      event_roles_attributes: [ :id, :role, :group_id, :event_id, :profile_id, :email, :nickname, :image_url, :_destroy ],
+      event_roles_attributes: [ :id, :role, :group_id, :event_id, :item_type, :item_id, :email, :nickname, :image_url, :_destroy ],
       )
   end
 end
