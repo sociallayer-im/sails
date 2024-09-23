@@ -18,6 +18,9 @@ Rails.application.routes.draw do
     post "service/send_email", to: "service#send_email"
     post "service/upload_image", to: "service#upload_image"
 
+    get "siwe/nonce", to: "profile#nonce"
+    post "siwe/verify", to: "profile#verify"
+
     get  "profile/me", to: "profile#me"
     post "profile/create", to: "profile#create"
     post "profile/update", to: "profile#update"
@@ -94,6 +97,7 @@ Rails.application.routes.draw do
     post "venue/create", to: "venue#create"
     post "venue/update", to: "venue#update"
     post "venue/remove", to: "venue#remove"
+    post "venue/check_availability", to: "venue#check_availability"
 
     post "point_class/create", to: "point_class#create"
     post "point/create", to: "point#create"

@@ -154,7 +154,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
         title: "new meetup",
         tags: %w[science],
         end_time: DateTime.parse("2024-08-10T10:20:30+00:00"),
-        extra: { message: "random" }
+        extras: { message: "random" }
       }
     }
     assert_response :success

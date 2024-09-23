@@ -45,4 +45,133 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
       params: { auth_token: auth_token, id: 540 }
     end
   end
+
+  test "api#venue/check_availability" do
+    venue = Venue.create!(
+      title: "test venue",
+      location: "test location",
+      geo_lat: 22.3193,
+      geo_lng: 114.1694,
+      start_date: "2023-09-01",
+      end_date: "2023-12-31",
+      group_id: 1,
+      visibility: "all"
+    )
+
+    post api_venue_check_availability_url,
+      params: {
+        id: venue.id,
+        start_time: "2023-08-01T10:00:00Z",
+        end_time: "2023-08-01T12:00:00Z",
+        timezone: "UTC"
+      }
+
+    assert_response :success
+    response_body = JSON.parse(response.body)
+    assert_not response_body["available"]
+    assert response_body["message"].is_a?(String)
+  end
+
+  test "api#venue/check_availability with venue_timeslot" do
+    venue = Venue.create!(
+      title: "test venue with timeslot",
+      location: "test location",
+      geo_lat: 22.3193,
+      geo_lng: 114.1694,
+      start_date: "2023-09-01",
+      end_date: "2023-12-31",
+      group_id: 1,
+      visibility: "all"
+    )
+
+    VenueTimeslot.create!(
+      venue_id: venue.id,
+      day_of_week: "monday",
+      disabled: false,
+      data: [[ "09:00", "17:00" ]],
+    )
+
+    post api_venue_check_availability_url,
+      params: {
+        id: venue.id,
+        start_time: "2023-09-04T10:00:00Z", # Monday
+        end_time: "2023-09-04T12:00:00Z",
+        timezone: "UTC"
+      }
+
+    assert_response :success
+    response_body = JSON.parse(response.body)
+    assert response_body["available"]
+    assert response_body["message"].is_a?(String)
+  end
+
+  test "api#venue/check_availability with venue_timeslot and timezone Asia/Shanghai" do
+    venue = Venue.create!(
+      title: "test venue with timeslot and timezone",
+      location: "test location",
+      geo_lat: 22.3193,
+      geo_lng: 114.1694,
+      start_date: "2023-09-01",
+      end_date: "2023-12-31",
+      group_id: 1,
+      visibility: "all"
+    )
+
+    VenueTimeslot.create!(
+      venue_id: venue.id,
+      day_of_week: "monday",
+      disabled: false,
+      data: [[ "09:00", "11:10" ],[ "10:00", "12:10" ]],
+    )
+
+    post api_venue_check_availability_url,
+      params: {
+        id: venue.id,
+        start_time: "2023-09-04T10:00:00+0800", # Monday 10:00 - 12:00 AM in Asia/Shanghai timezone
+        end_time: "2023-09-04T12:00:00+0800",
+        timezone: "Asia/Shanghai"
+      }
+
+    assert_response :success
+    response_body = JSON.parse(response.body)
+    assert response_body["available"]
+    assert response_body["message"].is_a?(String)
+  end
+
+  test "api#venue/check_availability with venue_override" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    venue = Venue.create!(
+      title: "test venue with override",
+      location: "test location",
+      geo_lat: 22.3193,
+      geo_lng: 114.1694,
+      start_date: "2023-09-01",
+      end_date: "2023-12-31",
+      group_id: 1,
+      visibility: "all"
+    )
+
+    VenueOverride.create!(
+      venue_id: venue.id,
+      day: "2023-09-04", # Monday
+      disabled: false,
+      data: [[ "09:00", "17:00" ]],
+    )
+
+    post api_venue_check_availability_url,
+      params: {
+        auth_token: auth_token,
+        id: venue.id,
+        start_time: "2023-09-04T10:00:00Z", # Monday
+        end_time: "2023-09-04T12:00:00Z",
+        timezone: "UTC"
+      }
+
+    assert_response :success
+    response_body = JSON.parse(response.body)
+    assert response_body["available"]
+    assert response_body["message"].is_a?(String)
+  end
 end

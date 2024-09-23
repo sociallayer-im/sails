@@ -16,9 +16,6 @@ class AdaptTable < ActiveRecord::Migration[7.2]
     change_column :group_invites, :updated_at, :datetime, null: true
     change_column :group_invites, :created_at, :datetime, null: true
     remove_column :groups, :chain, :string
-    remove_column :groups, :can_publish_event
-    remove_column :groups, :can_join_event
-    remove_column :groups, :can_view_event
     rename_column :groups, :extra, :extras
     change_column :groups, :extras, :jsonb, default: {}
     change_column :groups, :updated_at, :datetime, null: true
