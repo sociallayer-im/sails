@@ -32,6 +32,14 @@ class Api::VenueController < ApiController
     render json: { venue: venue.as_json }
   end
 
+  def check_availability
+    venue = Venue.find(params[:id])
+
+    available, message = venue.check_availability(params[:start_time], params[:end_time], params[:timezone])
+
+    render json: { available: available, message: message }
+  end
+
   private
 
   def venue_params

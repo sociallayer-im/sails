@@ -93,6 +93,7 @@ Rails.application.routes.draw do
     post "venue/create", to: "venue#create"
     post "venue/update", to: "venue#update"
     post "venue/remove", to: "venue#remove"
+    post "venue/check_availability", to: "venue#check_availability"
 
     post "point_class/create", to: "point_class#create"
     post "point/create", to: "point#create"
@@ -104,6 +105,7 @@ Rails.application.routes.draw do
     post "vote/update", to: "vote#update"
     post "vote/cancel", to: "vote#cancel"
     post "vote/cast_vote", to: "vote#cast_vote"
+
   end
 
   get    "sign_in",  to: "sessions#new"
