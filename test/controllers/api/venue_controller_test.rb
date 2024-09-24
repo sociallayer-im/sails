@@ -84,11 +84,10 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
       visibility: "all"
     )
 
-    VenueTimeslot.create!(
-      venue_id: venue.id,
+    Availability.create!(
+      item: venue,
       day_of_week: "monday",
-      disabled: false,
-      data: [[ "09:00", "17:00" ]],
+      intervals: [[ "09:00", "17:00" ]],
     )
 
     post api_venue_check_availability_url,
@@ -117,11 +116,10 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
       visibility: "all"
     )
 
-    VenueTimeslot.create!(
-      venue_id: venue.id,
+    Availability.create!(
+      item: venue,
       day_of_week: "monday",
-      disabled: false,
-      data: [[ "09:00", "11:10" ],[ "10:00", "12:10" ]],
+      intervals: [[ "09:00", "11:10" ],[ "10:00", "12:10" ]],
     )
 
     post api_venue_check_availability_url,
@@ -153,11 +151,10 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
       visibility: "all"
     )
 
-    VenueOverride.create!(
-      venue_id: venue.id,
+    Availability.create!(
+      item: venue,
       day: "2023-09-04", # Monday
-      disabled: false,
-      data: [[ "09:00", "17:00" ]],
+      intervals: [[ "09:00", "17:00" ]],
     )
 
     post api_venue_check_availability_url,

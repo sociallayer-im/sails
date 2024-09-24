@@ -4,6 +4,7 @@ class Venue < ApplicationRecord
   has_many :events
   has_many :venue_timeslots
   has_many :venue_overrides
+  has_many :availabilities, as: :item
 
   validates :end_date, comparison: { greater_than: :start_date }, allow_nil: true
 
@@ -12,7 +13,7 @@ class Venue < ApplicationRecord
 
   validates :visibility, inclusion: { in: %w(all manager none) }
 
-  def check_availability(event_start, event_end, timezone, event_id = nil)
+  def check_availability_old(event_start, event_end, timezone, event_id = nil)
     start_time = event_start.in_time_zone(timezone)
     end_time = event_end.in_time_zone(timezone)
     start_date = start_time.to_date
@@ -39,9 +40,6 @@ class Venue < ApplicationRecord
     override = VenueOverride.find_by(venue_id: self.id, day: start_date)
     timeslot = VenueTimeslot.find_by(venue_id: self.id, day_of_week: start_time.strftime("%A").downcase)
     if override
-      if override.disabled
-        return false, "Event is on a day when the venue is not available"
-      end
       any_override_time = override.data.any? do |start_at, end_at|
         TimeOfDay.parse(start_at).total_minutes <= (start_time.seconds_since_midnight / 60) &&
         TimeOfDay.parse(end_at).total_minutes >= (end_time.seconds_since_midnight / 60)
@@ -51,10 +49,58 @@ class Venue < ApplicationRecord
       end
       return true, "Event is within venue hours"
     elsif timeslot
-      if timeslot.disabled
+      any_timeslot_time = timeslot.data.any? do |start_at, end_at|
+        TimeOfDay.parse(start_at).total_minutes <= (start_time.seconds_since_midnight / 60) &&
+        TimeOfDay.parse(end_at).total_minutes >= (end_time.seconds_since_midnight / 60)
+      end
+      if !any_timeslot_time
         return false, "Event is on a day when the venue is not available"
       end
-      any_timeslot_time = timeslot.data.any? do |start_at, end_at|
+      return true, "Event is within venue hours"
+    else
+      return true, "Event is within venue hours"
+    end
+  end
+
+
+  def check_availability(event_start, event_end, timezone, event_id = nil)
+    start_time = event_start.in_time_zone(timezone)
+    end_time = event_end.in_time_zone(timezone)
+    start_date = start_time.to_date
+    end_date = end_time.to_date
+    
+    if self.start_date
+      if start_date < self.start_date
+        return false, "Event is before venue availibility begins"
+      end
+    end
+    if self.end_date
+      if end_date > self.end_date
+        return false, "Event is after venue availibility ends"
+      end
+    end
+    if event_id
+      if Event.where(venue_id: self.id).where("start_time < ? AND end_time > ?", event_end, event_start).where.not(id: event_id).any?
+        return false, "Event is on a day the venue is already booked"
+      end
+    else
+      if Event.where(venue_id: self.id).where("start_time < ? AND end_time > ?", event_end, event_start).any?
+        return false, "Event is on a day the venue is already booked"
+      end
+    end
+    override = Availability.find_by(item_id: self.id, item_type: "Venue", day: start_date)
+    timeslot = Availability.find_by(item_id: self.id, item_type: "Venue", day_of_week: start_time.strftime("%A").downcase)
+    if override
+      any_override_time = override.intervals.any? do |start_at, end_at|
+        TimeOfDay.parse(start_at).total_minutes <= (start_time.seconds_since_midnight / 60) &&
+        TimeOfDay.parse(end_at).total_minutes >= (end_time.seconds_since_midnight / 60)
+      end
+      if !any_override_time
+        return false, "Event is on a day when the venue is not available"
+      end
+      return true, "Event is within venue hours"
+    elsif timeslot
+      any_timeslot_time = timeslot.intervals.any? do |start_at, end_at|
         TimeOfDay.parse(start_at).total_minutes <= (start_time.seconds_since_midnight / 60) &&
         TimeOfDay.parse(end_at).total_minutes >= (end_time.seconds_since_midnight / 60)
       end
