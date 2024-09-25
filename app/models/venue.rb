@@ -92,25 +92,22 @@ class Venue < ApplicationRecord
     timeslot = Availability.find_by(item_id: self.id, item_type: "Venue", day_of_week: start_time.strftime("%A").downcase)
     if override
       any_override_time = override.intervals.any? do |start_at, end_at|
-        TimeOfDay.parse(start_at).total_minutes <= (start_time.seconds_since_midnight / 60) &&
-        TimeOfDay.parse(end_at).total_minutes >= (end_time.seconds_since_midnight / 60)
+        TimeOfDay.parse(start_at).total_seconds <= start_time.seconds_since_midnight &&
+        TimeOfDay.parse(end_at).total_seconds >= end_time.seconds_since_midnight
       end
       if !any_override_time
         return false, "Event is on a day when the venue is not available"
       end
-      return true, "Event is within venue hours"
     elsif timeslot
       any_timeslot_time = timeslot.intervals.any? do |start_at, end_at|
-        TimeOfDay.parse(start_at).total_minutes <= (start_time.seconds_since_midnight / 60) &&
-        TimeOfDay.parse(end_at).total_minutes >= (end_time.seconds_since_midnight / 60)
+        TimeOfDay.parse(start_at).total_seconds <= start_time.seconds_since_midnight &&
+        TimeOfDay.parse(end_at).total_seconds >= end_time.seconds_since_midnight
       end
       if !any_timeslot_time
         return false, "Event is on a day when the venue is not available"
       end
-      return true, "Event is within venue hours"
-    else
-      return true, "Event is within venue hours"
     end
+    return true, "Event is within venue hours"
   end
 
 end
@@ -133,6 +130,10 @@ class TimeOfDay
 
   def total_minutes
     @hours * 60 + @minutes
+  end
+
+  def total_seconds
+    @hours * 3600 + @minutes * 60
   end
 
   def <=>(other)

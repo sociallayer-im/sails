@@ -10,8 +10,7 @@ class Api::ProfileController < ApiController
 
   def get_by_handle
     @profile = Profile.find_by(handle: params[:handle])
-    # render json: { profile: profile.as_json }
-    render json: @profile, status: :ok
+    render :show
   end
 
   def verify
