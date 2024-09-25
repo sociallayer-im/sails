@@ -46,6 +46,8 @@ class Api::VenueController < ApiController
     params.require(:venue).permit(
       :title, :location, :about, :link, :capacity, :formatted_address, :location_viewport, :geo_lat, :geo_lng, :start_date, :end_date, :require_approval, :visibility, :tags,
       venue_overrides: [ :id, :venue_id, :day, :disabled, :start_at, :end_at, :_destroy ],
-      venue_timeslots: [ :id, :venue_id, :day_of_week, :disabled, :start_at, :end_at, :_destroy ])
+      venue_timeslots: [ :id, :venue_id, :day_of_week, :disabled, :start_at, :end_at, :_destroy ],
+      availabilities: [ :id, :item_id, :item_type, :day_of_week, :day, :intervals, :_destroy ]
+    )
   end
 end
