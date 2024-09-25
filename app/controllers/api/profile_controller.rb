@@ -8,6 +8,12 @@ class Api::ProfileController < ApiController
     render json: { nonce: rand(100_000_000_000_000_000).to_s(16) }
   end
 
+  def get_by_handle
+    @profile = Profile.find_by(handle: params[:handle])
+    # render json: { profile: profile.as_json }
+    render json: @profile, status: :ok
+  end
+
   def verify
     begin
       signature = params[:signature]

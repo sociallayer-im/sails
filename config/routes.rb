@@ -21,6 +21,7 @@ Rails.application.routes.draw do
     post "profile/create", to: "profile#create"
     post "profile/update", to: "profile#update"
     get  "profile/get_by_email", to: "profile#get_by_email"
+    get  "profile/get_by_handle", to: "profile#get_by_handle"
     post "profile/signin_with_email", to: "profile#signin_with_email"
     post "profile/set_verified_email", to: "profile#set_verified_email"
 

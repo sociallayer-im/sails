@@ -40,4 +40,9 @@ class Api::ProfileControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     p Profile.find_by(handle: "cookie").nickname == "binggan"
   end
+
+  test "api#profile/get_by_handle" do
+    get api_profile_get_by_handle_url, params: { handle: "cookie" }
+    assert_response :success
+  end
 end
