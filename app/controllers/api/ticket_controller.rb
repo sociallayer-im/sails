@@ -43,6 +43,10 @@ class Api::TicketController < ApiController
 
       if params[:coupon].present?
         coupon = Coupon.find_by(selector: "code", event_id: event.id, code: params[:coupon])
+        if coupon.expiry_time < DateTime.now || coupon.max_allowed_usages <= coupon.order_usage_count
+          return render json: { result: "error", message: "coupon is not available" }
+        end
+
         amount, discount_value, discount_data = coupon.get_discounted_price(amount)
         if discount_value
           coupon.increment!(:order_usage_count)
@@ -105,6 +109,7 @@ class Api::TicketController < ApiController
 
   def cancel_unpaid_item
     ticket_item = TicketItem.find_by(chain: params[:chain], event_id: params[:product_id], order_number: params[:item_id].to_s)
+    profile = current_profile!
 
     unless ticket_item
       return render json: { result: "error", message: "ticket_item not found" }
@@ -114,6 +119,9 @@ class Api::TicketController < ApiController
       return render json: { result: "ok", message: "only for pending ticket_item" }
     end
 
+    if ticket_item.profile_id != profile.id
+      raise AppError.new("not allowed")
+    end
     ticket_item.cancel
 
     render json: { ticket_item: ticket_item.as_json }
@@ -150,6 +158,7 @@ class Api::TicketController < ApiController
     ticket_item.update(
       status: "succeeded",
       txhash: params[:txhash],
+      sender_address: params[:sender_address],
       )
 
     if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: ticket_item.profile_id, group_id: ticket_item.group_id).blank?
@@ -159,7 +168,7 @@ class Api::TicketController < ApiController
     if ticket_item.participant.payment_status != "succeeded"
       ticket_item.participant.update(payment_status: "succeeded")
       if ticket_item.profile.email.present?
-        # ticket_item.event.send_mail_new_event(ticket_item.profile.email)
+        ticket_item.event.send_mail_new_event(ticket_item.profile.email)
       end
     end
 

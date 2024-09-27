@@ -97,6 +97,83 @@ class Api::ProfileController < ApiController
     render json: { result: "ok", auth_token: profile.gen_auth_token, email: params[:email], id: profile.id, address_type: "email" }
   end
 
+  def signin_with_farcaster
+    unless params[:next_token] == ENV['NEXT_TOKEN']
+      raise AppError.new("invalid next token")
+    end
+
+    profile = Profile.find_or_create_by(farcaster_fid: params[:farcaster_fid])
+    profile.update(farcaster_address: params[:farcaster_address])
+
+    SigninActivity.create(
+      app: params[:app],
+      address: params[:farcaster_address],
+      address_type: 'farcaster',
+      address_source: params[:address_source],
+      profile_id: profile.id,
+      locale: params[:locale],
+      lang: params[:lang],
+      remote_ip: request.remote_ip,
+      )
+    render json: { result: "ok", auth_token: profile.gen_auth_token, email: params[:email], id: profile.id, address_type: "farcaster" }
+  end
+
+  def signin_with_world_id
+    unless params[:next_token] == ENV['NEXT_TOKEN']
+      raise AppError.new("invalid next token")
+    end
+
+    profile = Profile.find_or_create_by(address: params[:address], address_type: "worldid")
+    payload = {
+      id: profile.id,
+      address_type: "worldid",
+      "https://hasura.io/jwt/claims": {
+        "x-hasura-default-role": "user",
+        "x-hasura-allowed-roles": ["user"],
+        "x-hasura-user-id": profile.id.to_s,
+      }
+    }
+    auth_token = JWT.encode payload, $hmac_secret, "HS256"
+    SigninActivity.create(
+      app: params[:app],
+      address: params[:address],
+      address_type: 'worldid',
+      address_source: params[:address_source],
+      profile_id: profile.id,
+      locale: params[:locale],
+      lang: params[:lang],
+      remote_ip: request.remote_ip,
+      )
+    render json: { result: "ok", auth_token: auth_token, email: params[:email], id: profile.id, address_type: "solana_wallet" }
+  end
+
+  def signin_with_multi_zupass
+    unless params[:next_token] == ENV['NEXT_TOKEN']
+      raise AppError.new("invalid next token")
+    end
+
+    zupass_list = params[:zupass_list]
+    first_pass = zupass_list.first
+    profile = Profile.find_or_create_by(email: params[:email])
+    profile.update(
+      zupass: "#{first_pass[:zupass_event_id]}:#{first_pass[:zupass_product_id]}",
+      )
+
+    # todo : save zupass data of profile
+
+    SigninActivity.create(
+      app: params[:app],
+      address: params[:email],
+      address_type: 'zupass',
+      address_source: params[:address_source],
+      data: "zupass:#{first_pass[:zupass_event_id]}:#{first_pass[:zupass_product_id]}",
+      profile_id: profile.id,
+      locale: params[:locale],
+      lang: params[:lang],
+      remote_ip: request.remote_ip,
+      )
+    render json: { result: "ok", auth_token: profile.gen_auth_token, email: params[:email], id: profile.id, address_type: "zupass" }
+  end
 
   def signin_with_zupass
     unless params[:next_token] == ENV["NEXT_TOKEN"]
@@ -131,7 +208,7 @@ class Api::ProfileController < ApiController
 
     SigninActivity.create(
       app: params[:app],
-      address: params[:email],
+      address: params[:sol_address],
       address_type: "solana_wallet",
       address_source: params[:address_source],
       profile_id: profile.id,

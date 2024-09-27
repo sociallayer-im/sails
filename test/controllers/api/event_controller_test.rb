@@ -7,6 +7,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
   # invite guest
   # event roles
   # event roles of email
+  # todo : test rejoin after cancel
   test "api#event/create for group" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token

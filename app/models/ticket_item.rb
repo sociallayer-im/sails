@@ -1,5 +1,5 @@
 class TicketItem < ApplicationRecord
-  belongs_to :profile
+  belongs_to :profile, optional: true
   belongs_to :ticket
   belongs_to :event, optional: true
   belongs_to :participant, optional: true
