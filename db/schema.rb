@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_04_142921) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -24,11 +24,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.string "action"
     t.string "data"
     t.string "memo"
+    t.datetime "created_at", null: false
     t.integer "receiver_id"
     t.string "receiver_type", default: "id"
     t.string "receiver_address"
     t.boolean "has_read", default: false
-    t.datetime "created_at", null: false
   end
 
   create_table "availabilities", force: :cascade do |t|
@@ -42,46 +42,45 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
   end
 
   create_table "badge_classes", force: :cascade do |t|
-    t.string "domain"
     t.string "name"
     t.string "title"
-    t.jsonb "metadata"
+    t.text "metadata"
     t.text "content"
     t.string "image_url"
     t.integer "creator_id"
     t.integer "group_id"
     t.integer "counter", default: 1
-    t.string "tags", array: true
+    t.string "hashtags", array: true
     t.boolean "transferable", default: false, null: false
     t.boolean "revocable", default: false, null: false
     t.boolean "weighted", default: false, null: false
     t.boolean "encrypted", default: false, null: false
-    t.jsonb "permissions", default: {}
+    t.string "badge_type", default: "badge", null: false, comment: "badge | nft | nftpass | private"
+    t.string "permissions", default: [], array: true
     t.string "chain_index"
     t.string "chain_space"
     t.string "chain_txhash"
     t.datetime "created_at", null: false
+    t.string "display", default: "normal", comment: "normal | hide | top"
+    t.string "domain"
     t.datetime "updated_at"
-    t.string "status", default: "active"
-    t.string "display", default: "normal"
-    t.jsonb "extras", default: {}
     t.index ["creator_id"], name: "index_badge_classes_on_creator_id"
   end
 
   create_table "badges", force: :cascade do |t|
-    t.string "domain"
     t.integer "index"
     t.integer "badge_class_id"
     t.integer "creator_id"
     t.integer "owner_id"
     t.string "image_url"
     t.string "title"
-    t.jsonb "metadata"
+    t.text "metadata"
     t.text "content"
-    t.string "status", default: "minted", null: false, comment: "minted | burned"
-    t.string "display", default: "normal"
-    t.string "tags", array: true
+    t.string "status", default: "new", null: false, comment: "new | burnt"
+    t.string "display", default: "normal", null: false, comment: "normal | hide | top"
+    t.string "hashtags", array: true
     t.integer "value", default: 0
+    t.datetime "last_value_used_at"
     t.datetime "start_time"
     t.datetime "end_time"
     t.string "chain_index"
@@ -89,39 +88,20 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.string "chain_txhash"
     t.integer "voucher_id"
     t.datetime "created_at"
+    t.string "domain"
     t.datetime "updated_at"
-    t.jsonb "extras", default: {}
   end
 
   create_table "comments", force: :cascade do |t|
-    t.string "item_type"
-    t.integer "item_id"
-    t.string "comment_type"
-    t.integer "profile_id"
-    t.integer "badge_id"
-    t.string "status", default: "normal"
-    t.string "title"
-    t.text "content"
-    t.string "icon_url"
-    t.string "content_type", default: "text/plain"
+    t.integer "topic_title"
+    t.string "topic_item_type"
+    t.integer "topic_item_id"
     t.integer "reply_parent_id"
-    t.integer "edit_parent_id"
+    t.text "content"
+    t.string "content_type", default: "text"
+    t.integer "sender_id"
+    t.boolean "removed"
     t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "communities", force: :cascade do |t|
-    t.string "title"
-    t.string "image_url"
-    t.string "location"
-    t.string "website"
-    t.integer "group_id"
-    t.date "start_date"
-    t.date "end_date"
-    t.string "kind", comment: "popup_city | community"
-    t.string "group_tags", array: true
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "configs", force: :cascade do |t|
@@ -138,24 +118,22 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
   create_table "contacts", force: :cascade do |t|
     t.integer "source_id"
     t.integer "target_id"
-    t.string "label"
-    t.string "role", default: "contact", null: false, comment: "contact | follower"
-    t.string "status", default: "active", null: false, comment: "active | freezed"
+    t.string "role", default: "contact", null: false, comment: "contact"
+    t.string "status", default: "normal", null: false, comment: "normal | freezed"
     t.datetime "created_at", null: false
-    t.datetime "updated_at"
   end
 
   create_table "coupons", force: :cascade do |t|
-    t.string "selector", comment: "code | email | zupass | badge"
+    t.string "selector_type", comment: "code | email | zupass | badge"
     t.string "label"
     t.string "code"
     t.string "receiver_address"
     t.string "discount_type", comment: "ratio | amount"
-    t.integer "discount_value", comment: "0 to 100 for ratio, cent of dollar for amount"
+    t.integer "discount", comment: "0 to 100 for ratio, cent of dollar for amount"
     t.integer "event_id"
-    t.datetime "expires_at"
     t.integer "applicable_ticket_ids", array: true
     t.integer "ticket_item_ids", array: true
+    t.datetime "expiry_time"
     t.integer "max_allowed_usages"
     t.integer "order_usage_count"
     t.boolean "removed"
@@ -173,17 +151,27 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.index ["handle"], name: "index_domains_on_handle", unique: true
   end
 
+  create_table "estores", force: :cascade do |t|
+    t.string "title"
+    t.integer "group_id"
+    t.integer "owner_id"
+    t.string "status", default: "normal", null: false, comment: "draft | normal | closed"
+    t.string "image_url"
+    t.string "background_url"
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "event_roles", force: :cascade do |t|
     t.integer "event_id"
-    t.integer "item_id"
+    t.integer "profile_id"
     t.string "email"
     t.string "nickname"
     t.string "image_url"
-    t.string "role"
-    t.string "about"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "item_type", default: "Profile"
+    t.string "role"
   end
 
   create_table "events", force: :cascade do |t|
@@ -201,9 +189,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.integer "owner_id"
     t.integer "group_id"
     t.string "cover_url"
-    t.string "status", default: "published", null: false
+    t.string "status", default: "open", null: false, comment: "draft | open | closed | cancel"
     t.boolean "require_approval"
+    t.text "host_info"
     t.text "content"
+    t.string "category"
     t.string "tags", array: true
     t.integer "max_participant"
     t.integer "min_participant"
@@ -211,13 +201,24 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.integer "badge_class_id"
     t.integer "recurring_id"
     t.string "event_type", comment: "event"
-    t.string "display", default: "normal", comment: "normal | hidden | pinned"
+    t.string "display", default: "normal", comment: "normal | hide | top"
     t.datetime "created_at", null: false
-    t.datetime "updated_at"
     t.string "external_url"
     t.text "notes"
-    t.jsonb "extras", default: {}
+    t.string "padge_link"
+    t.integer "operators", array: true
+    t.jsonb "schedule_details"
+    t.string "requirement_tags", array: true
+    t.string "extra", array: true
     t.integer "track_id"
+    t.datetime "updated_at"
+  end
+
+  create_table "followings", force: :cascade do |t|
+    t.integer "profile_id"
+    t.integer "target_id"
+    t.datetime "created_at"
+    t.string "role"
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -233,7 +234,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.datetime "enqueued_at"
     t.datetime "discarded_at"
     t.datetime "finished_at"
-    t.datetime "jobs_finished_at"
   end
 
   create_table "good_job_executions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -316,46 +316,121 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.string "message"
     t.datetime "expires_at"
     t.integer "badge_class_id"
+    t.integer "badge_id"
     t.string "role", default: "member"
-    t.string "status", default: "sending"
+    t.string "status", default: "sending", null: false, comment: "sending | accepted | cancel | revoked"
+    t.boolean "accepted", default: false
+    t.datetime "created_at", null: false
     t.string "receiver_address_type", default: "id"
     t.string "receiver_address"
-    t.jsonb "data", default: {}
-    t.datetime "created_at"
-    t.datetime "updated_at"
+  end
+
+  create_table "group_pass_types", force: :cascade do |t|
+    t.string "title"
+    t.integer "group_id"
+    t.string "zupass_event_id"
+    t.string "zupass_product_id"
+    t.string "zupass_product_name"
+    t.date "start_date"
+    t.date "end_date"
+    t.date "days_allowed", array: true
+    t.string "tracks_allowed", array: true
+    t.string "image_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "group_passes", force: :cascade do |t|
+    t.integer "group_id"
+    t.integer "profile_id"
+    t.string "auth_type"
+    t.string "zupass_event_id"
+    t.string "zupass_product_id"
+    t.string "zupass_product_name"
+    t.date "start_date"
+    t.date "end_date"
+    t.date "days_allowed", array: true
+    t.date "days_blocked", array: true
+    t.boolean "weekend", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "allow_tags", array: true
+    t.string "title"
+    t.integer "pass_type_id"
+    t.integer "ticket_id"
+    t.string "tracks_allowed", array: true
   end
 
   create_table "groups", force: :cascade do |t|
-    t.string "handle"
+    t.string "username"
+    t.string "chain_index"
+    t.string "chain_space"
     t.string "image_url"
     t.string "nickname"
     t.text "about"
+    t.string "twitter"
+    t.string "github"
+    t.string "discord"
+    t.string "telegram"
+    t.string "ens"
+    t.string "lens"
+    t.string "nostr"
+    t.string "website"
+    t.string "location"
     t.integer "parent_id"
-    t.string "status", default: "active"
-    t.string "tags", array: true
-    t.string "event_taglist", array: true
-    t.string "venue_taglist", array: true
-    t.integer "group_ticket_event_id"
-    t.string "can_publish_event"
-    t.string "can_join_event"
-    t.string "can_view_event"
-    t.string "customizer"
-    t.string "logo_url"
+    t.string "permissions", default: [], array: true
+    t.string "status", default: "active", null: false, comment: "active | freezed"
+    t.string "event_tags", array: true
+    t.boolean "event_enabled", default: false
+    t.string "can_publish_event", default: "everyone", comment: "manager | member | everyone"
+    t.string "can_join_event", default: "everyone", comment: "manager | member | everyone"
+    t.string "can_view_event", default: "everyone", comment: "manager | member | everyone"
+    t.boolean "map_enabled", default: false
+    t.integer "map_union", array: true
     t.string "banner_link_url"
     t.string "banner_image_url"
-    t.integer "memberships_count"
-    t.integer "events_count", default: 0
-    t.string "location"
+    t.text "banner_text"
+    t.datetime "created_at", null: false
+    t.string "logo_url"
+    t.integer "memberships_count", default: 0, null: false
+    t.integer "events_count", default: 0, null: false
+    t.string "group_tags", array: true
     t.string "timezone"
+    t.string "map_preview_url"
+    t.string "can_publish_event_with_approval", default: "none", comment: "member | everyone | none"
+    t.string "group_space_logo_url"
+    t.string "event_site_tags", array: true
+    t.string "event_requirement_tags", array: true
+    t.string "farcaster"
+    t.integer "main_event_id"
+    t.string "stripe_app_key"
+    t.string "stripe_app_secret"
+    t.string "stripe_callback"
+    t.string "stripe_data"
+    t.string "customizer"
+    t.boolean "group_ticket_enabled", default: false
+    t.integer "group_ticket_event_id"
     t.date "start_date"
     t.date "end_date"
-    t.string "kind", comment: "popup_city | community"
-    t.jsonb "metadata"
-    t.jsonb "extras", default: {}
     t.jsonb "social_links", default: {}
-    t.jsonb "permissions", default: {}
-    t.datetime "created_at", null: false
     t.datetime "updated_at"
+  end
+
+  create_table "mail_tokens", force: :cascade do |t|
+    t.string "email"
+    t.string "code"
+    t.boolean "verified", default: false
+    t.datetime "created_at", null: false
+  end
+
+  create_table "map_checkins", force: :cascade do |t|
+    t.integer "marker_id"
+    t.integer "profile_id"
+    t.integer "badge_id"
+    t.string "check_type"
+    t.string "content"
+    t.string "image_url"
+    t.datetime "created_at", null: false
   end
 
   create_table "markers", force: :cascade do |t|
@@ -368,7 +443,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.string "title"
     t.text "about"
     t.string "link"
-    t.string "status", default: "active", null: false, comment: "active | removed"
+    t.string "status", default: "normal", null: false, comment: "normal | removed"
     t.string "location"
     t.string "formatted_address"
     t.text "location_viewport"
@@ -376,20 +451,27 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.decimal "geo_lng", precision: 10, scale: 6
     t.datetime "start_time"
     t.datetime "end_time"
-    t.jsonb "data", default: {}
-    t.datetime "updated_at"
+    t.integer "badge_class_id"
+    t.integer "voucher_id"
+    t.integer "event_id"
+    t.string "highlight"
+    t.text "message"
+    t.integer "map_checkins_count", default: 0, null: false
+    t.string "marker_state", comment: "like zugame state"
     t.datetime "created_at", null: false
+    t.datetime "updated_at"
   end
 
   create_table "memberships", force: :cascade do |t|
     t.integer "profile_id"
-    t.integer "group_id"
-    t.string "role", default: "member", null: false, comment: "member | operator | guardian | manager | owner"
-    t.string "status", default: "active", null: false, comment: "active | freezed"
+    t.integer "target_id"
+    t.string "role", default: "member", null: false, comment: "member | issuer | event_manager | guardian | manager | owner"
+    t.string "status", default: "normal", null: false, comment: "normal | freezed"
+    t.datetime "created_at"
+    t.string "cap"
     t.jsonb "data"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["profile_id", "group_id"], name: "index_memberships_on_profile_id_and_group_id", unique: true
+    t.datetime "updated_at"
+    t.index ["profile_id", "target_id"], name: "index_memberships_on_profile_id_and_target_id", unique: true
   end
 
   create_table "oauth_access_grants", force: :cascade do |t|
@@ -434,31 +516,56 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true
   end
 
+  create_table "order_items", force: :cascade do |t|
+    t.integer "order_id"
+    t.integer "product_id"
+    t.integer "product_item_id"
+    t.integer "quantity"
+    t.datetime "created_at", null: false
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.integer "estore_id"
+    t.integer "profile_id"
+    t.integer "amount"
+    t.integer "payment_point_class_id"
+    t.integer "payment_badge_id"
+    t.string "memo"
+    t.string "status", default: "normal", null: false, comment: "normal | cancel"
+    t.string "pay_status", default: "pending", comment: "pending | success | cancel"
+    t.string "delivery_code"
+    t.string "delivery_status", default: "success", comment: "pending | success | failed | cancel"
+    t.datetime "created_at", null: false
+  end
+
   create_table "participants", force: :cascade do |t|
     t.integer "event_id"
     t.integer "profile_id"
     t.text "message"
-    t.string "status", default: "attending", null: false, comment: "attending | pending | disapproved | checked | cancel"
-    t.datetime "register_time"
+    t.string "role", comment: "attendee | speaker | organizer"
+    t.integer "voucher_id"
+    t.integer "badge_id"
+    t.string "status", default: "applied", null: false, comment: "applied | pending | disapproved | checked | cancel"
     t.datetime "check_time"
-    t.string "payment_status"
     t.datetime "created_at", null: false
-    t.datetime "updated_at"
-    t.jsonb "extras", default: {}
-    t.index ["profile_id", "event_id"], name: "index_participants_on_profile_id_and_event_id", unique: true
+    t.integer "ticket_id"
+    t.string "payment_status"
+    t.string "payment_data"
+    t.string "payment_chain"
+    t.datetime "register_time"
   end
 
   create_table "payment_methods", force: :cascade do |t|
     t.string "item_type"
     t.integer "item_id"
     t.string "chain"
-    t.string "kind", default: "crypto", null: false, comment: "crypto | fiat | credit | free"
+    t.string "kind"
     t.string "token_name"
     t.string "token_address"
     t.string "receiver_address"
     t.integer "price"
     t.datetime "created_at", null: false
-    t.datetime "updated_at"
+    t.datetime "updated_at", null: false
   end
 
   create_table "point_balances", force: :cascade do |t|
@@ -467,25 +574,24 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.integer "owner_id"
     t.integer "value", default: 0
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "point_classes", force: :cascade do |t|
     t.string "name"
     t.string "title"
     t.string "sym", default: "pt", null: false
-    t.jsonb "metadata"
+    t.text "metadata"
     t.text "content"
     t.string "image_url"
+    t.string "chain_index"
+    t.string "chain_space"
     t.integer "creator_id"
     t.integer "group_id"
     t.boolean "transferable", default: false, null: false
     t.boolean "revocable", default: false, null: false
     t.string "point_type", default: "point", null: false, comment: "point | credit"
     t.integer "total_supply", default: 0
-    t.integer "max_supply"
     t.datetime "created_at", null: false
-    t.datetime "updated_at"
     t.index ["creator_id"], name: "index_point_classes_on_creator_id"
   end
 
@@ -495,6 +601,45 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.integer "receiver_id"
     t.integer "value", default: 0
     t.string "status", default: "pending", null: false, comment: "pending | accepted | rejected | revoked"
+    t.datetime "created_at", null: false
+  end
+
+  create_table "popup_cities", force: :cascade do |t|
+    t.string "title"
+    t.string "image_url"
+    t.string "location"
+    t.string "website"
+    t.integer "group_id"
+    t.date "start_date"
+    t.date "end_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "group_tags", array: true
+  end
+
+  create_table "product_items", force: :cascade do |t|
+    t.integer "product_id"
+    t.string "label"
+    t.string "image_url"
+    t.integer "inventory"
+    t.integer "price"
+    t.integer "payment_point_class_id"
+    t.integer "payment_badge_id"
+    t.integer "index", default: 0, null: false
+    t.string "status", default: "normal", null: false, comment: "draft | normal | closed"
+    t.datetime "created_at", null: false
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.integer "estore_id"
+    t.string "title"
+    t.string "image_urls", array: true
+    t.string "memo"
+    t.string "start_time"
+    t.string "end_time"
+    t.string "product_type"
+    t.string "status", default: "normal", null: false, comment: "draft | normal | closed"
+    t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -508,39 +653,56 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
   end
 
   create_table "profiles", force: :cascade do |t|
-    t.string "handle"
+    t.string "username"
+    t.string "address"
     t.string "email"
     t.string "phone"
-    t.string "address"
-    t.string "sol_address"
     t.string "zupass"
-    t.string "status", default: "active"
+    t.string "address_type", default: "wallet"
+    t.string "chain_index"
+    t.string "chain_space"
+    t.string "status", default: "active", null: false, comment: "active | freezed"
     t.string "image_url"
     t.string "nickname"
-    t.string "about"
-    t.string "farcaster_fid"
-    t.string "farcaster_address"
+    t.text "about"
+    t.string "twitter"
+    t.string "github"
+    t.string "discord"
+    t.string "telegram"
+    t.string "ens"
+    t.string "lens"
+    t.string "nostr"
+    t.string "website"
+    t.string "permissions", default: [], array: true
     t.string "location"
-    t.jsonb "extra", default: {}
-    t.jsonb "permissions", default: {}
-    t.jsonb "social_links", default: {}
+    t.integer "group_id"
+    t.string "gcalendar_refresh_token"
+    t.datetime "gcalendar_connected_at"
+    t.datetime "last_signin_at"
     t.datetime "created_at", null: false
+    t.string "sol_address"
+    t.string "far_fid"
+    t.string "far_address"
+    t.string "zupass_edge_event_id"
+    t.string "zupass_edge_product_id"
+    t.string "zupass_edge_product_name"
+    t.date "zupass_edge_start_date"
+    t.date "zupass_edge_end_date"
+    t.boolean "zupass_edge_weekend", default: false
+    t.string "farcaster"
     t.datetime "updated_at"
     t.index ["address"], name: "index_profiles_on_address", unique: true
     t.index ["email"], name: "index_profiles_on_email", unique: true
-    t.index ["handle"], name: "index_profiles_on_handle", unique: true
     t.index ["phone"], name: "index_profiles_on_phone", unique: true
+    t.index ["username"], name: "index_profiles_on_username", unique: true
   end
 
   create_table "recurrings", force: :cascade do |t|
     t.datetime "start_time"
     t.datetime "end_time"
     t.string "interval"
-    t.string "timezone"
     t.integer "event_count"
-    t.jsonb "data"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string "timezone"
   end
 
   create_table "signin_activities", force: :cascade do |t|
@@ -557,50 +719,60 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
   end
 
   create_table "ticket_items", force: :cascade do |t|
+    t.string "status"
     t.integer "profile_id"
     t.integer "ticket_id"
     t.integer "event_id"
     t.string "chain"
     t.string "txhash"
-    t.string "status"
+    t.integer "amount"
+    t.string "ticket_price"
     t.string "discount_value"
     t.string "discount_data"
     t.string "order_number"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "ticket_type", default: "event", comment: "event | group"
-    t.string "auth_type", comment: "free | payment | zupass | badge | invite"
-    t.integer "group_id"
     t.integer "participant_id"
+    t.string "ticket_type", default: "event", comment: "event | group"
+    t.integer "group_id"
+    t.string "auth_type", comment: "free | payment | zupass | badge | invite"
+    t.string "tracks_allowed", array: true
     t.integer "payment_method_id"
+    t.integer "token_address"
+    t.integer "receiver_address"
     t.integer "coupon_id"
-    t.decimal "amount", precision: 40
-    t.decimal "original_price", precision: 40
-    t.string "token_address"
-    t.string "receiver_address"
     t.string "sender_address"
+    t.string "selector_type"
+    t.string "selector_address"
+    t.decimal "original_price", precision: 40
   end
 
   create_table "tickets", force: :cascade do |t|
     t.string "title"
     t.string "content"
-    t.string "ticket_type", default: "event", comment: "event | group"
-    t.integer "group_id"
     t.integer "event_id"
     t.integer "check_badge_class_id"
     t.integer "quantity"
     t.datetime "end_time"
     t.boolean "need_approval"
     t.string "status", default: "normal"
+    t.string "payment_chain"
+    t.string "payment_token_name"
+    t.string "payment_token_address"
+    t.string "payment_target_address"
     t.datetime "created_at", null: false
-    t.datetime "updated_at"
+    t.integer "payment_token_price"
+    t.jsonb "payment_metadata"
+    t.string "ticket_type", default: "event", comment: "event | group"
+    t.integer "group_id"
     t.string "zupass_event_id"
     t.string "zupass_product_id"
     t.string "zupass_product_name"
     t.date "start_date"
     t.date "end_date"
     t.date "days_allowed", array: true
-    t.string "tracks_allowed", array: true
+    t.datetime "updated_at"
+    t.integer "tracks_allowed", default: [], array: true
   end
 
   create_table "track_roles", force: :cascade do |t|
@@ -624,6 +796,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.date "end_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "manager_ids", array: true
   end
 
   create_table "venue_overrides", force: :cascade do |t|
@@ -634,7 +807,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.string "end_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "data"
   end
 
   create_table "venue_timeslots", force: :cascade do |t|
@@ -645,7 +817,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.string "end_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "data"
   end
 
   create_table "venues", force: :cascade do |t|
@@ -659,16 +830,17 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.decimal "geo_lat", precision: 10, scale: 6
     t.decimal "geo_lng", precision: 10, scale: 6
     t.datetime "created_at", null: false
-    t.datetime "updated_at"
     t.date "start_date"
     t.date "end_date"
+    t.jsonb "timeslots"
     t.string "link"
     t.integer "capacity"
+    t.jsonb "overrides"
     t.boolean "require_approval", default: false
     t.string "tags", array: true
+    t.boolean "removed"
     t.string "visibility", comment: "all | manager | none"
-    t.jsonb "timeslots", default: {}
-    t.jsonb "overrides", default: {}
+    t.datetime "updated_at"
   end
 
   create_table "vote_options", force: :cascade do |t|
@@ -692,7 +864,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.integer "eligibile_badge_class_id"
     t.integer "eligibile_point_id"
     t.string "verification"
-    t.string "status", default: "published", null: false, comment: "draft | published | closed | cancelled"
+    t.string "status", default: "open", null: false, comment: "draft | open | closed | cancel"
     t.boolean "show_voters"
     t.boolean "can_update_vote"
     t.integer "voter_count", default: 0
@@ -701,7 +873,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.datetime "start_time"
     t.datetime "end_time"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "vote_records", force: :cascade do |t|
@@ -716,19 +887,17 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
   create_table "vouchers", force: :cascade do |t|
     t.integer "sender_id"
     t.integer "badge_class_id"
-    t.string "item_type"
-    t.integer "item_id"
     t.string "badge_title"
     t.string "badge_content"
     t.string "badge_image"
-    t.jsonb "data", comment: "start_time, end_time, value, transferable, revocable"
+    t.string "badge_data", comment: "start_time, end_time, value, transferable, revocable"
     t.string "code"
     t.string "message"
     t.datetime "expires_at"
     t.integer "counter", default: 1
     t.integer "receiver_id"
     t.string "receiver_address"
-    t.string "receiver_address_type", default: "id"
+    t.string "receiver_address_type"
     t.datetime "claimed_at"
     t.boolean "claimed_by_server", default: false
     t.string "strategy", default: "code"
@@ -738,10 +907,58 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_191829) do
     t.string "minted_address"
     t.string "minted_ids", array: true
     t.datetime "created_at", null: false
-    t.datetime "updated_at"
     t.index ["sender_id"], name: "index_vouchers_on_sender_id"
   end
 
+  add_foreign_key "activities", "profiles", column: "initiator_id"
+  add_foreign_key "contacts", "profiles", column: "source_id"
+  add_foreign_key "contacts", "profiles", column: "target_id"
+  add_foreign_key "estores", "groups"
+  add_foreign_key "estores", "profiles", column: "owner_id"
+  add_foreign_key "events", "badge_classes"
+  add_foreign_key "events", "profiles", column: "owner_id"
+  add_foreign_key "events", "recurrings"
+  add_foreign_key "group_invites", "badge_classes"
+  add_foreign_key "group_invites", "profiles", column: "receiver_id"
+  add_foreign_key "group_invites", "profiles", column: "sender_id"
+  add_foreign_key "groups", "groups", column: "parent_id"
+  add_foreign_key "map_checkins", "markers"
+  add_foreign_key "map_checkins", "profiles"
+  add_foreign_key "markers", "badge_classes"
+  add_foreign_key "markers", "groups"
+  add_foreign_key "markers", "profiles", column: "owner_id"
+  add_foreign_key "markers", "vouchers"
+  add_foreign_key "memberships", "groups", column: "target_id"
+  add_foreign_key "memberships", "profiles"
   add_foreign_key "oauth_access_grants", "oauth_applications", column: "application_id"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
+  add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "product_items"
+  add_foreign_key "order_items", "products"
+  add_foreign_key "orders", "estores"
+  add_foreign_key "orders", "profiles"
+  add_foreign_key "participants", "events"
+  add_foreign_key "participants", "profiles"
+  add_foreign_key "point_balances", "point_classes"
+  add_foreign_key "point_balances", "profiles", column: "creator_id"
+  add_foreign_key "point_balances", "profiles", column: "owner_id"
+  add_foreign_key "point_classes", "groups"
+  add_foreign_key "point_classes", "profiles", column: "creator_id"
+  add_foreign_key "point_transfers", "point_classes"
+  add_foreign_key "point_transfers", "profiles", column: "receiver_id"
+  add_foreign_key "point_transfers", "profiles", column: "sender_id"
+  add_foreign_key "product_items", "products"
+  add_foreign_key "products", "estores"
+  add_foreign_key "vote_options", "groups"
+  add_foreign_key "vote_options", "vote_proposals"
+  add_foreign_key "vote_proposals", "groups"
+  add_foreign_key "vote_proposals", "groups", column: "eligibile_group_id"
+  add_foreign_key "vote_proposals", "point_balances", column: "eligibile_point_id"
+  add_foreign_key "vote_proposals", "profiles", column: "creator_id"
+  add_foreign_key "vote_records", "groups"
+  add_foreign_key "vote_records", "profiles", column: "voter_id"
+  add_foreign_key "vote_records", "vote_proposals"
+  add_foreign_key "vouchers", "badge_classes"
+  add_foreign_key "vouchers", "profiles", column: "receiver_id"
+  add_foreign_key "vouchers", "profiles", column: "sender_id"
 end
