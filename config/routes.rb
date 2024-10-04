@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     post "profile/signin_with_solana", to: "profile#signin_with_solana"
     post "profile/signin_with_farcaster", to: "profile#signin_with_farcaster"
     post "profile/signin_with_world_id", to: "profile#signin_with_world_id"
+    post "profile/track_list", to: "profile#track_list"
 
     post "group/create", to: "group#create"
     post "group/update", to: "group#update"

@@ -6,6 +6,7 @@ class Ticket < ApplicationRecord
   has_many :payment_methods, as: :item, dependent: :delete_all
 
   accepts_nested_attributes_for :payment_methods, allow_destroy: true
+  validates :status, inclusion: { in: %w(normal nosale hidden inactive) }
 
   before_save do
     if self.event.event_type == 'group_ticket'

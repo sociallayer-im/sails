@@ -363,6 +363,12 @@ class Api::ProfileController < ApiController
     render json: { profile: profile.as_json }
   end
 
+  def track_list
+    profile = Profile.find(params[:id])
+    track_ids = profile.ticket_items.where(ticket_type: "group", group_id: params[:group_id], status: "succeeded").map {|ticket_item| ticket_item.ticket.tracks_allowed }.flatten.compact.uniq
+    render json: { track_ids: track_ids.as_json }
+  end
+
   private
 
   def profile_params
