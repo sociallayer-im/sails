@@ -42,8 +42,8 @@ class Api::TicketController < ApiController
       # todo : check account-bounded coupon
 
       if params[:coupon].present?
-        coupon = Coupon.find_by(selector: "code", event_id: event.id, code: params[:coupon])
-        if coupon.expiry_time < DateTime.now || coupon.max_allowed_usages <= coupon.order_usage_count
+        coupon = Coupon.find_by(selector_type: "code", event_id: event.id, code: params[:coupon])
+        if coupon.expires_at < DateTime.now || coupon.max_allowed_usages <= coupon.order_usage_count
           return render json: { result: "error", message: "coupon is not available" }
         end
 
@@ -161,14 +161,14 @@ class Api::TicketController < ApiController
       sender_address: params[:sender_address],
       )
 
-    if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: ticket_item.profile_id, group_id: ticket_item.group_id).blank?
-      Membership.create(profile: ticket_item.profile, group: ticket_item.group, role: "member", status: "active")
+    if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: ticket_item.profile_id, target_id: ticket_item.group_id).blank?
+      Membership.create(profile: ticket_item.profile, target: ticket_item.group, role: "member", status: "active")
     end
 
     if ticket_item.participant.payment_status != "succeeded"
       ticket_item.participant.update(payment_status: "succeeded")
       if ticket_item.profile.email.present?
-        ticket_item.event.send_mail_new_event(ticket_item.profile.email)
+        ticket_item.profile.send_mail_new_event(ticket_item.event)
       end
     end
 
@@ -233,7 +233,7 @@ class Api::TicketController < ApiController
   end
 
   def coupon_price
-    coupon = Coupon.find_by(selector: "code", code: params[:coupon])
+    coupon = Coupon.find_by(selector_type: "code", code: params[:coupon])
     amount, discount_value, discount_data = coupon.get_discounted_price(params[:amount])
     render json: { coupon_id: coupon.id, amount: amount }
   end

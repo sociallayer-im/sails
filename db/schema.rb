@@ -65,6 +65,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
     t.string "domain"
     t.datetime "updated_at"
     t.string "status", default: "active"
+    t.string "can_send_badge", default: "owner"
     t.index ["creator_id"], name: "index_badge_classes_on_creator_id"
   end
 
@@ -94,15 +95,21 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
   end
 
   create_table "comments", force: :cascade do |t|
-    t.integer "topic_title"
-    t.string "topic_item_type"
-    t.integer "topic_item_id"
+    t.integer "title"
+    t.string "item_type"
+    t.integer "item_id"
     t.integer "reply_parent_id"
     t.text "content"
     t.string "content_type", default: "text"
-    t.integer "sender_id"
+    t.integer "profile_id"
     t.boolean "removed"
     t.datetime "created_at"
+    t.string "status", default: "active"
+    t.string "comment_type"
+    t.string "icon_url"
+    t.integer "edit_parent_id"
+    t.integer "badge_id"
+    t.datetime "updated_at"
   end
 
   create_table "configs", force: :cascade do |t|
@@ -134,7 +141,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
     t.integer "event_id"
     t.integer "applicable_ticket_ids", array: true
     t.integer "ticket_item_ids", array: true
-    t.datetime "expiry_time"
+    t.datetime "expires_at"
     t.integer "max_allowed_usages"
     t.integer "order_usage_count"
     t.boolean "removed"
@@ -166,13 +173,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
 
   create_table "event_roles", force: :cascade do |t|
     t.integer "event_id"
-    t.integer "profile_id"
+    t.integer "item_id"
     t.string "email"
     t.string "nickname"
     t.string "image_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "role"
+    t.string "item_type"
   end
 
   create_table "events", force: :cascade do |t|
@@ -213,6 +221,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
     t.string "extra", array: true
     t.integer "track_id"
     t.datetime "updated_at"
+    t.jsonb "extras", default: {}
   end
 
   create_table "followings", force: :cascade do |t|
@@ -693,6 +702,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
     t.boolean "zupass_edge_weekend", default: false
     t.string "farcaster"
     t.datetime "updated_at"
+    t.jsonb "social_links", default: {}
     t.string "handle"
     t.index ["address"], name: "index_profiles_on_address", unique: true
     t.index ["email"], name: "index_profiles_on_email", unique: true
@@ -910,6 +920,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
     t.string "minted_address"
     t.string "minted_ids", array: true
     t.datetime "created_at", null: false
+    t.jsonb "data", comment: "start_time, end_time, value, transferable, revocable"
     t.index ["sender_id"], name: "index_vouchers_on_sender_id"
   end
 

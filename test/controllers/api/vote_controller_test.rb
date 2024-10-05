@@ -36,6 +36,7 @@ class Api::VoteControllerTest < ActionDispatch::IntegrationTest
       title: "save the planet",
       content: "we should save the planet",
       creator_id: profile.id,
+      status: "published",
       group_id: 1,
       max_choice: 1,
       eligibile_group_id: 1,

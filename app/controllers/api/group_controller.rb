@@ -51,13 +51,13 @@ class Api::GroupController < ApiController
     group = Group.find(params[:id])
     authorize group, :own?, policy_class: GroupPolicy
 
-    old_membership = Membership.find_by(role: "owner", group_id: group.id)
+    old_membership = Membership.find_by(role: "owner", target_id: group.id)
     old_owner = old_membership.profile
 
     new_owner = Profile.find_by(handle: params[:new_owner_handle])
     raise AppError.new("new_owner not exists") unless new_owner
 
-    membership = Membership.find_by(profile_id: new_owner.id, group_id: group.id)
+    membership = Membership.find_by(profile_id: new_owner.id, target_id: group.id)
     return render json: { result: "error", message: "new_owner membership not exists" } if membership.nil?
     return render json: { result: "error", message: "new_owner is owner of the group" } if membership.role == "owner"
 
@@ -80,7 +80,7 @@ class Api::GroupController < ApiController
     profile = Profile.find(params[:profile_id])
     group = Group.find(params[:group_id])
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id, role: %w[manager owner])
+    membership = group.is_manager(profile.id)
     render json: { is_member: !!membership, role: membership.try(:role) }
   end
 
@@ -88,7 +88,7 @@ class Api::GroupController < ApiController
     profile = Profile.find(params[:profile_id])
     group = Group.find(params[:group_id])
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id, role: %w[operator manager owner])
+    membership = group.is_operator(profile.id)
     render json: { is_member: !!membership, role: membership.try(:role) }
   end
 
@@ -96,7 +96,7 @@ class Api::GroupController < ApiController
     profile = Profile.find(params[:profile_id])
     group = Group.find(params[:group_id])
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id, role: %w[member operator manager owner])
+    membership = group.is_member(profile.id)
     render json: { is_member: !!membership, role: membership.try(:role) }
   end
 
@@ -105,7 +105,7 @@ class Api::GroupController < ApiController
     group = Group.find(params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id)
+    membership = group.is_member(profile.id)
     membership.destroy
     render json: { result: "ok" }
   end
@@ -115,7 +115,7 @@ class Api::GroupController < ApiController
     group = Group.find(params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id, role: %w[operator])
+    membership = group.is_operator(profile.id)
     membership.update(role: "member")
     render json: { result: "ok" }
   end
@@ -125,7 +125,7 @@ class Api::GroupController < ApiController
     group = Group.find(params[:group_id])
     authorize group, :own?, policy_class: GroupPolicy
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id, role: %w[manager])
+    membership = group.is_manager(profile.id)
     membership.update(role: "member")
     render json: { result: "ok" }
   end
@@ -135,7 +135,7 @@ class Api::GroupController < ApiController
     group = Group.find(params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id, role: %w[member operator])
+    membership = group.is_member(profile.id)
     membership.update(role: "manager")
 
     render json: { result: "ok" }
@@ -146,7 +146,7 @@ class Api::GroupController < ApiController
     group = Group.find(params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id, role: %w[member])
+    membership = group.is_member(profile.id)
     membership.update(role: "operator")
     render json: { result: "ok" }
   end
@@ -156,7 +156,8 @@ class Api::GroupController < ApiController
     group = Group.find(params[:group_id])
     raise AppError.new("no membership") unless (current_profile!).id == profile.id
 
-    membership = Membership.find_by(profile_id: profile.id, group_id: group.id, role: %w[member manager])
+    membership = group.is_member(profile.id)
+    raise AppError.new("owner cannot leave") if membership.role == "owner"
     membership.destroy
     render json: { result: "ok" }
   end

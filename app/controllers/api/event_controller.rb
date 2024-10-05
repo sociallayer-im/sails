@@ -40,7 +40,7 @@ class Api::EventController < ApiController
     group.increment!(:events_count) if group
 
     if @send_approval_email_to_manager
-      Membership.includes(:profile).where(profile_id: group.id, role: [ "owner", "manager" ]).each do |membership|
+      Membership.includes(:profile).where(target_id: group.id, role: [ "owner", "manager" ]).each do |membership|
         if membership.data.present? && membership.data.include?("venue") && membership.profile.email.present?
           group_name = group ? (group.nickname || group.handle) : ""
           mailer = GroupMailer.with(group_name: group_name, event_id: event.id, recipient: membership.profile.email).venue_review_email
@@ -303,7 +303,7 @@ class Api::EventController < ApiController
     @events = Event.where(group_id: group_id)
 
     @events = @events.where(owner: profile)
-    .or(@events.where(group_id: Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:group_id)))
+    .or(@events.where(group_id: Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:target_id)))
     .or(@events.where(id: EventRole.where(item_type: "Profile", item_id: profile.id).pluck(:event_id)))
 
     @events = @events.where(status: "published").where(display: ["hidden"])
@@ -386,7 +386,7 @@ class Api::EventController < ApiController
           :_destroy
         ]
       ],
-      coupons_attributes: [ :id, :selector, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expiry_time, :max_allowed_usages, :order_usage_count, :_destroy ],
+      coupons_attributes: [ :id, :selector_type, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expires_at, :max_allowed_usages, :order_usage_count, :_destroy ],
       event_roles_attributes: [ :id, :role, :group_id, :event_id, :item_type, :item_id, :email, :nickname, :image_url, :_destroy ],
       )
   end

@@ -106,7 +106,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "member", status: "active")
+    Membership.create(profile: profile2, target: group, role: "member", status: "active")
 
     post api_group_transfer_owner_url,
       params: { auth_token: auth_token, id: group.id, new_owner_handle: "mooncake" }
@@ -134,7 +134,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile2.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "manager", status: "active")
+    Membership.create(profile: profile2, target: group, role: "manager", status: "active")
 
     get api_group_is_manager_url,
       params: { profile_id: profile2.id, group_id: group.id }
@@ -147,7 +147,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile2.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "operator", status: "active")
+    Membership.create(profile: profile2, target: group, role: "operator", status: "active")
 
     get api_group_is_operator_url,
       params: { profile_id: profile2.id, group_id: group.id }
@@ -160,7 +160,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile2.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "member", status: "active")
+    Membership.create(profile: profile2, target: group, role: "member", status: "active")
 
     get api_group_is_member_url,
       params: { profile_id: profile2.id, group_id: group.id }
@@ -174,7 +174,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "member", status: "active")
+    Membership.create(profile: profile2, target: group, role: "member", status: "active")
 
     post api_group_remove_member_url,
       params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
@@ -189,7 +189,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "operator", status: "active")
+    Membership.create(profile: profile2, target: group, role: "operator", status: "active")
 
     post api_group_remove_operator_url,
       params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
@@ -205,7 +205,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "manager", status: "active")
+    Membership.create(profile: profile2, target: group, role: "manager", status: "active")
 
     post api_group_remove_manager_url,
       params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
@@ -221,8 +221,8 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.find_by(profile: profile, group: group).update(role: "manager")
-    Membership.create(profile: profile2, group: group, role: "manager", status: "active")
+    group.is_member(profile.id).update(role: "manager")
+    Membership.create(profile: profile2, target: group, role: "manager", status: "active")
 
     post api_group_remove_manager_url,
       params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
@@ -237,7 +237,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "member", status: "active")
+    Membership.create(profile: profile2, target: group, role: "member", status: "active")
 
     post api_group_add_manager_url,
       params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
@@ -252,8 +252,8 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.find_by(profile: profile, group: group).update(role: "manager")
-    Membership.create(profile: profile2, group: group, role: "member", status: "active")
+    group.is_member(profile.id).update(role: "manager")
+    Membership.create(profile: profile2, target: group, role: "member", status: "active")
 
     post api_group_add_manager_url,
       params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
@@ -283,7 +283,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "member", status: "active")
+    Membership.create(profile: profile2, target: group, role: "member", status: "active")
 
     post api_group_add_operator_url,
       params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
@@ -312,7 +312,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile2.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile: profile2, group: group, role: "member", status: "active")
+    Membership.create(profile: profile2, target: group, role: "member", status: "active")
 
     post api_group_leave_url,
       params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }

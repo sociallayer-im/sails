@@ -15,7 +15,7 @@ class BadgeClassPolicy < ApplicationPolicy
   end
 
   def send?
-    if @badge_class.group_id && @badge_class.permissions["group_member_send"]
+    if @badge_class.group_id && @badge_class.can_send_badge == "group_member_send"
       @badge_class.group.is_member(@profile.id)
     elsif @badge_class.group_id
       @badge_class.group.is_manager(@profile.id)

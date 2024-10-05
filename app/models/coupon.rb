@@ -1,5 +1,5 @@
 class Coupon < ApplicationRecord
-  validates :selector, inclusion: { in: %w(code email zupass badge) }
+  validates :selector_type, inclusion: { in: %w(code email zupass badge) }
   validates :discount_type, inclusion: { in: %w(ratio amount) }
   belongs_to :event
 
@@ -15,10 +15,10 @@ class Coupon < ApplicationRecord
       return [amount, nil, nil]
     end
     if self.discount_type == "ratio"
-      return [amount, nil, nil] if self.discount_value > 10000 || self.discount_value < 0
-      amount = amount * self.discount_value / 10000
+      return [amount, nil, nil] if self.discount > 10000 || self.discount < 0
+      amount = amount * self.discount / 10000
     elsif self.discount_type == "amount"
-      discount_value = paymethod.chain == "stripe" ? self.discount_value : self.discount_value * 10000
+      discount_value = paymethod.chain == "stripe" ? self.discount : self.discount * 10000
       discount_value = amount if discount_value > amount
       amount = amount - discount_value
     end

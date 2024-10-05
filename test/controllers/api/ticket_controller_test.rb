@@ -110,7 +110,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     assert ticket_item.txhash == "0x7890"
     assert ticket_item.status == "succeeded"
     assert Participant.find_by(event: event, profile: @profile2, status: "attending").payment_status == "succeeded"
-    assert Membership.find_by(profile: @profile2, group: @group, status: "active")
+    assert Membership.find_by(profile: @profile2, target: @group, status: "active")
   end
 
   test "api#ticket/rsvp with free ticket" do
@@ -272,14 +272,14 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
 
   def create_coupon(event, discount_value)
     Coupon.create(
-      selector: "code",
+      selector_type: "code",
       label: "community",
       code: "abcdef",
       max_allowed_usages: 10,
       order_usage_count: 0,
       expires_at: (DateTime.now + 7.days),
       discount_type: "ratio",
-      discount_value: discount_value,
+      discount: discount_value,
       event_id: event.id
     )
   end

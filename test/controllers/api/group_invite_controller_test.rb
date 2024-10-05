@@ -28,7 +28,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile_id: profile2.id, group_id: group.id, role: "member", status: "active")
+    Membership.create(profile_id: profile2.id, target_id: group.id, role: "member", status: "active")
 
     assert_difference "GroupInvite.count", 0 do
     post api_group_send_invite_url, params: {
@@ -40,7 +40,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
      }
     end
     assert_response :success
-    assert Membership.find_by(profile_id: profile2.id, group_id: group.id).role == "manager"
+    assert Membership.find_by(profile_id: profile2.id, target_id: group.id).role == "manager"
   end
 
   test "api#group/send_invite to existing manager without downgrading" do
@@ -49,7 +49,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    Membership.create(profile_id: profile2.id, group_id: group.id, role: "manager", status: "active")
+    Membership.create(profile_id: profile2.id, target_id: group.id, role: "manager", status: "active")
 
     assert_difference "GroupInvite.count", 0 do
     post api_group_send_invite_url, params: {
@@ -61,7 +61,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
      }
     end
     assert_response :success
-    assert Membership.find_by(profile_id: profile2.id, group_id: group.id).role == "manager"
+    assert group.is_manager(profile2.id)
   end
 
   test "api#group/send_invite to new email and accept" do
@@ -96,7 +96,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     }
     assert_response :success
 
-    group_member = Membership.find_by(group: group, profile: profile2)
+    group_member = group.is_member(profile2.id)
     assert group_member
     assert_equal "manager", group_member.role
   end
@@ -113,7 +113,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     }
     assert_response :success
 
-    group_member = Membership.find_by(group: group, profile: profile)
+    group_member = group.is_member(profile.id)
     assert group_member
     assert_equal "member", group_member.role
   end
@@ -186,8 +186,7 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
     group_invite.reload
     assert_equal "accepted", group_invite.status
 
-    membership = Membership.find_by(profile_id: requester.id, group_id: group.id)
-    assert membership
-    assert_equal "member", membership.role
+    assert group.is_member(requester.id)
+    assert_equal "member", group.is_member(requester.id).role
   end
 end

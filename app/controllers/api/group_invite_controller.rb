@@ -3,7 +3,7 @@ class Api::GroupInviteController < ApiController
     profile = current_profile!
     group = Group.find(params[:group_id])
 
-    if Membership.find_by(profile_id: profile.id, group_id: group.id, role: params[:role])
+    if Membership.find_by(profile_id: profile.id, target_id: group.id, role: params[:role])
       return render json: { receiver_id: receiver_id, result: "error", message: "membership exists" }
     end
 
@@ -56,7 +56,7 @@ class Api::GroupInviteController < ApiController
       if receiver
         receiver_id = receiver.id
 
-        membership = Membership.find_by(profile_id: receiver.id, group_id: group.id)
+        membership = Membership.find_by(profile_id: receiver.id, target_id: group.id)
         if membership && membership.role == "member" && role != "member"
           membership.update(role: role)
           activity = Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: receiver.id)

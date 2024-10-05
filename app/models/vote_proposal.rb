@@ -6,7 +6,7 @@ class VoteProposal < ApplicationRecord
   has_many :vote_records
 
   validates :end_time, comparison: { greater_than: :start_time }
-  validates :status, inclusion: { in: %w(draft published closed cancelled) }
+  validates :status, inclusion: { in: %w(draft open published closed cancelled) }
 
   accepts_nested_attributes_for :vote_options, allow_destroy: true
 end
