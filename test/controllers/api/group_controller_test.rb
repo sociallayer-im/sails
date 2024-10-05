@@ -96,7 +96,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     post api_group_transfer_owner_url,
-      params: { auth_token: auth_token, id: group.id, new_owner_username: "mooncake" }
+      params: { auth_token: auth_token, id: group.id, new_owner_handle: "mooncake" }
     assert JSON.parse(response.body)["message"] == "new_owner membership not exists"
   end
 
@@ -109,7 +109,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     Membership.create(profile: profile2, group: group, role: "member", status: "active")
 
     post api_group_transfer_owner_url,
-      params: { auth_token: auth_token, id: group.id, new_owner_username: "mooncake" }
+      params: { auth_token: auth_token, id: group.id, new_owner_handle: "mooncake" }
     assert_response :success
     group = Group.find_by(handle: "guildx")
     assert group.is_owner(profile2.id)

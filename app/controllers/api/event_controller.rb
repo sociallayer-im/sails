@@ -42,7 +42,7 @@ class Api::EventController < ApiController
     if @send_approval_email_to_manager
       Membership.includes(:profile).where(profile_id: group.id, role: [ "owner", "manager" ]).each do |membership|
         if membership.data.present? && membership.data.include?("venue") && membership.profile.email.present?
-          group_name = group ? (group.nickname || group.username) : ""
+          group_name = group ? (group.nickname || group.handle) : ""
           mailer = GroupMailer.with(group_name: group_name, event_id: event.id, recipient: membership.profile.email).venue_review_email
           mailer.deliver_later
         end

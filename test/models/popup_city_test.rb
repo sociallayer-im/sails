@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CommunityTest < ActiveSupport::TestCase
+class PopupCityTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

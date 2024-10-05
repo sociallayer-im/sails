@@ -27,12 +27,12 @@ class ApiController < ApplicationController
     (label.length >= 4) && check_badge_domain_label(label)
   end
 
-  def check_profile_username(handle)
+  def check_profile_handle(handle)
     /^[a-z0-9]+([\-]{1}[a-z0-9]+)*$/.match(handle).to_s == handle
   end
 
-  def check_profile_username_and_length(handle)
-    handle.length >= 6 && check_profile_username(handle)
+  def check_profile_handle_and_length(handle)
+    handle.length >= 6 && check_profile_handle(handle)
   end
 
   def sanitize_text(content)

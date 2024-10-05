@@ -3,7 +3,7 @@ class Api::GroupController < ApiController
     profile = current_profile!
 
     handle = params[:handle]
-    unless check_profile_username_and_length(handle)
+    unless check_profile_handle_and_length(handle)
       render json: { result: "error", message: "invalid handle" }
       return
     end
@@ -54,7 +54,7 @@ class Api::GroupController < ApiController
     old_membership = Membership.find_by(role: "owner", group_id: group.id)
     old_owner = old_membership.profile
 
-    new_owner = Profile.find_by(handle: params[:new_owner_username])
+    new_owner = Profile.find_by(handle: params[:new_owner_handle])
     raise AppError.new("new_owner not exists") unless new_owner
 
     membership = Membership.find_by(profile_id: new_owner.id, group_id: group.id)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_04_142921) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,6 +64,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_142921) do
     t.string "display", default: "normal", comment: "normal | hide | top"
     t.string "domain"
     t.datetime "updated_at"
+    t.string "status", default: "active"
     t.index ["creator_id"], name: "index_badge_classes_on_creator_id"
   end
 
@@ -414,6 +415,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_142921) do
     t.date "end_date"
     t.jsonb "social_links", default: {}
     t.datetime "updated_at"
+    t.string "handle"
   end
 
   create_table "mail_tokens", force: :cascade do |t|
@@ -691,6 +693,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_142921) do
     t.boolean "zupass_edge_weekend", default: false
     t.string "farcaster"
     t.datetime "updated_at"
+    t.string "handle"
     t.index ["address"], name: "index_profiles_on_address", unique: true
     t.index ["email"], name: "index_profiles_on_email", unique: true
     t.index ["phone"], name: "index_profiles_on_phone", unique: true

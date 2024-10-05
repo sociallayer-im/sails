@@ -34,7 +34,7 @@ class Api::ProfileController < ApiController
         )
       if params[:app] == "seedao.sola.day" || params[:app] == "seedaobeta.sola.day"
         seedao_group_name = params[:app].sub(".sola.day", "")
-        seedao_group = Group.find_by(username: seedao_group_name)
+        seedao_group = Group.find_by(handle: seedao_group_name)
         data = RestClient.get("https://sola.deno.dev/seedao/getname/#{address}")
         domain = JSON.parse(data.body)["domain"]
         if domain.present? && seedao_group
@@ -299,7 +299,7 @@ class Api::ProfileController < ApiController
 
   def create
     handle = params[:handle]
-    unless check_profile_username_and_length(handle)
+    unless check_profile_handle_and_length(handle)
       render json: { result: "error", message: "invalid handle" }
       return
     end

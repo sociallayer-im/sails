@@ -21,7 +21,7 @@ class Api::BadgeController < ApiController
     profile = current_profile!
 
     badge = Badge.find(params[:badge_id])
-    target = Profile.find_by(username: params[:target])
+    target = Profile.find_by(handle: params[:target])
     authorize badge, :own?
 
     # need test

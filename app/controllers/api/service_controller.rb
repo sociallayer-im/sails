@@ -19,7 +19,7 @@ class Api::ServiceController < ApiController
       end
     end
 
-    # todo : log username
+    # todo : log handle
     # key = SecureRandom.hex(10)
 
     key = sha.hexdigest.slice(0...16)
