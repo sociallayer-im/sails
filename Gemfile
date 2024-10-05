@@ -80,6 +80,8 @@ group :test do
   gem "selenium-webdriver"
 end
 
+gem "simplecov", require: false, group: :test
+
 gem "good_job", "~> 4.3"
 
 gem "doorkeeper", "~> 5.7"
