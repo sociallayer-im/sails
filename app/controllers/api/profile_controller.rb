@@ -315,12 +315,12 @@ class Api::ProfileController < ApiController
       return
     end
 
-    if Profile.find_by(handle: handle) || Group.find_by(handle: handle)
+    if Profile.find_by(handle: handle) || Group.find_by(handle: handle) || Profile.find_by(username: handle) || Group.find_by(username: handle)
       render json: { result: "error", message: "profile handle exists" }
       return
     end
     ActiveRecord::Base.transaction do
-      profile.update(handle: handle)
+      profile.update(handle: handle, username: handle)
       Domain.create(handle: handle, fullname: "#{handle}.sola.day", item_type: "Profile", item_id: profile.id)
     end
     render json: { result: "ok" }
