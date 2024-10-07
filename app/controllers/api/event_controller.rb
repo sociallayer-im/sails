@@ -269,7 +269,7 @@ class Api::EventController < ApiController
 
   def get
     @event = Event.find(params[:id])
-    render json: @event, status: :ok
+    render template: "api/event/show", content_type: "application/json"
   end
 
   def list
@@ -277,11 +277,13 @@ class Api::EventController < ApiController
     group = Group.find(group_id)
     pub_tracks = Track.where(group_id: group_id, kind: "public").ids
     pub_tracks << nil
-    @events = Event.where(status: "published").where(group_id: group_id)
+    @events = Event.where(status: ["published", "open"]).where(group_id: group_id)
     @events = @events.where(display: ["normal", "pinned"])
     @events = @events.where(track_id: pub_tracks)
-    @events = @events.order(start_time: :desc).limit(10)
-    render json: @events, status: :ok
+    @events = @events.order(start_time: :desc).limit(20)
+    p @events
+    # render json: @events, status: :ok
+    render template: "api/event/index", content_type: "application/json"
   end
 
   def private_track_list
