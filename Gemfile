@@ -87,3 +87,6 @@ gem "pagy", "~> 9.1"
 gem "good_job", "~> 4.3"
 
 gem "doorkeeper", "~> 5.7"
+
+gem "skylight"
+
