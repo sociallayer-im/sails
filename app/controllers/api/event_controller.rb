@@ -277,12 +277,27 @@ class Api::EventController < ApiController
     group = Group.find(group_id)
     pub_tracks = Track.where(group_id: group_id, kind: "public").ids
     pub_tracks << nil
-    @events = Event.where(status: ["published", "open"]).where(group_id: group_id)
+
+    @timezone = group.timezone || params[:timezone] || 'UTC'
+    @events = Event.where(status: ["open", "published"]).where(group_id: group_id)
     @events = @events.where(display: ["normal", "pinned"])
     @events = @events.where(track_id: pub_tracks)
-    @events = @events.order(start_time: :desc).limit(20)
-    p @events
-    # render json: @events, status: :ok
+    if params[:start_date].present? && params[:end_date].present?
+      start_time = Date.parse(params[:start_date]).in_time_zone(@timezone).at_beginning_of_day
+      end_time = Date.parse(params[:end_date]).in_time_zone(@timezone).at_end_of_day
+      @events = @events.where("start_time >= ?", start_time).where("end_time <= ?", end_time)
+      @events = @events.order(start_time: :asc)
+    elsif params["collection"] == "upcoming"
+      @events = @events.where("end_time >= ?", DateTime.now)
+      @events = @events.order(start_time: :asc)
+    elsif params["collection"] == "past"
+      @events = @events.where("end_time < ?", DateTime.now)
+      @events = @events.order(start_time: :desc)
+    else
+      @events = @events.order(start_time: :asc)
+    end
+
+    @pagy, @events = pagy(@events, limit: 40)
     render template: "api/event/index", content_type: "application/json"
   end
 
@@ -292,11 +307,27 @@ class Api::EventController < ApiController
     group = Group.find(group_id)
     my_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
     my_tracks << nil
-    @events = Event.where(status: "published").where(group_id: group_id)
+    @events = Event.where(status: ["open", "published"]).where(group_id: group_id)
     @events = @events.where(display: ["normal", "pinned"])
     @events = @events.where(track_id: my_tracks)
-    @events = @events.order(start_time: :desc).limit(10)
-    render json: @events, status: :ok
+
+    if params[:start_date].present? && params[:end_date].present?
+      start_time = Date.parse(params[:start_date]).in_time_zone(@timezone).at_beginning_of_day
+      end_time = Date.parse(params[:end_date]).in_time_zone(@timezone).at_end_of_day
+      @events = @events.where("start_time >= ?", start_time).where("end_time <= ?", end_time)
+      @events = @events.order(start_time: :asc)
+    elsif params["collection"] == "upcoming"
+      @events = @events.where("end_time >= ?", DateTime.now)
+      @events = @events.order(start_time: :asc)
+    elsif params["collection"] == "past"
+      @events = @events.where("end_time < ?", DateTime.now)
+      @events = @events.order(start_time: :desc)
+    else
+      @events = @events.order(start_time: :asc)
+    end
+
+    @pagy, @events = pagy(@events, limit: 40)
+    render template: "api/event/index", content_type: "application/json"
   end
 
   def private_list
