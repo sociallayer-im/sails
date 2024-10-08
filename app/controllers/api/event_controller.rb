@@ -297,8 +297,60 @@ class Api::EventController < ApiController
       @events = @events.order(start_time: :asc)
     end
 
-    @pagy, @events = pagy(@events, limit: 40)
+    limit = params[:limit] || 40
+    limit = 200 if limit > 200
+    @pagy, @events = pagy(@events, limit: limit)
     render template: "api/event/index", content_type: "application/json"
+  end
+
+  def list_for_calendar
+    group_id = params[:group_id]
+    group = Group.find_by(id: group_id) || Group.find_by(handle: group_id)
+    pub_tracks = Track.where(group_id: group_id, kind: "public").ids
+    pub_tracks << nil
+
+    @timezone = group.timezone || params[:timezone] || 'UTC'
+    @group = group
+    @events = Event.where(status: ["open", "published"]).where(group_id: group_id)
+    @events = @events.where(display: ["normal", "pinned"])
+    if params[:track_id]
+      @events = @events.where(track_id: params[:track_id])
+    else
+      @events = @events.where(track_id: pub_tracks)
+    end
+    if params[:tags]
+      @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags])
+    end
+    if params[:venue_id]
+      @events = @events.where(venue_id: params[:venue_id])
+    end
+    if params[:start_date].present? && params[:end_date].present?
+      start_time = Date.parse(params[:start_date]).in_time_zone(@timezone).at_beginning_of_day
+      end_time = Date.parse(params[:end_date]).in_time_zone(@timezone).at_end_of_day
+      @events = @events.where("start_time >= ?", start_time).where("end_time <= ?", end_time)
+      @events = @events.order(start_time: :asc)
+    elsif params[:start_time].present? && params[:end_time].present?
+      start_time = params[:start_time]
+      end_time = params[:end_time]
+      @events = @events.where("start_time >= ?", start_time).where("end_time <= ?", end_time)
+      @events = @events.order(start_time: :asc)
+    elsif params["collection"] == "currentweek"
+      @events = @events.where("end_time >= ?", DateTime.now)
+      @events = @events.order(start_time: :asc)
+    elsif params["collection"] == "upcoming"
+      @events = @events.where("end_time >= ?", DateTime.now)
+      @events = @events.order(start_time: :asc)
+    elsif params["collection"] == "past"
+      @events = @events.where("end_time < ?", DateTime.now)
+      @events = @events.order(start_time: :desc)
+    else
+      @events = @events.order(start_time: :asc)
+    end
+
+    limit = params[:limit] || 40
+    limit = 200 if limit > 200
+    @pagy, @events = pagy(@events, limit: limit)
+    render template: "api/event/for_calendar", content_type: "application/json"
   end
 
   def private_track_list
@@ -326,7 +378,9 @@ class Api::EventController < ApiController
       @events = @events.order(start_time: :asc)
     end
 
-    @pagy, @events = pagy(@events, limit: 40)
+    limit = params[:limit] || 40
+    limit = 200 if limit > 200
+    @pagy, @events = pagy(@events, limit: limit)
     render template: "api/event/index", content_type: "application/json"
   end
 
