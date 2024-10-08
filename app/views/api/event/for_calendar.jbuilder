@@ -1,5 +1,6 @@
 json.group do
   json.handle @group.handle
+  json.nickname @group.nickname
   json.id @group.id
   json.timezone @group.timezone
   json.start_date @group.start_date

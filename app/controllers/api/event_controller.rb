@@ -347,7 +347,7 @@ class Api::EventController < ApiController
       @events = @events.order(start_time: :asc)
     end
 
-    limit = params[:limit] || 40
+    limit = params[:limit].to_i || 40
     limit = 200 if limit > 200
     @pagy, @events = pagy(@events, limit: limit)
     render template: "api/event/for_calendar", content_type: "application/json"
