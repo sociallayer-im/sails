@@ -282,6 +282,12 @@ class Api::EventController < ApiController
     @group = group
     @events = Event.includes(:owner).where(status: ["open", "published"]).where(group_id: group.id)
     @events = @events.where(display: ["normal", "pinned"])
+    if @group.can_view_event == "member"
+      auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
+      if (auth_profile.blank? || !@group.is_member(auth_profile.id))
+        @events = @events.where("tags @> ARRAY[?]::varchar[]", ["public"])
+      end
+    end
     if params[:track_id]
       @events = @events.where(track_id: params[:track_id])
     else
