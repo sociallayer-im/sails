@@ -57,7 +57,7 @@ Rails.application.routes.draw do
 
     get "event/get", to: "event#get"
     get "event/list", to: "event#list"
-    get "event/list_for_calendar", to: "event#list_for_calendar"
+    get "event/list_for_calendar", to: "event#list"
     get "event/private_list", to: "event#private_list"
     get "event/private_track_list", to: "event#private_track_list"
     get "event/my_event_list", to: "event#my_event_list"

@@ -7,7 +7,7 @@ class TicketItem < ApplicationRecord
   belongs_to :group, optional: true
   belongs_to :coupon, optional: true
 
-  validates :status, inclusion: { in: %w(pending succeeded cancelled timeout) }
+  validates :status, inclusion: { in: %w(pending unbounded succeeded cancelled timeout) }
   validates :ticket_type, inclusion: { in: %w(event group) }
   enum :auth_type, { free: 'free', payment: 'payment', zupass: 'zupass', badge: 'badge', invite: 'invite' }
 

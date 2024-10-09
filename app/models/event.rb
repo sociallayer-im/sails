@@ -39,13 +39,13 @@ class Event < ApplicationRecord
       info["speaker"].each { |item|
         obj = Profile.find_by(username: item["username"]) || Group.find_by(username: item["username"]) || Profile.find_by(email: item["email"])
         obj = Profile.find_by(id: item["id"]) if obj.nil? && item["id"] != 0
-        item_type = obj.model_name.name if item
+        item_type = obj ? obj.model_name.name : nil
         result["speaker"] << {
           role: "speaker",
           item_type: item_type,
-          item_id: obj.id,
-          nickname: obj.nickname || obj.username || item["nickname"] || item["username"],
-          image_url:  obj.image_url || item["image_url"],
+          item_id: obj.try(:id),
+          nickname: obj.try(:nickname) || obj.try(:username) || item["nickname"] || item["username"],
+          image_url:  obj.try(:image_url) || item["image_url"],
           email: item["email"]
           }
       }
@@ -54,13 +54,13 @@ class Event < ApplicationRecord
       info["co_host"].each { |item|
         obj = Profile.find_by(username: item["username"]) || Group.find_by(username: item["username"]) || Profile.find_by(email: item["email"])
         obj = Profile.find_by(id: item["id"]) if obj.nil? && item["id"] != 0
-        item_type = obj.model_name.name if item
+        item_type = obj ? obj.model_name.name : nil
         result["co_host"] << {
           role: "co_host",
           item_type: item_type,
-          item_id: obj.id,
-          nickname: obj.nickname || obj.username || item["nickname"] || item["username"],
-          image_url:  obj.image_url || item["image_url"],
+          item_id: obj.try(:id),
+          nickname: obj.try(:nickname) || obj.try(:username) || item["nickname"] || item["username"],
+          image_url:  obj.try(:image_url) || item["image_url"],
           email: item["email"]
           }
       }
@@ -73,9 +73,9 @@ class Event < ApplicationRecord
           role: "group_host",
           # event_id: event.id,
           item_type: "Group",
-          item_id: obj.id,
+          item_id: obj.try(:id),
           # item_id: item["id"],
-          nickname: obj.nickname || obj.username || item["nickname"] || item["username"],
+          nickname: obj.try(:nickname) || obj.try(:username) || item["nickname"] || item["username"],
           image_url:  obj.image_url || item["image_url"],
           }
       end

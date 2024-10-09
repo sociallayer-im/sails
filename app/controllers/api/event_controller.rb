@@ -274,37 +274,6 @@ class Api::EventController < ApiController
 
   def list
     group_id = params[:group_id]
-    group = Group.find(group_id)
-    pub_tracks = Track.where(group_id: group_id, kind: "public").ids
-    pub_tracks << nil
-
-    @timezone = group.timezone || params[:timezone] || 'UTC'
-    @events = Event.where(status: ["open", "published"]).where(group_id: group_id)
-    @events = @events.where(display: ["normal", "pinned"])
-    @events = @events.where(track_id: pub_tracks)
-    if params[:start_date].present? && params[:end_date].present?
-      start_time = Date.parse(params[:start_date]).in_time_zone(@timezone).at_beginning_of_day
-      end_time = Date.parse(params[:end_date]).in_time_zone(@timezone).at_end_of_day
-      @events = @events.where("start_time >= ?", start_time).where("end_time <= ?", end_time)
-      @events = @events.order(start_time: :asc)
-    elsif params["collection"] == "upcoming"
-      @events = @events.where("end_time >= ?", DateTime.now)
-      @events = @events.order(start_time: :asc)
-    elsif params["collection"] == "past"
-      @events = @events.where("end_time < ?", DateTime.now)
-      @events = @events.order(start_time: :desc)
-    else
-      @events = @events.order(start_time: :asc)
-    end
-
-    limit = params[:limit] || 40
-    limit = 200 if limit > 200
-    @pagy, @events = pagy(@events, limit: limit)
-    render template: "api/event/index", content_type: "application/json"
-  end
-
-  def list_for_calendar
-    group_id = params[:group_id]
     group = Group.find_by(id: group_id) || Group.find_by(handle: group_id)
     pub_tracks = Track.where(group_id: group_id, kind: "public").ids
     pub_tracks << nil
@@ -343,6 +312,10 @@ class Api::EventController < ApiController
     elsif params["collection"] == "past"
       @events = @events.where("end_time < ?", DateTime.now)
       @events = @events.order(start_time: :desc)
+    elsif params["collection"] == "my_event"
+      @events = @events.joins(:participants).where(participants: { profile_id: profile.id, status: "attending" })
+      @events = @events.where("end_time >= ?", DateTime.now)
+      @events = @events.order(start_time: :asc)
     else
       @events = @events.order(start_time: :asc)
     end
