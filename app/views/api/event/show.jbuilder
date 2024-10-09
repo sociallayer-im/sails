@@ -1,6 +1,7 @@
 json.extract! @event, :id, :title, :event_type, :start_time, :end_time, :timezone, :meeting_url, :location, :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :content, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :notes
 
-json.host_info (@event.host_info.present? ? JSON.parse(@event.host_info) : nil)
+# json.host_info (@event.host_info.present? ? JSON.parse(@event.host_info) : nil)
+json.host_info @event.parse_host_info
 
 if @event.venue
   json.venue do
@@ -10,9 +11,17 @@ else
   json.venue nil
 end
 
+if @event.owner
+  json.owner do
+    json.extract! @event.owner, :id, :handle, :username, :nickname, :image_url
+  end
+else
+  json.owner nil
+end
+
 if @event.group
   json.group do
-    json.extract! @event.group, :id, :handle, :username, :nickname, :timezone
+    json.extract! @event.group, :id, :handle, :username, :nickname, :image_url, :timezone
   end
 else
   json.group nil

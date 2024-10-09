@@ -13,7 +13,16 @@ end
 json.events @events do |event|
   json.extract! event, :id, :title, :event_type, :start_time, :end_time, :timezone, :meeting_url, :location, :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url
 
-  json.host_info (event.host_info.present? ? JSON.parse(event.host_info) : nil)
+  # json.host_info (event.host_info.present? ? JSON.parse(event.host_info) : nil)
+  json.host_info event.parse_host_info
+
+  if event.owner
+    json.owner do
+      json.extract! event.owner, :id, :handle, :username, :nickname, :image_url
+    end
+  else
+    json.owner nil
+  end
 
   if event.venue
     json.venue do

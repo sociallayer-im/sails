@@ -12,8 +12,8 @@ class Event < ApplicationRecord
   has_many :coupons, dependent: :delete_all
 
   validates :end_time, comparison: { greater_than: :start_time }
-  validates :status, inclusion: { in: %w(draft pending published closed cancelled) }
-  validates :display, inclusion: { in: %w(normal hidden pinned) }
+  validates :status, inclusion: { in: %w(draft open pending published closed cancelled) }
+  validates :display, inclusion: { in: %w(normal hidden private pinned) }
   validates :event_type, inclusion: { in: %w(event group_ticket) }
 
   accepts_nested_attributes_for :tickets, allow_destroy: true
@@ -21,6 +21,71 @@ class Event < ApplicationRecord
   accepts_nested_attributes_for :coupons, allow_destroy: true
 
   ### methods
+
+  def parse_host_info
+    return nil if host_info.nil?
+    result = {}
+    info = JSON.parse(host_info)
+    result["group_host"] = []
+    if info.is_a? Integer
+      result["group_host"] << {
+        item_id: info,
+        item_type: "Group",
+        role: "group_host",
+      }
+    else
+      # "speaker", "co_host", "group_host"
+      result["speaker"] = []
+      info["speaker"].each { |item|
+        obj = Profile.find_by(username: item["username"]) || Group.find_by(username: item["username"]) || Profile.find_by(email: item["email"])
+        obj = Profile.find_by(id: item["id"]) if obj.nil? && item["id"] != 0
+        item_type = obj.model_name.name if item
+        result["speaker"] << {
+          role: "speaker",
+          item_type: item_type,
+          item_id: obj.id,
+          nickname: obj.nickname || obj.username || item["nickname"] || item["username"],
+          image_url:  obj.image_url || item["image_url"],
+          email: item["email"]
+          }
+      }
+
+      result["co_host"] = []
+      info["co_host"].each { |item|
+        obj = Profile.find_by(username: item["username"]) || Group.find_by(username: item["username"]) || Profile.find_by(email: item["email"])
+        obj = Profile.find_by(id: item["id"]) if obj.nil? && item["id"] != 0
+        item_type = obj.model_name.name if item
+        result["co_host"] << {
+          role: "co_host",
+          item_type: item_type,
+          item_id: obj.id,
+          nickname: obj.nickname || obj.username || item["nickname"] || item["username"],
+          image_url:  obj.image_url || item["image_url"],
+          email: item["email"]
+          }
+      }
+
+      if info["group_host"]
+        item = info["group_host"]
+        obj = Profile.find_by(username: item["username"]) || Group.find_by(username: item["username"]) || Profile.find_by(email: item["email"])
+        obj = Profile.find_by(id: item["id"]) if obj.nil? && item["id"] != 0
+        result["group_host"] << {
+          role: "group_host",
+          # event_id: event.id,
+          item_type: "Group",
+          item_id: obj.id,
+          # item_id: item["id"],
+          nickname: obj.nickname || obj.username || item["nickname"] || item["username"],
+          image_url:  obj.image_url || item["image_url"],
+          }
+      end
+
+      # info["group_host"].each { |item|
+
+      # }
+    end
+    result
+  end
 
   def check_group_event_permission(profile)
     event = self

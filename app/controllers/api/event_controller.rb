@@ -268,7 +268,7 @@ class Api::EventController < ApiController
   end
 
   def get
-    @event = Event.find(params[:id])
+    @event = Event.includes(:owner).find(params[:id])
     render template: "api/event/show", content_type: "application/json"
   end
 
@@ -311,7 +311,7 @@ class Api::EventController < ApiController
 
     @timezone = group.timezone || params[:timezone] || 'UTC'
     @group = group
-    @events = Event.where(status: ["open", "published"]).where(group_id: group.id)
+    @events = Event.includes(:owner).where(status: ["open", "published"]).where(group_id: group.id)
     @events = @events.where(display: ["normal", "pinned"])
     if params[:track_id]
       @events = @events.where(track_id: params[:track_id])

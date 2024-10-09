@@ -7,6 +7,7 @@ class Ticket < ApplicationRecord
 
   accepts_nested_attributes_for :payment_methods, allow_destroy: true
   validates :status, inclusion: { in: %w(normal nosale hidden inactive) }
+  validates :ticket_type, inclusion: { in: %w(event group) }
 
   before_save do
     if self.event.event_type == 'group_ticket'
