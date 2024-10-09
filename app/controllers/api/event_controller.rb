@@ -288,7 +288,7 @@ class Api::EventController < ApiController
       @events = @events.where(track_id: pub_tracks)
     end
     if params[:tags]
-      @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags])
+      @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
     end
     if params[:venue_id]
       @events = @events.where(venue_id: params[:venue_id])
