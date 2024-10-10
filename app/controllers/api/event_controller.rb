@@ -297,6 +297,12 @@ class Api::EventController < ApiController
       @events = @events.where("tags && ARRAY[:options]::varchar[]", options: params[:tags].split(","))
       # @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
     end
+    if params[:search_title]
+      p 'params[:search_title]'
+      p params[:search_title]
+      @events = @events.where("title like ?", "%#{params[:search_title]}%")
+      # @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
+    end
     if params[:venue_id]
       @events = @events.where(venue_id: params[:venue_id])
     end
