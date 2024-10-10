@@ -7,7 +7,7 @@ json.group do
   json.end_date @group.end_date
   json.event_tags @group.event_tags
   json.tracks @group.tracks
-  # json.venues @group.venues
+  json.venues @group.venues
 end
 
 json.events @events do |event|
