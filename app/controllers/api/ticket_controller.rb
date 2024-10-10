@@ -237,4 +237,28 @@ class Api::TicketController < ApiController
     amount, discount_value, discount_data = coupon.get_discounted_price(params[:amount])
     render json: { coupon_id: coupon.id, amount: amount }
   end
+
+  def list_group_ticket_types
+    group = Group.find_by(handle: params[:group_id]) || Group.find_by(id: params[:group_id])
+    render json: { tickets: group.tickets.as_json }
+  end
+
+  def add_group_ticket_item
+    profile = current_profile
+    p profile.id
+    group = Group.find_by(handle: params[:group_id]) || Group.find_by(id: params[:group_id])
+    authorize group, :manage?, policy_class: GroupPolicy
+
+    TicketItem.find_or_create_by(
+      event_id: group.group_ticket_event_id,
+      ticket_id: Ticket.find_by(title: params["title"], group_id: group.id).id,
+      selector_type: "email",
+      selector_address: params[:email].downcase,
+      status: "unbounded",
+      ticket_type: "group",
+      group_id: group.id,
+      auth_type: "invite",
+    )
+    render json: { result: "ok"}
+  end
 end

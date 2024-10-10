@@ -79,6 +79,8 @@ Rails.application.routes.draw do
     post "ticket/stripe_callback", to: "ticket#stripe_callback"
     post "ticket/stripe_client_secret", to: "ticket#stripe_client_secret"
     post "ticket/stripe_config", to: "ticket#stripe_config"
+    post "ticket/add_group_ticket_item", to: "ticket#add_group_ticket_item"
+    get  "ticket/list_group_ticket_types", to: "ticket#list_group_ticket_types"
 
     post "marker/create", to: "marker#create"
     post "marker/update", to: "marker#update"
