@@ -280,7 +280,7 @@ class Api::EventController < ApiController
 
     @timezone = group.timezone || params[:timezone] || 'UTC'
     @group = group
-    @events = Event.includes(:owner).where(status: ["open", "published"]).where(group_id: group.id)
+    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(group_id: group.id)
     @events = @events.where(display: ["normal", "pinned"])
     if @group.can_view_event == "member"
       auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
@@ -294,7 +294,8 @@ class Api::EventController < ApiController
       @events = @events.where(track_id: pub_tracks)
     end
     if params[:tags]
-      @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
+      @events = @events.where("tags && ARRAY[:options]::varchar[]", options: params[:tags].split(","))
+      # @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
     end
     if params[:venue_id]
       @events = @events.where(venue_id: params[:venue_id])
