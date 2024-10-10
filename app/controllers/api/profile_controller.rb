@@ -83,6 +83,7 @@ class Api::ProfileController < ApiController
     token.update(verified: true)
 
     profile = Profile.find_or_create_by(email: params[:email])
+    profile.bind_ticket_items
 
     SigninActivity.create(
       app: params[:app],
@@ -158,6 +159,7 @@ class Api::ProfileController < ApiController
     profile.update(
       zupass: "#{first_pass[:zupass_event_id]}:#{first_pass[:zupass_product_id]}",
       )
+    profile.bind_ticket_items
 
     # todo : save zupass data of profile
 

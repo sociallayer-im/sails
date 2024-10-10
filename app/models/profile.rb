@@ -50,6 +50,16 @@ class Profile < ApplicationRecord
     auth_token = JWT.encode payload, $hmac_secret, "HS256"
   end
 
+  def bind_ticket_items
+    return if self.email.nil?
+    TicketItem.where(selector_address: self.email, status: "unbounded").each do |ticket_item|
+      ticket_item.update(status: "succeeded", profile_id: self.id)
+      if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: ticket_item.profile_id, target_id: ticket_item.group_id).blank?
+        Membership.create(profile: ticket_item.profile, target: ticket_item.group, role: "member", status: "normal")
+      end
+    end
+  end
+
   def send_mail_new_event(event)
     if self.email.present?
       mailer = EventMailer.with(event_id: event.id, recipient: self.email).event_created

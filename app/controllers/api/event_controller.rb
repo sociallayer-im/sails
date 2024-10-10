@@ -25,6 +25,10 @@ class Api::EventController < ApiController
       authorize badge_class, :send?
     end
 
+    if Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).any?
+      return render json: { result: "error", message: "time overlaped in the same venue" }
+    end
+
     event = Event.new(event_params)
     event.update(
       status: status,
@@ -111,6 +115,10 @@ class Api::EventController < ApiController
 
     event = Event.find(params[:id])
     authorize event, :update?
+
+    if Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(id: event.id).any?
+      return render json: { result: "error", message: "time overlaped in the same venue" }
+    end
 
     if event_params[:venue_id] != event.venue_id
       venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
@@ -298,8 +306,6 @@ class Api::EventController < ApiController
       # @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
     end
     if params[:search_title]
-      p 'params[:search_title]'
-      p params[:search_title]
       @events = @events.where("title like ?", "%#{params[:search_title]}%")
       # @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
     end
