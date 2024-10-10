@@ -330,7 +330,8 @@ class Api::EventController < ApiController
     limit = params[:limit].to_i || 40
     limit = 200 if limit > 200
     @pagy, @events = pagy(@events, limit: limit)
-    render template: "api/event/for_calendar", content_type: "application/json"
+    # render template: "api/event/for_calendar"
+    # , content_type: "application/json"
   end
 
   def private_track_list
