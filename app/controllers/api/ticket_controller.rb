@@ -251,7 +251,7 @@ class Api::TicketController < ApiController
 
     TicketItem.find_or_create_by(
       event_id: group.group_ticket_event_id,
-      ticket_id: Ticket.find_by(title: params["title"], group_id: group.id).id,
+      ticket_id: Ticket.find_by(content: params["title"], group_id: group.id).id,
       selector_type: "email",
       selector_address: params[:email].downcase,
       status: "unbounded",

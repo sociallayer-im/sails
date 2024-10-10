@@ -282,8 +282,8 @@ class Api::EventController < ApiController
     @group = group
     @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(group_id: group.id)
     @events = @events.where(display: ["normal", "pinned"])
+    auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
     if @group.can_view_event == "member"
-      auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
       if (auth_profile.blank? || !@group.is_member(auth_profile.id))
         @events = @events.where("tags @> ARRAY[?]::varchar[]", ["public"])
       end
@@ -300,6 +300,10 @@ class Api::EventController < ApiController
     if params[:venue_id]
       @events = @events.where(venue_id: params[:venue_id])
     end
+    if params[:my_event].present?
+      return { reuslt: "error", message: "authentication required" } unless auth_profile
+      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: "attending" })
+    end
     if params[:start_date].present? && params[:end_date].present?
       start_time = Date.parse(params[:start_date]).in_time_zone(@timezone).at_beginning_of_day
       end_time = Date.parse(params[:end_date]).in_time_zone(@timezone).at_end_of_day
@@ -310,24 +314,25 @@ class Api::EventController < ApiController
       end_time = params[:end_time]
       @events = @events.where("start_time >= ?", start_time).where("end_time <= ?", end_time)
       @events = @events.order(start_time: :asc)
-    elsif params["collection"] == "currentweek"
+    elsif params[:collection] == "currentweek"
       @events = @events.where("end_time >= ?", DateTime.now)
       @events = @events.order(start_time: :asc)
-    elsif params["collection"] == "upcoming"
+    elsif params[:collection] == "upcoming"
       @events = @events.where("end_time >= ?", DateTime.now)
       @events = @events.order(start_time: :asc)
-    elsif params["collection"] == "past"
+    elsif params[:collection] == "past"
       @events = @events.where("end_time < ?", DateTime.now)
       @events = @events.order(start_time: :desc)
-    elsif params["collection"] == "my_event"
-      @events = @events.joins(:participants).where(participants: { profile_id: profile.id, status: "attending" })
+    elsif params[:collection] == "my_event"
+      return { reuslt: "error", message: "authentication required" } unless auth_profile
+      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: ["attending","checked"] })
       @events = @events.where("end_time >= ?", DateTime.now)
       @events = @events.order(start_time: :asc)
     else
       @events = @events.order(start_time: :asc)
     end
 
-    limit = params[:limit].to_i || 40
+    limit = params[:limit] ? params[:limit].to_i : 40
     limit = 200 if limit > 200
     @pagy, @events = pagy(@events, limit: limit)
     render template: "api/event/index"
