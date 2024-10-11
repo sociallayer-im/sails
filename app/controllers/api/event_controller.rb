@@ -285,7 +285,11 @@ class Api::EventController < ApiController
 
     group_id = params[:group_id]
     group = Group.find_by(id: group_id) || Group.find_by(handle: group_id)
-    if auth_profile
+    @group = group
+    if auth_profile && @group.is_manager(auth_profile.id)
+      pub_tracks = Track.where(group_id: group_id).ids
+      pub_tracks << nil
+    elsif auth_profile
       pub_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: auth_profile.id).pluck(:track_id)
       pub_tracks << nil
     else
@@ -294,7 +298,6 @@ class Api::EventController < ApiController
     end
 
     @timezone = group.timezone || params[:timezone] || 'UTC'
-    @group = group
     @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(group_id: group.id)
     if @group.can_view_event == "member"
       if (auth_profile.blank? || !@group.is_member(auth_profile.id))
