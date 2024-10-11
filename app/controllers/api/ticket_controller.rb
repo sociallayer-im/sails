@@ -262,7 +262,7 @@ class Api::TicketController < ApiController
     profile = Profile.find_by(email: email)
     if profile
       ticket_item.update(status: "succeeded", profile_id: profile.id)
-      Membership.create(profile: profile, target: ticket_item.group, role: "member", status: "active") unless Membership.find_by(profile_id: ticket_item.profile_id, target_id: ticket_item.group_id).blank?
+      Membership.create_with(role: "member").find_or_create_by(profile: profile, target: ticket_item.group, status: "active")
     end
 
     render json: { result: "ok"}
