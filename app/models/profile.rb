@@ -55,7 +55,7 @@ class Profile < ApplicationRecord
     TicketItem.where(selector_address: self.email, status: "unbounded").each do |ticket_item|
       ticket_item.update(status: "succeeded", profile_id: self.id)
       if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: ticket_item.profile_id, target_id: ticket_item.group_id).blank?
-        Membership.create(profile: ticket_item.profile, target: ticket_item.group, role: "member", status: "normal")
+        Membership.create(profile: ticket_item.profile, target: ticket_item.group, role: "member", status: "active")
       end
     end
   end
