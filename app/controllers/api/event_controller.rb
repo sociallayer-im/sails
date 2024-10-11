@@ -281,21 +281,33 @@ class Api::EventController < ApiController
   end
 
   def list
+    auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
+
     group_id = params[:group_id]
     group = Group.find_by(id: group_id) || Group.find_by(handle: group_id)
-    pub_tracks = Track.where(group_id: group_id, kind: "public").ids
-    pub_tracks << nil
+    if auth_profile
+      pub_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: auth_profile.id).pluck(:track_id)
+      pub_tracks << nil
+    else
+      pub_tracks = Track.where(group_id: group_id, kind: "public").ids
+      pub_tracks << nil
+    end
 
     @timezone = group.timezone || params[:timezone] || 'UTC'
     @group = group
     @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(group_id: group.id)
-    @events = @events.where(display: ["normal", "pinned"])
-    auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
     if @group.can_view_event == "member"
       if (auth_profile.blank? || !@group.is_member(auth_profile.id))
         @events = @events.where("tags @> ARRAY[?]::varchar[]", ["public"])
       end
+    elsif params[:private_event].present? && auth_profile && @group.is_manager(auth_profile.id)
+      @events = @events.where(display: "private")
+    elsif params[:private_event].present?
+      @events = @events.where(display: "none")
+    else
+      @events = @events.where(display: ["normal", "pinned", "public"])
     end
+
     if params[:track_id]
       @events = @events.where(track_id: params[:track_id])
     else
@@ -311,6 +323,10 @@ class Api::EventController < ApiController
     end
     if params[:venue_id]
       @events = @events.where(venue_id: params[:venue_id])
+    end
+    if params[:my_event].present?
+      return { reuslt: "error", message: "authentication required" } unless auth_profile
+      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: "attending" })
     end
     if params[:my_event].present?
       return { reuslt: "error", message: "authentication required" } unless auth_profile
