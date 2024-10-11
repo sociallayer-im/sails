@@ -30,15 +30,15 @@ class Group < ApplicationRecord
   end
 
   def is_manager(profile_id)
-    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[manager owner], status: "active")
+    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[manager owner])
   end
 
   def is_operator(profile_id)
-    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[operator manager owner], status: "active")
+    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[operator manager owner])
   end
 
   def is_member(profile_id)
-    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[member operator manager owner], status: "active")
+    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[member operator manager owner])
   end
 
   def add_member(profile_id, role)

@@ -247,16 +247,24 @@ class Api::TicketController < ApiController
     profile = current_profile
     group = Group.find_by(handle: params[:group_id]) || Group.find_by(id: params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
+    email = params[:email].downcase
 
-    TicketItem.create_with(status: "unbounded").find_or_create_by(
+    ticket_item = TicketItem.create_with(status: "unbounded").find_or_create_by(
       event_id: group.group_ticket_event_id,
       ticket_id: Ticket.find_by(content: params["title"], group_id: group.id).id,
       selector_type: "email",
-      selector_address: params[:email].downcase,
+      selector_address: email,
       ticket_type: "group",
       group_id: group.id,
       auth_type: "invite",
     )
+
+    profile = Profile.find_by(email: email)
+    if profile
+      ticket_item.update(status: "succeeded", profile_id: profile.id)
+      Membership.create(profile: profile, target: ticket_item.group, role: "member", status: "active") unless Membership.find_by(profile_id: ticket_item.profile_id, target_id: ticket_item.group_id).blank?
+    end
+
     render json: { result: "ok"}
   end
 end
