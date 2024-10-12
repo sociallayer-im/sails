@@ -1,0 +1,2 @@
+class CustomForm < ApplicationRecord
+end

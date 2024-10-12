@@ -10,8 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_12_100714) do
+  create_schema "hdb_catalog"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "activities", force: :cascade do |t|
@@ -96,7 +99,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
 
   create_table "comments", force: :cascade do |t|
     t.integer "title"
-    t.string "item_type"
+    t.string "item_type", default: "Group"
     t.integer "item_id"
     t.integer "reply_parent_id"
     t.text "content"
@@ -145,6 +148,16 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
     t.integer "max_allowed_usages"
     t.integer "order_usage_count"
     t.boolean "removed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "custom_forms", force: :cascade do |t|
+    t.string "title"
+    t.string "description"
+    t.string "status"
+    t.string "item_type"
+    t.string "item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -229,6 +242,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
     t.integer "target_id"
     t.datetime "created_at"
     t.string "role"
+  end
+
+  create_table "form_fields", force: :cascade do |t|
+    t.string "label"
+    t.string "description"
+    t.string "field_type"
+    t.jsonb "field_options"
+    t.string "required"
+    t.string "custom_form_id"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -729,6 +754,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_04_235036) do
     t.string "remote_ip"
     t.string "locale"
     t.string "lang"
+  end
+
+  create_table "submissions", force: :cascade do |t|
+    t.string "custom_form_id"
+    t.jsonb "answers"
+    t.integer "profile_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "ticket_items", force: :cascade do |t|
