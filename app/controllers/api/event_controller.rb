@@ -338,12 +338,12 @@ class Api::EventController < ApiController
     if params[:start_date].present? && params[:end_date].present?
       start_time = Date.parse(params[:start_date]).in_time_zone(@timezone).at_beginning_of_day
       end_time = Date.parse(params[:end_date]).in_time_zone(@timezone).at_end_of_day
-      @events = @events.where("start_time >= ?", start_time).where("end_time <= ?", end_time)
+      @events = @events.where("start_time <= ? AND end_time >= ?", end_time, start_time)
       @events = @events.order(start_time: :asc)
     elsif params[:start_time].present? && params[:end_time].present?
       start_time = params[:start_time]
       end_time = params[:end_time]
-      @events = @events.where("start_time >= ?", start_time).where("end_time <= ?", end_time)
+      @events = @events.where("start_time <= ? AND end_time >= ?", end_time, start_time)
       @events = @events.order(start_time: :asc)
     elsif params[:collection] == "currentweek"
       @events = @events.where("end_time >= ?", DateTime.now)

@@ -179,5 +179,6 @@ class Api::GroupController < ApiController
       :tag, :title, :kind, :icon_url, :about, :start_date, :end_date,
       track_roles_attributes: [ :id, :role, :receiver_address, :profile_id, :_destroy ],
     )
+    # todo : auto track role detect with receiver_address/email
   end
 end
