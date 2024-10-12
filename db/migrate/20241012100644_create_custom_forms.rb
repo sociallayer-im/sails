@@ -5,7 +5,8 @@ class CreateCustomForms < ActiveRecord::Migration[7.2]
       t.string :description
       t.string :status
       t.string :item_type
-      t.string :item_id
+      t.integer :item_id
+      t.integer :group_id
       t.timestamps
     end
   end

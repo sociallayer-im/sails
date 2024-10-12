@@ -17,6 +17,8 @@ Rails.application.routes.draw do
     get "siwe/nonce", to: "profile#nonce"
     post "siwe/verify", to: "profile#verify"
 
+    post "form/submit", to: "form#submit"
+
     get  "profile/me", to: "profile#me"
     post "profile/create", to: "profile#create"
     post "profile/update", to: "profile#update"
