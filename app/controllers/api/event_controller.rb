@@ -283,8 +283,8 @@ class Api::EventController < ApiController
   def list
     auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
 
-    group_id = params[:group_id]
-    group = Group.find_by(id: group_id) || Group.find_by(handle: group_id)
+    group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+    group_id = group.id
     @group = group
     if auth_profile && @group.is_manager(auth_profile.id)
       pub_tracks = Track.where(group_id: group_id).ids

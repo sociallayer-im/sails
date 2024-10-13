@@ -104,6 +104,11 @@ class Api::TicketController < ApiController
       end
     end
 
+    custom_form = CustomForm.find_by(item_type: "Event", item_id: event.id)
+    if custom_form.present?
+      @submission = Submission.create(custom_form: custom_form, profile: profile, answers: params[:answers], subject_type: "Participant", subject_id: ticket_item.id, subject_type: "TicketItem")
+    end
+
     render json: { participant: participant.as_json, ticket_item: ticket_item.as_json }
   end
 
@@ -266,5 +271,11 @@ class Api::TicketController < ApiController
     end
 
     render json: { result: "ok"}
+  end
+
+  private
+
+  def submission_params
+    params.require(:submission).permit(:custom_form_id, :answers)
   end
 end
