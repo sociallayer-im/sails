@@ -285,6 +285,7 @@ class Api::EventController < ApiController
 
     group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
     group_id = group.id
+
     @group = group
     if auth_profile && @group.is_manager(auth_profile.id)
       pub_tracks = Track.where(group_id: group_id).ids
@@ -309,6 +310,14 @@ class Api::EventController < ApiController
       @events = @events.where(display: "none")
     else
       @events = @events.where(display: ["normal", "pinned", "public"])
+    end
+
+    p params[:group_id]
+
+    if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
+      @group = Group.where(id: [3477, 3502]).all
+      group_id = [3477, 3502]
+      @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(display: ["normal", "pinned", "public"]).where(group_id: group_id)
     end
 
     if params[:track_id]
@@ -361,6 +370,10 @@ class Api::EventController < ApiController
       @events = @events.order(start_time: :asc)
     else
       @events = @events.order(start_time: :asc)
+    end
+
+    if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
+      @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
     end
 
     limit = params[:limit] ? params[:limit].to_i : 40
