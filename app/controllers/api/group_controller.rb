@@ -17,6 +17,7 @@ class Api::GroupController < ApiController
     ActiveRecord::Base.transaction do
       group.update(
         handle: handle,
+        username: handle,
         can_publish_event: group_params[:can_publish_event] || "all",
         can_join_event: group_params[:can_join_event] || "all",
         can_view_event: group_params[:can_view_event] || "all",

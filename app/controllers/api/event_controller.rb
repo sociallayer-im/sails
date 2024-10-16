@@ -377,7 +377,7 @@ class Api::EventController < ApiController
     end
 
     limit = params[:limit] ? params[:limit].to_i : 40
-    limit = 500 if limit > 500
+    limit = 1000 if limit > 1000
     @pagy, @events = pagy(@events, limit: limit)
     render template: "api/event/index"
   end
