@@ -34,7 +34,7 @@ class Profile < ApplicationRecord
   enum :status, { active: 'active', freezed: 'freezed' }
 
   def admin?
-    self.permissions["admin"]
+    self.permissions.include?("admin")
   end
 
   def gen_auth_token

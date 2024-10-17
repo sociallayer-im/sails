@@ -11,10 +11,17 @@ class SessionsController < ApplicationController
   def verify
     code = rand(10_000..100_000)
     token = ProfileToken.create(context: params[:context], sent_to: params[:email], code: code)
+    email = params[:email]
 
     p token
+    p code
     mailer = SigninMailer.with(code: code, recipient: params[:email]).signin
     mailer.deliver_now!
+
+    redirect_to verifier_path(email: email), notice: "sent email code"
+  end
+
+  def verifier
     @email = params[:email]
   end
 

@@ -122,6 +122,7 @@ Rails.application.routes.draw do
   get    "sign_in",  to: "sessions#new"
   post   "sign_in",  to: "sessions#create"
   post   "verify",   to: "sessions#verify"
+  get    "verifier",   to: "sessions#verifier"
   delete "sign_out", to: "sessions#destroy"
   resources :sessions, only: [:index, :show]
 
