@@ -382,6 +382,16 @@ class Api::EventController < ApiController
     render template: "api/event/index"
   end
 
+  def discover
+    @events = Event.where(status: ["open", "published"], display: ["normal", "pinned"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_time: :desc)
+    @featured_popups = PopupCity.where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_date: :desc)
+    @cnx_popups = PopupCity.where("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
+    @popups = PopupCity.where.not("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
+    @groups = Group.where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(handle: :desc)
+
+    render template: "api/event/discover"
+  end
+
   def private_track_list
     profile = current_profile!
     group_id = params[:group_id]

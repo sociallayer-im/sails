@@ -1,4 +1,4 @@
 class PopupCity < ApplicationRecord
   belongs_to :group
-  enum :kind, { popup_city: 'popup_city', community: 'community' }
+  # enum :kind, { popup_city: 'popup_city', community: 'community' }
 end
