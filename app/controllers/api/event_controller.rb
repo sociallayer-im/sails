@@ -25,7 +25,7 @@ class Api::EventController < ApiController
       authorize badge_class, :send?
     end
 
-    if Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).any?
+    if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).any?
       return render json: { result: "error", message: "time overlaped in the same venue" }
     end
 
@@ -37,6 +37,7 @@ class Api::EventController < ApiController
       display: "normal",
       event_type: event_params[:event_type] || "event", # todo : could be "group_ticket"
     )
+
     if event_params[:event_type] == 'group_ticket'
       group.update(group_ticket_event_id: event.id)
     end

@@ -25,8 +25,16 @@ class Api::TicketController < ApiController
         event: event,
         status: status,
         payment_status: "pending",
+        register_time: DateTime.now,
         message: params[:message],
       )
+    elsif participant.status == "cancelled"
+        participant.update(
+          status: status,
+          payment_status: "pending",
+          register_time: DateTime.now,
+          message: params[:message],
+          )
     end
 
     if ticket.payment_methods.any?
@@ -53,10 +61,13 @@ class Api::TicketController < ApiController
           coupon_id = coupon.id
         end
       end
+      if paymethod.chain == "stripe" && amount < 400
+        amount = 0
+      end
       status = amount == 0 ? "succeeded" : "pending"
       ticket_item = TicketItem.create(
-        ticket_type: ticket.ticket_type,
         status: status,
+        ticket_type: ticket.ticket_type,
         profile_id: profile.id,
         ticket_id: ticket.id,
         event_id: event.id,
@@ -94,6 +105,13 @@ class Api::TicketController < ApiController
         )
     end
 
+    if params[:answers].present?
+      custom_form = CustomForm.find_by(item_type: "Event", item_id: event.id)
+      if custom_form.present?
+        @submission = Submission.create(custom_form: custom_form, profile: profile, answers: params[:answers], subject_type: "TicketItem", subject_id: ticket_item.id)
+      end
+    end
+
     if ticket_item.status == "succeeded" && participant.status != "succeeded"
       participant.update(payment_status: "succeeded")
       if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: profile.id, group_id: ticket.group_id).blank?
@@ -102,11 +120,6 @@ class Api::TicketController < ApiController
       if profile.email.present?
         # event.send_mail_new_event(profile.email)
       end
-    end
-
-    custom_form = CustomForm.find_by(item_type: "Event", item_id: event.id)
-    if custom_form.present?
-      @submission = Submission.create(custom_form: custom_form, profile: profile, answers: params[:answers], subject_type: "Participant", subject_id: ticket_item.id, subject_type: "TicketItem")
     end
 
     render json: { participant: participant.as_json, ticket_item: ticket_item.as_json }

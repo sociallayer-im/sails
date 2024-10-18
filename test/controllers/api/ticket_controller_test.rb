@@ -143,6 +143,33 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     assert ticket_item.status == "succeeded"
   end
 
+  test "api#ticket/rsvp with crypto ticket and form" do
+    ticket = Ticket.find_by(event: @event, title: "crypto")
+    op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
+
+    custom_form = CustomForm.create(title: "test", status: "active", group_id: @group.id, item_type: "Event", item_id: @event.id)
+    form_field = FormField.create(label: "name", field_type: "text", custom_form_id: custom_form.id)
+
+    post api_ticket_rsvp_url,
+         params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: op_paymethod.id, answers: { "name" => "sam altman" } }
+    assert_response :success
+
+    ticket_item = TicketItem.find_by(event: @event)
+    assert ticket_item.status == "pending"
+
+    ENV["NEXT_TOKEN"] = "WXYZ"
+
+    post api_ticket_set_payment_status_url,
+         params: { next_token: ENV["NEXT_TOKEN"], chain: ticket_item.chain, product_id: @event.id, item_id: ticket_item.order_number, amount: ticket_item.amount, txhash: "0x7890" }
+    assert_response :success
+
+    ticket_item.reload
+    assert ticket_item.txhash == "0x7890"
+    assert ticket_item.status == "succeeded"
+    assert Submission.find_by(subject_type: "TicketItem", subject_id: ticket_item.id)
+    assert Submission.find_by(subject_type: "TicketItem", subject_id: ticket_item.id).answers["name"] == "sam altman"
+  end
+
   test "api#ticket/rsvp with crypto ticket and free discount" do
     ticket = Ticket.find_by(event: @event, title: "crypto")
     op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
