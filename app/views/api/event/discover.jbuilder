@@ -12,7 +12,14 @@ json.popups @popups do |popup|
 end
 
 json.groups @groups do |group|
-  json.extract! group, :id, :handle, :nickname, :location, :timezone, :start_date, :end_date, :group_tags
+  json.extract! group, :id, :handle, :nickname, :location, :timezone, :start_date, :end_date, :group_tags, :memberships_count, :events_count
+  owner = group.get_owner
+  json.owner do
+    json.id owner.id
+    json.handle owner.handle
+    json.nickname owner.nickname
+    json.image_url owner.image_url
+  end
 end
 
 json.events @events do |event|
