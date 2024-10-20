@@ -299,6 +299,10 @@ class Api::EventController < ApiController
       pub_tracks << nil
     end
 
+    if params[:track_id] && !pub_tracks.include?(params[:track_id])
+      return render json: { result: "error", message: "track not found" }
+    end
+
     @timezone = group.timezone || params[:timezone] || 'UTC'
     @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(group_id: group.id)
     if @group.can_view_event == "member"
@@ -312,8 +316,6 @@ class Api::EventController < ApiController
     else
       @events = @events.where(display: ["normal", "pinned", "public"])
     end
-
-    p params[:group_id]
 
     if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
       @group = Group.where(id: [3477, 3502]).all
@@ -345,6 +347,14 @@ class Api::EventController < ApiController
       return { reuslt: "error", message: "authentication required" } unless auth_profile
       @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: "attending" })
     end
+
+    if params[:skip_multiday].present?
+      @events = @events.where("start_time >= ?", DateTime.now - 1.days)
+    end
+    if params[:skip_recurring].present?
+      @events = @events.where(recurring_id: nil)
+    end
+
     if params[:start_date].present? && params[:end_date].present?
       start_time = Date.parse(params[:start_date]).in_time_zone(@timezone).at_beginning_of_day
       end_time = Date.parse(params[:end_date]).in_time_zone(@timezone).at_end_of_day
