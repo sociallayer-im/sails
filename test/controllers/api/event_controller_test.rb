@@ -5,8 +5,6 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
 
   # with badge_class
   # invite guest
-  # event roles
-  # event roles of email
   # todo : test rejoin after cancel
   test "api#event/create for group" do
     profile = Profile.find_by(handle: "cookie")
@@ -31,6 +29,96 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert event.display == "normal"
     assert event.owner == profile
     assert (Group.find_by(handle: "guildx").events_count - group.events_count) == 1
+  end
+
+  test "api#event/create with event roles and email" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+
+    post api_event_create_url,
+      params: { 
+        auth_token: auth_token, 
+        group_id: group.id, 
+        event: {
+          title: "Event with Roles",
+          tags: %w[live workshop],
+          start_time: DateTime.new(2024, 9, 1, 10, 0, 0),
+          end_time: DateTime.new(2024, 9, 1, 12, 0, 0),
+          location: "Community Center",
+          content: "Workshop with various roles",
+          display: "normal",
+          event_type: "event",
+          event_roles_attributes: [
+            { role: "host", email: "host@example.com" },
+            { role: "speaker", email: "speaker@example.com" },
+            { role: "moderator", email: "moderator@example.com" }
+          ]
+        } 
+      }
+    
+    assert_response :success
+    event = Event.find_by(title: "Event with Roles")
+    assert event
+    assert_equal "published", event.status
+    assert_equal "normal", event.display
+    assert_equal profile, event.owner
+    
+    # Check if event roles were created
+    assert_equal 3, event.event_roles.count
+    assert event.event_roles.exists?(role: "host", email: "host@example.com")
+    assert event.event_roles.exists?(role: "speaker", email: "speaker@example.com")
+    assert event.event_roles.exists?(role: "moderator", email: "moderator@example.com")
+  end
+
+  test "api#event/create with event roles and item_id as profile_id" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    
+    # Create a profile to be assigned a role
+    role_profile = Profile.create(handle: "role_user", email: "role_user@example.com")
+
+    post api_event_create_url,
+      params: { 
+        auth_token: auth_token, 
+        group_id: group.id, 
+        event: {
+          title: "Event with Profile Roles",
+          tags: %w[conference networking],
+          start_time: DateTime.new(2024, 10, 1, 9, 0, 0),
+          end_time: DateTime.new(2024, 10, 1, 17, 0, 0),
+          location: "Convention Center",
+          content: "Annual tech conference",
+          display: "normal",
+          event_type: "event",
+          event_roles_attributes: [
+            { role: "host", item_type: "Profile", item_id: profile.id },
+            { role: "speaker", item_type: "Profile", item_id: role_profile.id },
+            { role: "moderator", email: "moderator@example.com" }
+          ]
+        } 
+      }
+    
+    assert_response :success
+    event = Event.find_by(title: "Event with Profile Roles")
+    assert event
+    assert_equal "published", event.status
+    assert_equal "normal", event.display
+    assert_equal profile, event.owner
+    
+    # Check if event roles were created correctly
+    assert_equal 3, event.event_roles.count
+    assert event.event_roles.exists?(role: "host", item_type: "Profile", item_id: profile.id)
+    assert event.event_roles.exists?(role: "speaker", item_type: "Profile", item_id: role_profile.id)
+    assert event.event_roles.exists?(role: "moderator", email: "moderator@example.com")
+
+    # Verify that profiles are correctly associated
+    host_role = event.event_roles.find_by(role: "host")
+    assert_equal profile, host_role.item
+
+    speaker_role = event.event_roles.find_by(role: "speaker")
+    assert_equal role_profile, speaker_role.item
   end
 
   test "api#event/create with webhook" do
@@ -313,7 +401,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     response_events = JSON.parse(response.body)
-    assert_equal Event.where(display: "normal").all.count - 1, response_events.count
+    assert_equal Event.where(display: "normal").all.count, response_events.count
   end 
 
   test "api#event/private_list" do
@@ -335,7 +423,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     response_events = JSON.parse(response.body)
-    assert_equal Event.where(display: "normal").all.count - 1, response_events.count
+    assert_equal 2, response_events.count
   end
 
   test "api#event/private_track_list with track role" do

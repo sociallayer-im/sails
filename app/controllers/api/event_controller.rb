@@ -406,6 +406,7 @@ class Api::EventController < ApiController
     profile = current_profile!
     group_id = params[:group_id]
     group = Group.find(group_id)
+    @group = group
     my_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
     my_tracks << nil
     @events = Event.where(status: ["open", "published"]).where(group_id: group_id)
