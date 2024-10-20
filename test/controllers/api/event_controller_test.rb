@@ -16,7 +16,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     post api_event_create_url,
       params: { auth_token: auth_token, group_id: group.id, event: {
         title: "new meetup",
-        tags: %w[live art],
+        tags: %w[live private_track],
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
         end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
         location: "central park",
@@ -341,18 +341,49 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
   test "api#event/private_track_list with track role" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
+    track = Track.find(2)
 
     TrackRole.create(
       group_id: 1,
       profile_id: profile.id,
-      track_id: 2,
+      track_id: track.id,
       role: "member"
     )
 
-    get api_event_private_track_list_url, params: { auth_token: auth_token, group_id: 1 }
+    get api_event_list_url, params: { auth_token: auth_token, group_id: 1, track_id: track.id }
     assert_response :success
 
-    response_events = JSON.parse(response.body)
-    assert_equal Event.where(display: "normal").all.count, response_events.count
+    response_events = JSON.parse(response.body)["events"]
+    assert_equal Event.where(display: "normal", track_id: track.id).all.count, response_events.count
+
+    # Test event update for track manager
+    event = Event.find_by(title: "private track event")
+    # Test that a non-track manager cannot update the event
+    other_profile = Profile.create(handle: "non_manager")
+    other_auth_token = other_profile.gen_auth_token
+
+    post api_event_update_url, params: {
+      auth_token: other_auth_token,
+      id: event.id,
+      event: {
+        title: "Unauthorized Update"
+      }
+    }
+    assert_response :forbidden
+
+    other_profile = Profile.create(handle: "is_manager")
+    other_auth_token = other_profile.gen_auth_token
+
+    track.manager_ids = [other_profile.id]
+    track.save
+
+    post api_event_update_url, params: {
+      auth_token: other_auth_token,
+      id: event.id,
+      event: {
+        title: "Updated Track Manager Event"
+      }
+    }
+    assert_response :success
   end
 end

@@ -113,7 +113,6 @@ class Api::EventController < ApiController
 
   def update
     profile = current_profile!
-
     event = Event.find(params[:id])
     authorize event, :update?
 
@@ -132,7 +131,7 @@ class Api::EventController < ApiController
     end
 
     event.assign_attributes(event_params)
-    if ["start_time", "end_time", "location"] - event.changed
+    if (["start_time", "end_time", "location"] - event.changed).present?
       @send_update_email = true
     else
       @send_update_email = false
@@ -299,7 +298,7 @@ class Api::EventController < ApiController
       pub_tracks << nil
     end
 
-    if params[:track_id] && !pub_tracks.include?(params[:track_id])
+    if params[:track_id] && !pub_tracks.include?(params[:track_id].to_i)
       return render json: { result: "error", message: "track not found" }
     end
 

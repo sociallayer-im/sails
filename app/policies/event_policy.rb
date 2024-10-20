@@ -7,9 +7,11 @@ class EventPolicy < ApplicationPolicy
   end
 
   def update?
-    @event.owner_id == @profile.id || @event.group.is_manager(@profile.id) ||
-    EventRole.find_by(event_id: @event.id, profile_id: @profile.id) ||
-    EventRole.find_by(event_id: @event.id, email: @profile.email)
+    profile_id = @profile.id
+    @event.owner_id == profile_id || @event.group.is_manager(profile_id) ||
+    EventRole.find_by(event_id: @event.id, item_type: "Profile", item_id: profile_id) ||
+    EventRole.find_by(event_id: @event.id, email: @profile.email) ||
+    @event.track && @event.track.manager_ids &&@event.track.manager_ids.include?(profile_id)
     # todo : limiting role as host, co-host, speaker
   end
 
