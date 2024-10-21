@@ -62,6 +62,8 @@ class Api::RecurringController < ApiController
         event_type: "event",
       )
 
+      p 
+
       events << event
 
       case params[:interval]

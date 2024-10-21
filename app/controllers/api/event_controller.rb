@@ -283,12 +283,16 @@ class Api::EventController < ApiController
   def list
     auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
 
-    group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
-    group_id = group.id
+    @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+    group_id = @group.id
 
-    @group = group
     if auth_profile && @group.is_manager(auth_profile.id)
       pub_tracks = Track.where(group_id: group_id).ids
+      pub_tracks << nil
+    elsif auth_profile && @group.group_union.present?
+      managing_groups = Membership.where(profile_id: auth_profile.id, role: ["owner", "manager", "operator"], id: @group.group_union).ids
+      pub_tracks = Track.where(group_id: managing_groups).ids + Track.where(group_id: @group.group_union, kind: "public").ids + TrackRole.where(group_id: @group.group_union, profile_id: auth_profile.id).pluck(:track_id)
+      pub_tracks = pub_tracks.compact
       pub_tracks << nil
     elsif auth_profile
       pub_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: auth_profile.id).pluck(:track_id)
@@ -302,8 +306,10 @@ class Api::EventController < ApiController
       return render json: { result: "error", message: "track not found" }
     end
 
-    @timezone = group.timezone || params[:timezone] || 'UTC'
-    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(group_id: group.id)
+    event_group_ids = @group.group_union.present? ? [@group.id] + @group.group_union : [@group.id]
+
+    @timezone = @group.timezone || params[:timezone] || 'UTC'
+    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(group_id: event_group_ids)
     if @group.can_view_event == "member"
       if (auth_profile.blank? || !@group.is_member(auth_profile.id))
         @events = @events.where("tags @> ARRAY[?]::varchar[]", ["public"])
@@ -316,11 +322,11 @@ class Api::EventController < ApiController
       @events = @events.where(display: ["normal", "pinned", "public"])
     end
 
-    if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
-      @group = Group.where(id: [3477, 3502]).all
-      group_id = [3477, 3502]
-      @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(display: ["normal", "pinned", "public"]).where(group_id: group_id)
-    end
+    # if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
+    #   @group = Group.where(id: [3477, 3502]).all
+    #   group_id = [3477, 3502]
+    #   @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(display: ["normal", "pinned", "public"]).where(group_id: group_id)
+    # end
 
     if params[:track_id]
       @events = @events.where(track_id: params[:track_id])
@@ -373,6 +379,12 @@ class Api::EventController < ApiController
     elsif params[:collection] == "past"
       @events = @events.where("end_time < ?", DateTime.now)
       @events = @events.order(start_time: :desc)
+    elsif params[:created_by].present?
+      profile = Profile.find_by(handle: params[:created_by])
+      @events = Event.where(owner: auth_profile)
+    elsif params[:collection] == "created_by_me"
+      return { reuslt: "error", message: "authentication required" } unless auth_profile
+      @events = Event.where(owner: auth_profile)
     elsif params[:collection] == "my_event"
       return { reuslt: "error", message: "authentication required" } unless auth_profile
       @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: ["attending","checked"] })
@@ -382,9 +394,9 @@ class Api::EventController < ApiController
       @events = @events.order(start_time: :asc)
     end
 
-    if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
-      @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
-    end
+    # if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
+    #   @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+    # end
 
     limit = params[:limit] ? params[:limit].to_i : 40
     limit = 1000 if limit > 1000

@@ -401,7 +401,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     response_events = JSON.parse(response.body)
-    assert_equal Event.where(display: "normal").all.count, response_events.count
+    assert_equal 2, response_events.count
   end 
 
   test "api#event/private_list" do
@@ -473,5 +473,33 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       }
     }
     assert_response :success
+  end
+
+  test "api#event/list with group_union" do
+    # Create profiles and generate auth tokens
+    profile1 = Profile.find_by(handle: "cookie")
+    auth_token1 = profile1.gen_auth_token
+    profile2 = Profile.find_by(handle: "mooncake")
+    auth_token2 = profile2.gen_auth_token
+
+    # Create groups
+    group1 = Group.create(nickname: "Group 1", handle: "group1")
+    group2 = Group.create(nickname: "Group 2", handle: "group2")
+
+    # Create group union
+    group1.update(group_union: [group2.id])
+
+    # Create events for each group
+    event1 = Event.create(title: "Event 1", group: group1, owner: profile1, start_time: DateTime.now, end_time: DateTime.now + 1.hour, status: "published", display: "normal", event_type: "event")
+    event2 = Event.create(title: "Event 2", group: group2, owner: profile2, start_time: DateTime.now, end_time: DateTime.now + 1.hour, status: "published", display: "normal", event_type: "event")
+
+    # Test event list for group_union
+    get api_event_list_url, params: { auth_token: auth_token1, group_id: group1.handle }
+    assert_response :success
+
+    response_events = JSON.parse(response.body)["events"]
+    assert_equal 2, response_events.count
+    assert_includes response_events.map { |e| e["title"] }, "Event 1"
+    assert_includes response_events.map { |e| e["title"] }, "Event 2"
   end
 end

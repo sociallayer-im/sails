@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_12_100714) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_21_042513) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -233,6 +233,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_12_100714) do
     t.integer "track_id"
     t.datetime "updated_at"
     t.jsonb "extras", default: {}
+    t.string "location_data"
   end
 
   create_table "followings", force: :cascade do |t|
@@ -448,6 +449,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_12_100714) do
     t.jsonb "social_links", default: {}
     t.datetime "updated_at"
     t.string "handle"
+    t.integer "group_union", array: true
   end
 
   create_table "mail_tokens", force: :cascade do |t|
@@ -494,6 +496,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_12_100714) do
     t.string "marker_state", comment: "like zugame state"
     t.datetime "created_at", null: false
     t.datetime "updated_at"
+    t.string "location_data"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -887,6 +890,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_12_100714) do
     t.boolean "removed"
     t.string "visibility", comment: "all | manager | none"
     t.datetime "updated_at"
+    t.string "location_data"
   end
 
   create_table "vote_options", force: :cascade do |t|
