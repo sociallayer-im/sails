@@ -3,9 +3,6 @@ require "test_helper"
 class Api::EventControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
-  # with badge_class
-  # invite guest
-  # todo : test rejoin after cancel
   test "api#event/create for group" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
@@ -501,5 +498,39 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, response_events.count
     assert_includes response_events.map { |e| e["title"] }, "Event 1"
     assert_includes response_events.map { |e| e["title"] }, "Event 2"
+  end
+
+  test "api#event/join, cancel, and rejoin" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    event = Event.find_by(title: "my meetup")
+
+    # Join event
+    assert_difference 'Participant.count', 1 do
+      post api_event_join_url, params: { auth_token: auth_token, id: event.id }
+    end
+    assert_response :success
+    participant = Participant.last
+    assert_equal "attending", participant.status
+    assert_equal profile.id, participant.profile_id
+    assert_equal event.id, participant.event_id
+    register_time = participant.register_time
+
+    # Cancel joining event
+    assert_no_difference 'Participant.count' do
+      post api_event_cancel_url, params: { auth_token: auth_token, id: event.id }
+    end
+    assert_response :success
+    participant.reload
+    assert_equal "cancelled", participant.status
+
+    # Rejoin event
+    assert_no_difference 'Participant.count' do
+      post api_event_join_url, params: { auth_token: auth_token, id: event.id }
+    end
+    assert_response :success
+    participant.reload
+    assert_equal "attending", participant.status
+    assert_not_equal register_time, participant.register_time
   end
 end
