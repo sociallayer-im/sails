@@ -34,7 +34,7 @@ end
 
 json.groups @groups do |group|
   json.extract! group, :id, :handle, :nickname, :image_url, :location, :timezone, :start_date, :end_date, :group_tags, :memberships_count, :events_count
-  owner = group.get_owner
+  owner = group.owner
   json.owner do
     json.id owner.id
     json.handle owner.handle

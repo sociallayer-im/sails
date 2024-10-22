@@ -23,6 +23,7 @@ class Profile < ApplicationRecord
   has_many :received_vouchers, class_name: "Voucher", inverse_of: "receiver", foreign_key: "receiver_id"
 
   has_many :memberships
+  has_many :groups, through: :memberships
 
   has_many :source_contacts, class_name: "Contact", inverse_of: "source", foreign_key: "source_id"
   has_many :target_contacts, class_name: "Contact", inverse_of: "target", foreign_key: "target_id"

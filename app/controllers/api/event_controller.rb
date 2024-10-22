@@ -46,7 +46,7 @@ class Api::EventController < ApiController
 
     if @send_approval_email_to_manager
       Membership.includes(:profile).where(target_id: group.id, role: [ "owner", "manager" ]).each do |membership|
-        if membership.data.present? && membership.data.include?("venue") && membership.profile.email.present?
+        if membership.cap.present? && membership.cap.include?("venue") && membership.profile.email.present?
           group_name = group ? (group.nickname || group.handle) : ""
           mailer = GroupMailer.with(group_name: group_name, event_id: event.id, recipient: membership.profile.email).venue_review_email
           mailer.deliver_later
@@ -414,7 +414,7 @@ class Api::EventController < ApiController
     @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_date: :desc)
     @cnx_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
     @popups = PopupCity.includes(:group).where.not("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
-    @groups = Group.where("group_tags @> ARRAY[?]::varchar[]", [":top"]).order(handle: :desc)
+    @groups = Group.includes(:owner).where("group_tags @> ARRAY[?]::varchar[]", [":top"]).order(handle: :desc)
 
     render template: "api/event/discover"
   end

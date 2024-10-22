@@ -8,7 +8,6 @@ class Group < ApplicationRecord
   has_many :vote_proposals
   has_many :vote_options
   has_many :vote_records
-  has_many :memberships, dependent: :delete_all
   has_many :popup_cities, dependent: :delete_all
   has_many :tracks, dependent: :delete_all
   has_many :tickets
@@ -18,6 +17,13 @@ class Group < ApplicationRecord
   validates :can_publish_event, inclusion: { in: %w(all everyone member ticket operator manager) }
   validates :can_join_event, inclusion: { in: %w(all everyone member ticket operator manager) }
   validates :can_view_event, inclusion: { in: %w(all everyone member operator manager) }
+
+  has_many :memberships, dependent: :delete_all, foreign_key: "target_id"
+  has_many :profiles, through: :memberships
+  has_one :owner_membership, -> { where(role: "owner") }, class_name: 'Membership', foreign_key: "target_id"
+  has_one :owner, through: :owner_membership, source: :profile
+  has_one :member_membership, -> { where(role: "member") }, class_name: 'Membership', foreign_key: "target_id"
+  has_one :member, through: :member_membership, source: :profile
 
   accepts_nested_attributes_for :tracks, allow_destroy: true
 
