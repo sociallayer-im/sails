@@ -37,6 +37,11 @@ class Api::CommentControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     events = JSON.parse(response.body)["events"]
     assert_equal events.find { |x| x["id"] == 1 }["star"], true
+
+    get api_event_list_url, params: { auth_token: auth_token, collection: "my_stars", group_id: 1 }
+    assert_response :success
+    events = JSON.parse(response.body)["events"]
+    assert_equal events.count, 1
   end
 
 end

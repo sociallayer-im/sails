@@ -385,6 +385,10 @@ class Api::EventController < ApiController
     elsif params[:collection] == "created_by_me"
       return { reuslt: "error", message: "authentication required" } unless auth_profile
       @events = Event.where(owner: auth_profile)
+    elsif params[:collection] == "my_stars"
+      return { reuslt: "error", message: "authentication required" } unless auth_profile
+      @stars = Comment.where(profile_id: auth_profile.id, comment_type: "star", item_type: "Event")
+      @events = @events.where(id: @stars.pluck(:item_id))
     elsif params[:collection] == "my_event"
       return { reuslt: "error", message: "authentication required" } unless auth_profile
       @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: ["attending","checked"] })
