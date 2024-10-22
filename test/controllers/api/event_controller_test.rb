@@ -401,6 +401,45 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, response_events.count
   end 
 
+  test "api#event/my_event_list" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    # Test my_stars collection
+    post api_comment_create_url, params: {
+      auth_token: auth_token,
+      comment: {
+        item_type: "Event",
+        item_id: Event.first.id,
+        comment_type: "star"
+      }
+    }
+    assert_response :success
+
+    get api_event_my_event_list_url, params: { auth_token: auth_token, collection: "my_stars" }
+    assert_response :success
+    response_events = JSON.parse(response.body)["events"]
+    assert_equal 1, response_events.count
+    assert_equal Event.first.id, response_events.first["id"]
+
+    # Test attending events
+    event = Event.last
+    post api_event_join_url, params: { auth_token: auth_token, id: event.id }
+    assert_response :success
+
+    get api_event_my_event_list_url, params: { auth_token: auth_token }
+    assert_response :success
+    response_events = JSON.parse(response.body)["events"]
+    assert_equal 1, response_events.count
+    assert_equal event.id, response_events.first["id"]
+
+    # Test pagination
+    get api_event_my_event_list_url, params: { auth_token: auth_token, limit: 1 }
+    assert_response :success
+    response_body = JSON.parse(response.body)
+    assert_equal 1, response_body["events"].count
+  end
+
   test "api#event/private_list" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token

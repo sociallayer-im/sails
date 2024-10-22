@@ -471,9 +471,19 @@ class Api::EventController < ApiController
 
   def my_event_list
     profile = current_profile!
-    @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: "attending" })
-    @events = @events.order(start_time: :desc).limit(10)
-    render json: @events, status: :ok
+    if params[:collection] == "my_stars"
+      @stars = Comment.where(profile_id: profile.id, comment_type: "star", item_type: "Event")
+      @events = Event.where(id: @stars.pluck(:item_id))
+    else
+      @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: "attending" })
+    end
+
+    @events = @events.order(start_time: :desc)
+
+    limit = params[:limit] ? params[:limit].to_i : 40
+    limit = 1000 if limit > 1000
+    @pagy, @events = pagy(@events, limit: limit)
+    render template: "api/event/index_without_group"
   end
 
   def created_by_me
