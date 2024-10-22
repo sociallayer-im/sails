@@ -24,6 +24,19 @@ class Api::CommentControllerTest < ActionDispatch::IntegrationTest
     comments = JSON.parse(response.body)["comments"]
     assert_equal comments.count, 1
     assert comments.first["content"] == "hello"
+
+
+    post api_comment_create_url, params: { auth_token: auth_token, comment: {
+      item_type: "Event",
+      item_id: 1,
+      comment_type: "star",
+    } }
+    assert_response :success
+
+    get api_event_list_url, params: { auth_token: auth_token, group_id: 1, with_stars: true }
+    assert_response :success
+    events = JSON.parse(response.body)["events"]
+    assert_equal events.find { |x| x["id"] == 1 }["star"], true
   end
 
 end

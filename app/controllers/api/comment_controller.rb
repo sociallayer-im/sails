@@ -13,7 +13,11 @@ class Api::CommentController < ApiController
   end
 
   def index
-    comments = Comment.includes(:profile).where(comment_type: params[:comment_type], item_type: params[:item_type], item_id: params[:item_id], removed: nil).order(created_at: :desc)
+    comments = Comment.includes(:profile).where(comment_type: params[:comment_type], removed: nil)
+    comments = comments.where(item_type: params[:item_type]) if params[:item_type]
+    comments = comments.where(item_id: params[:item_id]) if params[:item_id]
+    comments = comments.where(profile_id: params[:profile_id]) if params[:profile_id]
+    comments = comments.order(created_at: :desc)
     render json: { result: "ok", comments: comments.as_json(include: {profile: {only: [:id, :handle, :nickname, :image_url]}}) }
   end
 

@@ -11,10 +11,17 @@ json.group do
 end
 
 json.events @events do |event|
-  json.extract! event, :id, :title, :event_type, :track_id, :start_time, :end_time, :timezone, :meeting_url, :location, :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url
+  json.extract! event, :id, :title, :event_type, :track_id, :start_time, :end_time, :timezone, :meeting_url, :location, :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id
 
   # json.host_info (event.host_info.present? ? JSON.parse(event.host_info) : nil)
   json.host_info event.parse_host_info
+
+
+  if @with_stars
+    json.star @stars.find {|x| x.item_id == event.id }.present?
+  else
+    json.star nil
+  end
 
   if event.owner
     json.owner do

@@ -10,6 +10,7 @@ class Event < ApplicationRecord
   has_many :ticket_items, dependent: :delete_all
   has_many :event_roles, dependent: :delete_all
   has_many :coupons, dependent: :delete_all
+  has_many :stars, -> { where(item_type: "Event", comment_type: "star") }, class_name: "Comment", foreign_key: "item_id"
 
   validates :end_time, comparison: { greater_than: :start_time }
   validates :status, inclusion: { in: %w(draft open pending published closed cancelled) }

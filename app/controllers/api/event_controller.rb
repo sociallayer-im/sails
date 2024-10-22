@@ -394,6 +394,11 @@ class Api::EventController < ApiController
       @events = @events.order(start_time: :asc)
     end
 
+    if auth_profile && params[:with_stars]
+      @with_stars = true
+      @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").all
+    end
+
     # if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
     #   @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
     # end
@@ -488,6 +493,7 @@ class Api::EventController < ApiController
       :location,
       :formatted_address,
       :location_viewport,
+      :location_data,
       :geo_lat,
       :geo_lng,
       :cover_url,
