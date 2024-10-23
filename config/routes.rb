@@ -74,6 +74,7 @@ Rails.application.routes.draw do
     post "event/cancel", to: "event#cancel"
 
     post "comment/create", to: "comment#create"
+    post "comment/remove", to: "comment#remove"
     post "comment/list", to: "comment#list"
 
     post "recurring/create", to: "recurring#create"

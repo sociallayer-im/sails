@@ -12,6 +12,12 @@ class Api::CommentController < ApiController
     end
   end
 
+  def remove
+    comment = Comment.find(params[:id])
+    comment.update(removed: true)
+    render json: { result: "ok" }
+  end
+
   def list
     comments = Comment.includes(:profile).where(comment_type: params[:comment_type], removed: nil)
     comments = comments.where(item_type: params[:item_type]) if params[:item_type]

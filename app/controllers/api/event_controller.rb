@@ -474,6 +474,7 @@ class Api::EventController < ApiController
     if params[:collection] == "my_stars"
       @stars = Comment.where(profile_id: profile.id, comment_type: "star", item_type: "Event")
       @events = Event.where(id: @stars.pluck(:item_id))
+      @with_stars = true
     else
       @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: "attending" })
     end
