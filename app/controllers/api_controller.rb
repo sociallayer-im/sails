@@ -39,14 +39,24 @@ class ApiController < ApplicationController
     content = Sanitize.fragment(content, Sanitize::Config::RELAXED)
   end
 
+  def fetch_bearer_token
+    request.headers["Authorization"].split(" ")[1] if request.headers["Authorization"]
+  end
+
   def current_profile
     return Profile.find_by(address: @address) if @address
 
     begin
-      token = params[:auth_token]
+      token = params[:auth_token] || fetch_bearer_token
       decoded_token = JWT.decode token, $hmac_secret, true, { algorithm: "HS256" }
-      @profile_id = decoded_token[0]["id"]
-      @profile = Profile.find_by(id: @profile_id)
+      fetched_token = Doorkeeper::AccessToken.find_by(token: token, revoked_at: nil)
+      if fetched_token
+        @profile_id = fetched_token.resource_owner_id
+        @profile = Profile.find_by(id: @profile_id)
+      else
+        @profile_id = decoded_token[0]["id"]
+        @profile = Profile.find_by(id: @profile_id)
+      end
     rescue Exception => e
       Rails.logger.info e.message
       nil
@@ -56,12 +66,19 @@ class ApiController < ApplicationController
   def current_profile!
     return Profile.find_by(address: @address) if @address
 
-    raise AuthTokenError.new("missing auth_token") unless params[:auth_token]
+    raise AuthTokenError.new("missing auth_token") unless params[:auth_token] || fetch_bearer_token
 
     begin
-      token = params[:auth_token]
+      token = params[:auth_token] || fetch_bearer_token
       decoded_token = JWT.decode token, $hmac_secret, true, { algorithm: "HS256" }
-      @profile_id = decoded_token[0]["id"]
+      fetched_token = Doorkeeper::AccessToken.find_by(token: token, revoked_at: nil)
+      if fetched_token
+        @profile_id = fetched_token.resource_owner_id
+        @profile = Profile.find_by(id: @profile_id)
+      else
+        @profile_id = decoded_token[0]["id"]
+        @profile = Profile.find_by(id: @profile_id)
+      end
     rescue Exception => e
       Rails.logger.info e.message
       raise AuthTokenError.new(e.message)

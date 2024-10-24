@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     get  "profile/get_by_handle", to: "profile#get_by_handle"
     post "profile/signin_with_email", to: "profile#signin_with_email"
     post "profile/set_verified_email", to: "profile#set_verified_email"
+    post "profile/signin_with_zkemail", to: "profile#signin_with_zkemail"
     post "profile/signin_with_multi_zupass", to: "profile#signin_with_multi_zupass"
     post "profile/signin_with_solana", to: "profile#signin_with_solana"
     post "profile/signin_with_farcaster", to: "profile#signin_with_farcaster"
@@ -72,7 +73,7 @@ Rails.application.routes.draw do
     post "event/join", to: "event#join"
     post "event/check", to: "event#check"
     post "event/cancel", to: "event#cancel"
-
+    get  "event/my_stars", to: "event#my_stars"
     post "comment/create", to: "comment#create"
     post "comment/remove", to: "comment#remove"
     post "comment/list", to: "comment#list"
