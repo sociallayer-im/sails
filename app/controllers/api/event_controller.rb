@@ -30,11 +30,12 @@ class Api::EventController < ApiController
     end
 
     event = Event.new(event_params)
+    event.pinned = params[:pinned] if event.group && event.group.is_manager(profile.id)
     event.update(
       status: status,
       owner: profile,
       group: group,
-      display: "normal",
+      display: event_params[:display] || "normal",
       event_type: event_params[:event_type] || "event", # todo : could be "group_ticket"
     )
 
@@ -131,6 +132,7 @@ class Api::EventController < ApiController
     end
 
     event.assign_attributes(event_params)
+    event.pinned = params[:pinned] if event.group && event.group.is_manager(profile.id)
     if (["start_time", "end_time", "location"] - event.changed).present?
       @send_update_email = true
     else
@@ -503,6 +505,8 @@ class Api::EventController < ApiController
       :start_time,
       :end_time,
       :timezone,
+      :display,
+      :theme,
       :meeting_url,
       :venue_id,
       :location,
