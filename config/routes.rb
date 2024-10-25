@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     get "event/private_list", to: "event#private_list"
     get "event/private_track_list", to: "event#private_track_list"
     get "event/my_event_list", to: "event#my_event_list"
+    get "event/starred_event_list", to: "event#starred_event_list"
     get "event/created_by_me", to: "event#created_by_me"
     post "event/create", to: "event#create"
     post "event/update", to: "event#update"
