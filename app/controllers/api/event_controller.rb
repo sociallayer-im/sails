@@ -346,6 +346,9 @@ class Api::EventController < ApiController
     if params[:venue_id]
       @events = @events.where(venue_id: params[:venue_id])
     end
+    if params[:theme]
+      @events = @events.where(theme: params[:theme])
+    end
     if params[:my_event].present?
       return { reuslt: "error", message: "authentication required" } unless auth_profile
       @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: "attending" })
@@ -377,6 +380,9 @@ class Api::EventController < ApiController
       @events = @events.order(start_time: :asc)
     elsif params[:collection] == "upcoming"
       @events = @events.where("end_time >= ?", DateTime.now)
+      @events = @events.order(start_time: :asc)
+    elsif params[:collection] == "pinned"
+      @events = @events.where(pinned: true)
       @events = @events.order(start_time: :asc)
     elsif params[:collection] == "past"
       @events = @events.where("end_time < ?", DateTime.now)
@@ -482,6 +488,19 @@ class Api::EventController < ApiController
     end
 
     @events = @events.order(start_time: :desc)
+
+    limit = params[:limit] ? params[:limit].to_i : 40
+    limit = 1000 if limit > 1000
+    @pagy, @events = pagy(@events, limit: limit)
+    render template: "api/event/index_without_group"
+  end
+
+  def starred_event_list
+    profile = current_profile!
+    @stars = Comment.where(profile_id: profile.id, comment_type: "star", item_type: "Event")
+    @events = Event.where(id: @stars.pluck(:item_id))
+    @events = @events.order(start_time: :desc)
+    @with_stars = true
 
     limit = params[:limit] ? params[:limit].to_i : 40
     limit = 1000 if limit > 1000
