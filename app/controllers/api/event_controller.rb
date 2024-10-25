@@ -341,38 +341,24 @@ class Api::EventController < ApiController
       @events = @events.where(display: ["normal", "pinned", "public"])
     end
 
-    # if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
-    #   @group = Group.where(id: [3477, 3502]).all
-    #   group_id = [3477, 3502]
-    #   @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(display: ["normal", "pinned", "public"]).where(group_id: group_id)
-    # end
-
     if params[:track_id]
       @events = @events.where(track_id: params[:track_id])
     else
       @events = @events.where(track_id: pub_tracks)
     end
     if params[:tags]
-      @events = @events.where("tags && ARRAY[:options]::varchar[]", options: params[:tags].split(","))
-      # @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
+      tags = params[:tags].split(",")
+      @events = @events.where("tags && ARRAY[:options]::varchar[]", options: tags)
+      # @events = @events.where("tags @> ARRAY[?]::varchar[]", tags)
     end
     if params[:search_title]
       @events = @events.where("title like ?", "%#{params[:search_title]}%")
-      # @events = @events.where("tags @> ARRAY[?]::varchar[]", params[:tags].split(","))
     end
     if params[:venue_id]
       @events = @events.where(venue_id: params[:venue_id])
     end
     if params[:theme]
       @events = @events.where(theme: params[:theme])
-    end
-    if params[:my_event].present?
-      return { reuslt: "error", message: "authentication required" } unless auth_profile
-      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: "attending" })
-    end
-    if params[:my_event].present?
-      return { reuslt: "error", message: "authentication required" } unless auth_profile
-      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: "attending" })
     end
 
     if params[:skip_multiday].present?
@@ -427,10 +413,6 @@ class Api::EventController < ApiController
       @with_stars = true
       @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").all
     end
-
-    # if ["3477", "3502", "lovepunkschiangmai", "auraverse"].include?(params[:group_id])
-    #   @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
-    # end
 
     limit = params[:limit] ? params[:limit].to_i : 40
     limit = 1000 if limit > 1000
@@ -496,15 +478,20 @@ class Api::EventController < ApiController
 
   def my_event_list
     profile = current_profile!
-    if params[:collection] == "my_stars"
+    if params[:collection] == "my_stars" # todo : remove
       @stars = Comment.where(profile_id: profile.id, comment_type: "star", item_type: "Event")
       @events = Event.where(id: @stars.pluck(:item_id))
       @with_stars = true
     else
-      @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: "attending" })
+      @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: ["attending", "checked"] })
+      if params[:collection] == "upcoming"
+        @events = @events.where("end_time >= ?", DateTime.now)
+      elsif params[:collection] == "past"
+        @events = @events.where("end_time < ?", DateTime.now)
+      end
     end
 
-    @events = @events.order(start_time: :desc)
+    @events = @events.order(start_time: :asc)
 
     limit = params[:limit] ? params[:limit].to_i : 40
     limit = 1000 if limit > 1000
@@ -528,8 +515,12 @@ class Api::EventController < ApiController
   def created_by_me
     profile = current_profile!
     @events = Event.where(owner: profile)
-    @events = @events.order(start_time: :desc).limit(10)
-    render json: @events, status: :ok
+    @events = @events.order(start_time: :desc)
+
+    limit = params[:limit] ? params[:limit].to_i : 40
+    limit = 1000 if limit > 1000
+    @pagy, @events = pagy(@events, limit: limit)
+    render template: "api/event/index_without_group"
   end
 
   def latest_changed
@@ -538,7 +529,6 @@ class Api::EventController < ApiController
     limit = params[:limit] ? params[:limit].to_i : 40
     limit = 1000 if limit > 1000
     @pagy, @events = pagy(@events, limit: limit)
-    p @events
     render template: "api/event/index_without_group"
   end
 

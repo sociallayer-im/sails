@@ -4,12 +4,15 @@ class Api::MarkerController < ApiController
     group = Group.find(params[:group_id])
 
     marker = Marker.new(marker_params)
-    marker.update(
+    if marker.update(
       owner: profile,
       group: group,
       status: "active"
     )
-    render json: { marker: marker.as_json }
+      render json: { marker: marker.as_json }
+    else
+      render json: { result: "error", message: marker.errors.full_messages.join(", ") }
+    end
   end
 
   def update
@@ -17,8 +20,11 @@ class Api::MarkerController < ApiController
     marker = Marker.find(params[:id])
     authorize marker, :update?
 
-    marker.update(marker_params)
-    render json: { marker: marker.as_json }
+    if marker.update(marker_params)
+      render json: { marker: marker.as_json }
+    else
+      render json: { result: "error", message: marker.errors.full_messages.join(", ") }
+    end
   end
 
   def remove
@@ -26,10 +32,11 @@ class Api::MarkerController < ApiController
     marker = Marker.find(params[:id])
     authorize marker, :update?
 
-    marker.update(
-      status: "removed",
-      )
-    render json: { result: "ok" }
+    if marker.update(status: "removed")
+      render json: { result: "ok" }
+    else
+      render json: { result: "error", message: marker.errors.full_messages.join(", ") }
+    end
   end
 
   def checkin
@@ -37,7 +44,7 @@ class Api::MarkerController < ApiController
     marker = Marker.find(params[:id])
     authorize marker, :update?
 
-    comment = Comment.create(
+    comment = Comment.new(
       item: marker,
       comment_type: "checkin",
       profile: profile,
@@ -48,7 +55,11 @@ class Api::MarkerController < ApiController
       icon_url: params[:icon_url],
       )
 
-    render json: { result: "ok", comment: comment.as_json }
+    if comment.save
+      render json: { result: "ok", comment: comment.as_json }
+    else
+      render json: { result: "error", message: comment.errors.full_messages.join(", ") }
+    end
   end
 
   private
