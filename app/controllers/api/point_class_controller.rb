@@ -1,27 +1,21 @@
 class Api::PointClassController < ApiController
   def create
     profile = current_profile!
-    name = params[:point_class][:name]
-
-    # todo : verify label in model callback
-    unless check_badge_domain_label(name)
-      render json: { result: "error", message: "invalid name" }
-      return
-    end
     if params[:group_id]
       group = Group.find(params[:group_id])
       authorize group, :manage?, policy_class: GroupPolicy
     end
 
-    # todo : check sym and name
-
     point_class = PointClass.new(point_class_params)
-    point_class.update(
+    if point_class.update(
       group: group,
       creator: profile,
     )
-
-    render json: { result: "ok", point_class: point_class.as_json }
+      render json: { result: "ok", point_class: point_class.as_json }
+    else
+      render json: { result: "error", message: point_class.errors.full_messages.join(", ") },
+        status: :unprocessable_entity
+    end
   end
 
 

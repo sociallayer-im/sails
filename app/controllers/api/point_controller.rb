@@ -2,12 +2,18 @@ class Api::PointController < ApiController
   def create
     profile = current_profile!
 
-    params[:receivers].each do |receiver|
-      raise AppError.new("invalid receiver id") unless Profile.find_by(address: receiver[:receiver]) || Profile.find_by(handle: receiver[:receiver])
+    point_class = PointClass.find(params[:point_class_id])
+    authorize point_class, :send?, policy_class: PointClassPolicy
+
+    invalid_receivers = params[:receivers].reject do |receiver|
+      Profile.exists?(address: receiver[:receiver]) || Profile.exists?(handle: receiver[:receiver])
     end
 
-    point_class = PointClass.find(params[:point_class_id])
-    authorize point_class, :send?
+    if invalid_receivers.any?
+      invalid_ids = invalid_receivers.map { |r| r[:receiver] }.join(', ')
+      raise AppError.new("Invalid receiver id(s): #{invalid_ids}")
+    end
+
     # need test for group
 
     point_transfers = params[:receivers].map do |receiver_value|

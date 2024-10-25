@@ -11,8 +11,8 @@ class Api::PointClassControllerTest < ActionDispatch::IntegrationTest
       title: "test point class",
       content: "test point class description",
       group_id: 1,
-      point_type: "point"
-}
+        point_type: "point"
+      }
     }
     assert_response :success
     assert PointClass.find_by(name: "pointt")
