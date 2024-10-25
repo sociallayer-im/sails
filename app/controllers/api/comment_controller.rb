@@ -18,6 +18,20 @@ class Api::CommentController < ApiController
     render json: { result: "ok" }
   end
 
+  def star
+    profile = current_profile!
+    comment = Comment.find_or_initialize_by(profile: profile, item_type: params[:item_type], item_id: params[:item_id], comment_type: "star")
+    comment.save
+    render json: { result: "ok" }
+  end
+
+  def unstar
+    profile = current_profile!
+    comment = Comment.find_by(profile: profile, item_type: params[:item_type], item_id: params[:item_id], comment_type: "star")
+    comment.destroy if comment
+    render json: { result: "ok" }
+  end
+
   def list
     comments = Comment.includes(:profile).where(comment_type: params[:comment_type], removed: nil)
     comments = comments.where(item_type: params[:item_type]) if params[:item_type]

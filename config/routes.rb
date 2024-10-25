@@ -67,6 +67,7 @@ Rails.application.routes.draw do
     get "event/my_event_list", to: "event#my_event_list"
     get "event/starred_event_list", to: "event#starred_event_list"
     get "event/created_by_me", to: "event#created_by_me"
+    get "event/latest_changed", to: "event#latest_changed"
     post "event/create", to: "event#create"
     post "event/update", to: "event#update"
     post "event/unpublish", to: "event#unpublish"
@@ -74,9 +75,14 @@ Rails.application.routes.draw do
     post "event/join", to: "event#join"
     post "event/check", to: "event#check"
     post "event/cancel", to: "event#cancel"
+    post "event/remove_participant", to: "event#remove_participant"
+    post "event/set_notes", to: "event#set_notes"
     get  "event/my_stars", to: "event#my_stars"
+
     post "comment/create", to: "comment#create"
     post "comment/remove", to: "comment#remove"
+    post "comment/star", to: "comment#star"
+    post "comment/unstar", to: "comment#unstar"
     post "comment/list", to: "comment#list"
 
     post "recurring/create", to: "recurring#create"

@@ -277,6 +277,23 @@ class Api::EventController < ApiController
     render json: { participant: participant.as_json }
   end
 
+  def remove_participant
+    profile = current_profile!
+    participant = Participant.find_by(event_id: params[:id], profile_id: params[:profile_id])
+    authorize participant, :update?
+    participant.update(status: "cancelled")
+    participant.event.decrement!(:participants_count)
+    render json: { participant: participant.as_json }
+  end
+
+  def set_notes
+    profile = current_profile!
+    event = Event.find(params[:id])
+    authorize event, :update?
+    event.update(notes: params[:notes])
+    render json: { event: event.as_json }
+  end
+
   def get
     @event = Event.includes(:owner).find(params[:id])
     render template: "api/event/show"
@@ -513,6 +530,16 @@ class Api::EventController < ApiController
     @events = Event.where(owner: profile)
     @events = @events.order(start_time: :desc).limit(10)
     render json: @events, status: :ok
+  end
+
+  def latest_changed
+    @events = Event.includes(:group, :venue, :owner).where(status: ["open", "published"]).order(updated_at: :desc)
+    @with_stars = false
+    limit = params[:limit] ? params[:limit].to_i : 40
+    limit = 1000 if limit > 1000
+    @pagy, @events = pagy(@events, limit: limit)
+    p @events
+    render template: "api/event/index_without_group"
   end
 
   private

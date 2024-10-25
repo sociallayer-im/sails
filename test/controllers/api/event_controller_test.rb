@@ -572,4 +572,67 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_equal "attending", participant.status
     assert_not_equal register_time, participant.register_time
   end
+
+  test "api#event/remove_participant" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    event = Event.find_by(title: "my meetup")
+
+    # Join event
+    post api_event_join_url, params: { auth_token: auth_token, id: event.id }
+    assert_response :success
+
+    # Ensure the event owner is different from the participant
+    event_owner = Profile.find_by(handle: "mooncake")
+    event.update(owner: event_owner)
+    owner_auth_token = event_owner.gen_auth_token
+
+    post api_event_remove_participant_url, params: {
+      auth_token: owner_auth_token,
+      id: event.id,
+      profile_id: profile.id
+    }
+    assert_response :success
+
+    participant = Participant.find_by(event_id: event.id, profile_id: profile.id)
+    assert_equal "cancelled", participant.status
+  end
+
+  # todo : test set_notes
+  test "api#event/set_notes" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    event = Event.find_by(title: "my meetup")
+
+    # Join event
+    post api_event_join_url, params: { auth_token: auth_token, id: event.id }
+    assert_response :success
+
+    # Set notes
+    notes = "Bringing snacks for everyone"
+    post api_event_set_notes_url, params: {
+      auth_token: auth_token,
+      id: event.id,
+      notes: notes
+    }
+    assert_response :success
+
+    # Update notes
+    updated_notes = "Changed my mind, bringing drinks instead"
+    post api_event_set_notes_url, params: {
+      auth_token: auth_token,
+      id: event.id,
+      notes: updated_notes
+    }
+    assert_response :success
+
+    # Clear notes
+    post api_event_set_notes_url, params: {
+      auth_token: auth_token,
+      id: event.id,
+      notes: ""
+    }
+    assert_response :success
+
+  end
 end
