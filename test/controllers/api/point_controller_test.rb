@@ -18,7 +18,6 @@ class Api::PointControllerTest < ActionDispatch::IntegrationTest
     assert_equal PointTransfer.find_by(point_class_id: 1, sender_id: 1).value, 100
     point_transfer_id = JSON.parse(response.body)["point_transfers"][0]["id"]
 
-
     profile2 = profiles(:four)
     auth_token2 = profile2.gen_auth_token
     post api_point_accept_url, params: {
@@ -40,7 +39,6 @@ class Api::PointControllerTest < ActionDispatch::IntegrationTest
     assert_equal PointBalance.find_by(point_class_id: 1, owner: profiles(:four)).value, 80
     assert PointTransfer.find_by(point_class_id: 1, sender_id: profile2.id).value, 20
   end
-
 
   test "api#point/reject" do
     profile = profiles(:one)

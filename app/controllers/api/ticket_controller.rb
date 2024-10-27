@@ -286,9 +286,24 @@ class Api::TicketController < ApiController
     render json: { result: "ok"}
   end
 
+  def set_coupon
+    profile = current_profile!
+    event = Event.find(params[:event_id])
+    authorize event, :update?, policy_class: EventPolicy
+
+    event.update(event_coupon_params)
+    render json: { result: "ok", track: track }
+  end
+
   private
 
   def submission_params
     params.require(:submission).permit(:custom_form_id, :answers)
+  end
+
+  def event_coupon_params
+    params.permit(
+      coupons_attributes: [ :id, :selector_type, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expires_at, :max_allowed_usages, :order_usage_count, :_destroy ],
+    )
   end
 end

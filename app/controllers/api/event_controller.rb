@@ -421,7 +421,7 @@ class Api::EventController < ApiController
   end
 
   def discover
-    @events = Event.where(status: ["open", "published"], display: ["normal", "pinned"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_time: :desc)
+    @events = Event.where(status: ["open", "published"], display: ["normal", "pinned"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
     @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_date: :desc)
     @cnx_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
     @popups = PopupCity.includes(:group).where.not("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
@@ -596,7 +596,18 @@ class Api::EventController < ApiController
           :_destroy
         ]
       ],
-      coupons_attributes: [ :id, :selector_type, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expires_at, :max_allowed_usages, :order_usage_count, :_destroy ],
+      payment_methods_attributes: [
+        :id,
+        :item_type,
+        :item_id,
+        :chain,
+        :kind,
+        :token_name,
+        :token_address,
+        :receiver_address,
+        :price,
+        :_destroy
+      ],
       event_roles_attributes: [ :id, :role, :group_id, :event_id, :item_type, :item_id, :email, :nickname, :image_url, :_destroy ],
       )
   end
