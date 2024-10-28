@@ -34,3 +34,14 @@ end
 json.event_roles @event.event_roles do |event_role|
   json.extract! event_role, :id, :role, :group_id, :profile_id, :nickname, :image_url
 end
+
+if @event.custom_form
+  json.custom_form do
+    json.extract! @event.custom_form, :id, :title, :description, :status
+    json.form_fields @event.custom_form.form_fields do |form_field|
+      json.extract! form_field, :id, :label, :description, :field_type, :field_options, :required, :position
+    end
+  end
+else
+  json.custom_form nil
+end

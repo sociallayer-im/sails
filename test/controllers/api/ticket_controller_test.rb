@@ -144,11 +144,19 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "api#ticket/rsvp with crypto ticket and form" do
+
     ticket = Ticket.find_by(event: @event, title: "crypto")
     op_paymethod = PaymentMethod.find_by(item: ticket, chain: "op")
 
     custom_form = CustomForm.create(title: "test", status: "active", group_id: @group.id, item_type: "Event", item_id: @event.id)
     form_field = FormField.create(label: "name", field_type: "text", custom_form_id: custom_form.id)
+
+    get api_event_get_url(id: @event.id), params: { auth_token: @auth_token }
+    assert_response :success
+
+    response_body = JSON.parse(response.body)
+    assert_equal custom_form.id, response_body["custom_form"]["id"]
+    assert_equal "name", response_body["custom_form"]["form_fields"][0]["label"]
 
     post api_ticket_rsvp_url,
          params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: op_paymethod.id, answers: { "name" => "sam altman" } }
