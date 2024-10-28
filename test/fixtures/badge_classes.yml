@@ -16,3 +16,17 @@ one:
   transferable: true
   display: "normal"
   status: "active"
+
+soulbound:
+  id: 2
+  name: "bound"
+  title: "bound badge"
+  content: "bound world"
+  image_url: "https://test.com/image.png"
+  creator_id: 1
+  group_id: 1
+  counter: 1
+  transferable: true
+  display: "normal"
+  status: "active"
+  badge_type: "remember"

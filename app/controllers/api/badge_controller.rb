@@ -84,4 +84,5 @@ class Api::BadgeController < ApiController
 
   def merge
   end
+
 end

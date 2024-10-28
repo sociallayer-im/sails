@@ -10,16 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_25_043646) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_28_182318) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "activities", force: :cascade do |t|
-    t.integer "item_type"
     t.integer "item_class_id"
     t.integer "item_id"
     t.integer "initiator_id"
-    t.integer "target_type"
     t.integer "target_id"
     t.string "action"
     t.string "data"
@@ -29,6 +27,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_25_043646) do
     t.string "receiver_type", default: "id"
     t.string "receiver_address"
     t.boolean "has_read", default: false
+    t.string "item_type"
+    t.string "target_type"
   end
 
   create_table "availabilities", force: :cascade do |t|

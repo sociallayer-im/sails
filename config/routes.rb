@@ -105,6 +105,12 @@ Rails.application.routes.draw do
 
     post "badge_class/create", to: "badge_class#create"
 
+    post "remember/create", to: "remember#create"
+    post "remember/join", to: "remember#join"
+    post "remember/cancel", to: "remember#cancel"
+    get  "remember/get", to: "remember#get"
+    post "remember/mint", to: "remember#mint"
+
     post "voucher/create", to: "voucher#create"
     post "voucher/use", to: "voucher#use"
     get  "voucher/get_code", to: "voucher#get_code"
