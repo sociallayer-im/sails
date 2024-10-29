@@ -83,4 +83,30 @@ class Api::ServiceController < ApiController
 
     render plain: ics
   end
+
+  def get_participanted_events_by_email
+    profile = Profile.find_by(email: params[:email])
+    group = Group.find_by(id: params[:group_id])
+    events = Event.joins(:participants).where(group: group, participants: { profile_id: profile.id })
+    if params[:collection] == "past"
+      events = events.where("end_time < ?", DateTime.now)
+    elsif params[:collection] == "upcoming"
+      events = events.where("end_time >= ?", DateTime.now)
+    end
+    events = events.order(start_time: :desc).all
+    render json: { events: events.as_json(only: [:id, :title, :start_time, :end_time, :location, :status]) }
+  end
+
+  def get_hosted_events_by_email
+    profile = Profile.find_by(email: params[:email])
+    group = Group.find_by(id: params[:group_id])
+    events = Event.where(group: group, owner_id: profile.id, status: ["published", "open"])
+    if params[:collection] == "past"
+      events = events.where("end_time < ?", DateTime.now)
+    elsif params[:collection] == "upcoming"
+      events = events.where("end_time >= ?", DateTime.now)
+    end
+    events = events.order(start_time: :desc).all
+    render json: { events: events.as_json(only: [:id, :title, :start_time, :end_time, :location, :status]) }
+  end
 end
