@@ -86,8 +86,11 @@ class Api::ServiceController < ApiController
 
   def get_participanted_events_by_email
     profile = Profile.find_by(email: params[:email])
-    group = Group.find_by(id: params[:group_id])
-    events = Event.joins(:participants).where(group: group, participants: { profile_id: profile.id })
+    events = Event.joins(:participants).where(participants: { profile_id: profile.id })
+    if params[:group_id]
+      group = Group.find_by(id: params[:group_id])
+      events = events.where(group: group)
+    end
     if params[:collection] == "past"
       events = events.where("end_time < ?", DateTime.now)
     elsif params[:collection] == "upcoming"
@@ -99,8 +102,11 @@ class Api::ServiceController < ApiController
 
   def get_hosted_events_by_email
     profile = Profile.find_by(email: params[:email])
-    group = Group.find_by(id: params[:group_id])
-    events = Event.where(group: group, owner_id: profile.id, status: ["published", "open"])
+    events = Event.where(owner_id: profile.id, status: ["published", "open"])
+    if params[:group_id]
+      group = Group.find_by(id: params[:group_id])
+      events = events.where(group: group)
+    end
     if params[:collection] == "past"
       events = events.where("end_time < ?", DateTime.now)
     elsif params[:collection] == "upcoming"
