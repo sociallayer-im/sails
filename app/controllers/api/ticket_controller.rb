@@ -295,6 +295,45 @@ class Api::TicketController < ApiController
     render json: { result: "ok", track: track }
   end
 
+  def daimo_create_payment_link
+    ticket_item = TicketItem.find(params[:ticket_item_id])
+    ticket = ticket_item.ticket
+    payment_method = ticket_item.payment_method
+    receiver_address = payment_method.receiver_address
+    token_address = payment_method.token_address
+    amount = ticket_item.amount
+
+    response = RestClient.post("https://pay.daimo.com/api/generate", {
+      "intent": "Sola Event Payment",
+      "items": [
+        {
+          "name": "Sola Event Ticket",
+          "description": ""
+        }
+      ],
+      "recipient": {
+        "address": receiver_address,
+        "amount": amount,
+        "token": token_address,
+        "chain": 10 # todo
+      },
+      "paymentOptions": [],
+      "redirectUri": "https://app.sola.day"
+    }.to_json, {
+      "Idempotency-Key" => ticket_item.order_number,
+      "Api-Key" => ENV["DAIMO_API_KEY"],
+      "Content-Type" => "application/json",
+    })
+    resp = JSON.parse(response.body)
+
+    render json: resp
+  end
+
+  def daimo_webhook
+    p params
+    render json: { result: "ok" }
+  end
+
   private
 
   def submission_params
