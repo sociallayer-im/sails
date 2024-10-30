@@ -44,7 +44,8 @@ class Api::RememberController < ApiController
 
   def cancel
     profile = current_profile!
-    activity = Activity.find_by(id: params[:activity_id], sender_id: profile.id, action: "voucher/join")
+    voucher = Voucher.find(params[:voucher_id])
+    activity = Activity.find_by(item_id: voucher.id, initiator_id: profile.id, action: "voucher/join")
     activity.destroy
     render json: { result: "ok" }
   end
