@@ -25,7 +25,6 @@ class Event < ApplicationRecord
   ### methods
 
   def parse_host_info
-    event = self
     return nil if host_info.nil?
     result = {}
     info = JSON.parse(host_info)
@@ -91,6 +90,7 @@ class Event < ApplicationRecord
   end
 
   def update_host_info
+    event = self
     return nil if host_info.nil?
     info = JSON.parse(host_info)
     if info.is_a? Integer
