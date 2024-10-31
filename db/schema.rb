@@ -10,8 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_28_182318) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_31_084629) do
+  create_schema "hdb_catalog"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "activities", force: :cascade do |t|
@@ -96,7 +99,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_28_182318) do
 
   create_table "comments", force: :cascade do |t|
     t.integer "title"
-    t.string "item_type"
+    t.string "item_type", default: "Group"
     t.integer "item_id"
     t.integer "reply_parent_id"
     t.text "content"
@@ -236,6 +239,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_28_182318) do
     t.string "location_data"
     t.boolean "pinned", default: false
     t.string "theme"
+    t.index ["group_id"], name: "index_events_on_group_id"
   end
 
   create_table "followings", force: :cascade do |t|
@@ -592,6 +596,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_28_182318) do
     t.string "payment_data"
     t.string "payment_chain"
     t.datetime "register_time"
+    t.index ["event_id"], name: "index_participants_on_event_id"
+    t.index ["profile_id"], name: "index_participants_on_profile_id"
   end
 
   create_table "payment_methods", force: :cascade do |t|
