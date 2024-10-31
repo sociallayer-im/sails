@@ -267,6 +267,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "api#event/check" do
+    travel_to Date.new(2024, 8, 8)
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     attendee = Profile.find_by(handle: "mooncake")
@@ -295,6 +296,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "api#event/join with ticket restriction and valid for specific date" do
+    travel_to Date.new(2024, 8, 8)
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     attendee = Profile.find_by(handle: "mooncake")
@@ -348,6 +350,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "api#event/cancel" do
+    travel_to Date.new(2024, 8, 8)
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     attendee = Profile.find_by(handle: "mooncake")
@@ -402,6 +405,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
   end 
 
   test "api#event/my_event_list" do
+    travel_to Date.new(2024, 8, 8)
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
 
@@ -540,6 +544,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "api#event/join, cancel, and rejoin" do
+    travel_to Date.new(2024, 8, 7)
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     event = Event.find_by(title: "my meetup")
@@ -563,6 +568,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     participant.reload
     assert_equal "cancelled", participant.status
 
+    travel_to Date.new(2024, 8, 8)
     # Rejoin event
     assert_no_difference 'Participant.count' do
       post api_event_join_url, params: { auth_token: auth_token, id: event.id }
@@ -574,6 +580,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "api#event/remove_participant" do
+    travel_to Date.new(2024, 8, 8)
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     event = Event.find_by(title: "my meetup")
@@ -600,7 +607,9 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
 
   # todo : test set_notes
   test "api#event/set_notes" do
+    travel_to Date.new(2024, 8, 8)
     profile = Profile.find_by(handle: "cookie")
+
     auth_token = profile.gen_auth_token
     event = Event.find_by(title: "my meetup")
 

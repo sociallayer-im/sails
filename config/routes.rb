@@ -79,6 +79,7 @@ Rails.application.routes.draw do
     get "event/starred_event_list", to: "event#starred_event_list"
     get "event/created_by_me", to: "event#created_by_me"
     get "event/latest_changed", to: "event#latest_changed"
+    get "event/themes_list", to: "event#themes_list"
 
     post "comment/list", to: "comment#list"
     post "comment/create", to: "comment#create"

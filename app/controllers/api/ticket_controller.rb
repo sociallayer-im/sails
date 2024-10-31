@@ -8,6 +8,14 @@ class Api::TicketController < ApiController
     event = Event.find(params[:id])
     status = "attending"
 
+    if event.status == "closed"
+      raise AppError.new("event closed")
+    end
+
+    if event.end_time + 1.hour < DateTime.now
+      raise AppError.new("event ended")
+    end
+
     if event.venue && event.venue.capacity && event.venue.capacity > 0 && event.participants_count >= event.venue.capacity
       raise AppError.new("exceed venue capacity")
     end

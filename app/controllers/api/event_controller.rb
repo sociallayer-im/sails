@@ -217,6 +217,14 @@ class Api::EventController < ApiController
     event = Event.find(params[:id])
     status = "attending"
 
+    if event.status == "closed"
+      raise AppError.new("event closed")
+    end
+
+    if event.end_time + 1.hour < DateTime.now
+      raise AppError.new("event ended")
+    end
+
     if event.venue && event.venue.capacity && event.venue.capacity > 0 && event.participants_count >= event.venue.capacity
       raise AppError.new("exceed venue capacity")
     end
@@ -537,6 +545,11 @@ class Api::EventController < ApiController
     limit = 1000 if limit > 1000
     @pagy, @events = pagy(@events, limit: limit)
     render template: "api/event/index_without_group"
+  end
+
+  def themes_list
+    themes = Event.where(group_id: params[:group_id]).distinct(:theme).pluck(:theme)
+    render json: { themes: themes }
   end
 
   private
