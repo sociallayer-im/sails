@@ -140,6 +140,7 @@ class Api::EventController < ApiController
     else
       @send_update_email = false
     end
+    event.status = params[:status] if ["open", "published", "closed"].include?(params[:status])
     event.save
 
     if @send_update_email
