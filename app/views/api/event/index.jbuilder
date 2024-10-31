@@ -53,6 +53,6 @@ json.events @events do |event|
   # end
 
   json.event_roles event.event_roles do |event_role|
-    json.extract! event_role, :id, :role, :group_id, :profile_id, :nickname, :image_url
+    json.extract! event_role, :id, :role, :item_id, :item_type, :nickname, :image_url
   end
 end
