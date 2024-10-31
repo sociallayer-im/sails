@@ -131,7 +131,7 @@ class Api::ServiceController < ApiController
   def get_user_related_groups
     # PopupCity.includes(:group).where("popup_cities.group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc).pluck(:group_id)
     group_ids = [3431, 3519, 3527, 3502, 3477, 3507, 3504, 1572, 3463, 3492, 3491, 3495, 3486, 3456]
-    profile_ids = params[:profile_id]
+    profile_ids = params[:profile_ids].split(",").map(&:to_i)
     group_data = Profile.organize_profile_groups(profile_ids)
 
 
