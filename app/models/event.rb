@@ -25,6 +25,7 @@ class Event < ApplicationRecord
   ### methods
 
   def parse_host_info
+    event = self
     return nil if host_info.nil?
     result = {}
     info = JSON.parse(host_info)

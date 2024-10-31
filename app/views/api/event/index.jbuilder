@@ -15,6 +15,7 @@ json.events @events do |event|
 
   # json.host_info (event.host_info.present? ? JSON.parse(event.host_info) : nil)
   json.host_info event.parse_host_info
+  # json.host_info nil
 
 
   if @with_stars
