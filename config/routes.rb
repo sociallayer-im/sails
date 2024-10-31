@@ -141,6 +141,7 @@ Rails.application.routes.draw do
 
     get "service/get_participanted_events_by_email", to: "service#get_participanted_events_by_email"
     get "service/get_hosted_events_by_email", to: "service#get_hosted_events_by_email"
+    get "service/get_user_related_groups", to: "service#get_user_related_groups"
   end
 
   get    "sign_in",  to: "sessions#new"

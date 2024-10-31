@@ -40,6 +40,13 @@ class Api::VenueController < ApiController
     render json: { available: available, message: message }
   end
 
+  def list
+    profile = current_profile!
+    group = Group.find_by(id: params[:group_id])
+    venues = Venue.where(group: group)
+    render json: { venues: venues.as_json }
+  end
+
   private
 
   def venue_params

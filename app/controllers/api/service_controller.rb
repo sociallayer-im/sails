@@ -115,4 +115,26 @@ class Api::ServiceController < ApiController
     events = events.order(start_time: :desc).all
     render json: { events: events.as_json(only: [:id, :title, :start_time, :end_time, :location, :status]) }
   end
+
+  def get_user_groups_by_email
+    profile = Profile.find_by(email: params[:email])
+    groups = Group.where(members: profile)
+    render json: { groups: groups.as_json }
+  end
+
+  def get_user_tickets_by_email
+    profile = Profile.find_by(email: params[:email])
+    tickets = Ticket.where(profile: profile)
+    render json: { tickets: tickets.as_json }
+  end
+
+  def get_user_related_groups
+    # PopupCity.includes(:group).where("popup_cities.group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc).pluck(:group_id)
+    group_ids = [3431, 3519, 3527, 3502, 3477, 3507, 3504, 1572, 3463, 3492, 3491, 3495, 3486, 3456]
+    profile_ids = params[:profile_id]
+    group_data = Profile.organize_profile_groups(profile_ids)
+
+
+    render json: { group_data: group_data }
+  end
 end

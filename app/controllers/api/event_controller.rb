@@ -1,4 +1,5 @@
 class Api::EventController < ApiController
+
   def create
     profile = current_profile!
     group = Group.find_by(id: params[:group_id])
@@ -38,6 +39,7 @@ class Api::EventController < ApiController
       display: event_params[:display] || "normal",
       event_type: event_params[:event_type] || "event", # todo : could be "group_ticket"
     )
+    p event.errors.full_messages
 
     if event_params[:event_type] == 'group_ticket'
       group.update(group_ticket_event_id: event.id)

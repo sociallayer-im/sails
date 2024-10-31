@@ -22,6 +22,10 @@ class Profile < ApplicationRecord
   has_many :vouchers, class_name: "Voucher", inverse_of: "sender", foreign_key: "sender_id"
   has_many :received_vouchers, class_name: "Voucher", inverse_of: "receiver", foreign_key: "receiver_id"
 
+  has_many :participants
+  has_many :events, through: :participants
+  has_many :related_groups, through: :events, source: :group
+
   has_many :memberships
   has_many :groups, through: :memberships
 
@@ -86,6 +90,48 @@ class Profile < ApplicationRecord
     if self.email.present?
       mailer = EventMailer.with(event_id: event.id, recipient: self.email).event_updated
       mailer.deliver_later
+    end
+  end
+
+  def self.get_profile_groups(profile_ids)
+    # Single efficient query using LEFT JOIN to ensure all profiles are included
+    # even if they have no groups
+    Profile
+      .select('profiles.id as profile_id,
+               profiles.username,
+               profiles.nickname,
+               groups.id as group_id,
+               groups.image_url as group_image_url,
+               groups.handle as group_handle')
+      .joins("""
+        LEFT JOIN participants ON participants.profile_id = profiles.id
+        LEFT JOIN events ON events.id = participants.event_id
+        LEFT JOIN groups ON groups.id = events.group_id
+      """)
+      .where(profiles: { id: profile_ids })
+      .distinct
+  end
+
+  # Usage example with result organization
+  def self.organize_profile_groups(profile_ids)
+    results = self.get_profile_groups(profile_ids)
+    group_ids = [3431, 3519, 3527, 3502, 3477, 3507, 3504, 1572, 3463, 3492, 3491, 3495, 3486, 3456]
+
+    # Organize into a hash with profile details and their groups
+    results.group_by(&:profile_id).transform_values do |rows|
+      {
+        username: rows.first.username,
+        groups: rows
+                .select(&:group_id) # Filter out nil groups
+                .select { |row| group_ids.include?(row.group_id) }
+                .map { |row|
+                  {
+                    id: row.group_id,
+                    handle: row.group_handle,
+                    image_url: row.group_image_url
+                  }
+                }.uniq
+      }
     end
   end
 end
