@@ -89,6 +89,67 @@ class Event < ApplicationRecord
     result
   end
 
+  def update_host_info
+    return nil if host_info.nil?
+    info = JSON.parse(host_info)
+    if info.is_a? Integer
+      group = Group.find_by(id: info)
+      EventRole.create(
+        event_id: event.id,
+        item_id: group.id,
+        item_type: "Group",
+        role: "group_host",
+        nickname: group.try(:username) || group.try(:nickname),
+        image_url: group.try(:image_url),
+      )
+    else
+      # "speaker", "co_host", "group_host"
+      info["speaker"].each { |item|
+        obj = Profile.find_by(username: item["username"]) || Group.find_by(username: item["username"]) || Profile.find_by(email: item["email"])
+        obj = Profile.find_by(id: item["id"]) if obj.nil? && item["id"] != 0
+        item_type = obj ? obj.model_name.name : nil
+        EventRole.create(
+          event_id: event.id,
+          role: "speaker",
+          item_type: item_type,
+          item_id: obj.try(:id),
+          nickname: obj.try(:nickname) || obj.try(:username) || item["nickname"] || item["username"],
+          image_url:  obj.try(:image_url) || item["image_url"],
+          email: item["email"]
+        )
+      }
+
+      info["co_host"].each { |item|
+        obj = Profile.find_by(username: item["username"]) || Group.find_by(username: item["username"]) || Profile.find_by(email: item["email"])
+        obj = Profile.find_by(id: item["id"]) if obj.nil? && item["id"] != 0
+        item_type = obj ? obj.model_name.name : nil
+        EventRole.create(
+          event_id: event.id,
+          role: "co_host",
+          item_type: item_type,
+          item_id: obj.try(:id),
+          nickname: obj.try(:nickname) || obj.try(:username) || item["nickname"] || item["username"],
+          image_url:  obj.try(:image_url) || item["image_url"],
+          email: item["email"]
+        )
+      }
+
+      if info["group_host"]
+        item = info["group_host"]
+        obj = Profile.find_by(username: item["username"]) || Group.find_by(username: item["username"]) || Profile.find_by(email: item["email"])
+        obj = Profile.find_by(id: item["id"]) if obj.nil? && item["id"] != 0
+        EventRole.create(
+          event_id: event.id,
+          role: "group_host",
+          item_type: "Group",
+          item_id: obj.try(:id),
+          nickname: obj.try(:nickname) || obj.try(:username) || item["nickname"] || item["username"],
+          image_url:  obj.image_url || item["image_url"],
+        )
+      end
+    end
+  end
+
   def check_group_event_permission(profile)
     event = self
     group = event.group

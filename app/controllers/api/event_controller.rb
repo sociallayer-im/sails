@@ -527,7 +527,11 @@ class Api::EventController < ApiController
   end
 
   def latest_changed
-    @events = Event.includes(:group, :venue, :owner).where(status: ["open", "published"]).order(updated_at: :desc)
+    @events = Event.includes(:group, :venue, :owner).where(status: ["open", "published"])
+    if params[:group_id].present?
+      @events = @events.where(group_id: params[:group_id])
+    end
+    @events = @events.order(updated_at: :desc)
     @with_stars = false
     limit = params[:limit] ? params[:limit].to_i : 40
     limit = 1000 if limit > 1000
