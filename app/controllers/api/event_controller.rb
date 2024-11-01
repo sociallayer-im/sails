@@ -339,7 +339,7 @@ class Api::EventController < ApiController
     event_group_ids = @group.group_union.present? ? [@group.id] + @group.group_union : [@group.id]
 
     @timezone = @group.timezone || params[:timezone] || 'UTC'
-    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published"]).where(group_id: event_group_ids)
+    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published", "closed"]).where(group_id: event_group_ids)
     if @group.can_view_event == "member"
       if (auth_profile.blank? || !@group.is_member(auth_profile.id))
         @events = @events.where("tags @> ARRAY[?]::varchar[]", ["public"])
@@ -432,7 +432,7 @@ class Api::EventController < ApiController
   end
 
   def discover
-    @events = Event.where(status: ["open", "published"], display: ["normal", "pinned"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
+    @events = Event.where(status: ["open", "published", "closed"], display: ["normal", "pinned"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
     @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_date: :desc)
     @cnx_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
     @popups = PopupCity.includes(:group).where.not("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
@@ -448,7 +448,7 @@ class Api::EventController < ApiController
     @group = group
     my_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
     my_tracks << nil
-    @events = Event.where(status: ["open", "published"]).where(group_id: group_id)
+    @events = Event.where(status: ["open", "published", "closed"]).where(group_id: group_id)
     @events = @events.where(display: ["normal", "pinned"])
     @events = @events.where(track_id: my_tracks)
 
