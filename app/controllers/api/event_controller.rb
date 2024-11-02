@@ -432,7 +432,7 @@ class Api::EventController < ApiController
   end
 
   def discover
-    @events = Event.where(status: ["open", "published", "closed"], display: ["normal", "pinned"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
+    @events = Event.includes(:owner, :event_roles).where(status: ["open", "published", "closed"], display: ["normal", "pinned"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
     @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_date: :desc)
     @cnx_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
     @popups = PopupCity.includes(:group).where.not("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)

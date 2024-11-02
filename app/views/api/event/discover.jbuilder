@@ -44,5 +44,17 @@ json.groups @groups do |group|
 end
 
 json.events @events do |event|
-    json.extract! event, :id, :title, :event_type, :track_id, :start_time, :end_time, :timezone, :meeting_url, :location, :formatted_address, :cover_url, :tags, :external_url
+  json.extract! event, :id, :title, :event_type, :track_id, :start_time, :end_time, :timezone, :meeting_url, :location, :formatted_address, :cover_url, :tags, :external_url
+
+  if event.owner
+    json.owner do
+      json.extract! event.owner, :id, :handle, :username, :nickname, :image_url
+    end
+  else
+    json.owner nil
+  end
+
+  json.event_roles event.event_roles do |event_role|
+    json.extract! event_role, :id, :role, :item_id, :item_type, :nickname, :image_url
+  end
 end
