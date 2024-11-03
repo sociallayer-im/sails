@@ -108,6 +108,7 @@ Rails.application.routes.draw do
 
     post "badge_class/create", to: "badge_class#create"
 
+    get  "remember/meta", to: "remember#meta"
     post "remember/create", to: "remember#create"
     post "remember/join", to: "remember#join"
     post "remember/cancel", to: "remember#cancel"

@@ -1,5 +1,18 @@
 class Api::RememberController < ApiController
 
+  def meta
+    render json: { 
+      types: [
+        {
+          path: "remember",
+          badge_class_id: 1829,
+          count: 4,
+          description: "Remember is a badge that allows you to remember a person or a thing.",
+        }
+      ]
+     }
+  end
+
   def create
     profile = current_profile!
     badge_class = BadgeClass.find_by(badge_type: "remember", id: params[:badge_class_id])
@@ -112,5 +125,5 @@ class Api::RememberController < ApiController
     end
 
     render json: { voucher: voucher.as_json, badge_class: badge_class.as_json, badges: badges.as_json }
-end
+  end
 end
