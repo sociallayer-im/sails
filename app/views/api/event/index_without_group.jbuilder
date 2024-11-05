@@ -3,7 +3,7 @@ json.extract! event, :id, :title, :event_type, :track_id, :start_time, :end_time
                      :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id, :created_at, :updated_at, :updated_at
 
 # json.host_info (event.host_info.present? ? JSON.parse(event.host_info) : nil)
-json.host_info event.parse_host_info
+# json.host_info event.parse_host_info
 
 
 if @with_stars
