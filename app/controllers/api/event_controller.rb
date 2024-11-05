@@ -364,7 +364,7 @@ class Api::EventController < ApiController
       # @events = @events.where("tags @> ARRAY[?]::varchar[]", tags)
     end
     if params[:search_title]
-      @events = @events.where("title like ?", "%#{params[:search_title]}%")
+      @events = @events.where("events.title like ?", "%#{params[:search_title]}%")
     end
     if params[:venue_id]
       @events = @events.where(venue_id: params[:venue_id])
