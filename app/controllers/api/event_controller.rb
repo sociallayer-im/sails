@@ -343,7 +343,7 @@ class Api::EventController < ApiController
     @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published", "closed"]).where(group_id: event_group_ids)
     if @group.can_view_event == "member"
       if (auth_profile.blank? || !@group.is_member(auth_profile.id))
-        @events = @events.where("tags @> ARRAY[?]::varchar[]", ["public"])
+        @events = @events.where("events.tags @> ARRAY[?]::varchar[]", ["public"])
       end
     elsif params[:private_event].present? && auth_profile && @group.is_manager(auth_profile.id)
       @events = @events.where(display: "private")
@@ -360,7 +360,7 @@ class Api::EventController < ApiController
     end
     if params[:tags]
       tags = params[:tags].split(",")
-      @events = @events.where("tags && ARRAY[:options]::varchar[]", options: tags)
+      @events = @events.where("events.tags && ARRAY[:options]::varchar[]", options: tags)
       # @events = @events.where("tags @> ARRAY[?]::varchar[]", tags)
     end
     if params[:search_title]
