@@ -31,6 +31,7 @@ class Api::EventController < ApiController
     end
 
     event = Event.new(event_params)
+    event.timezone = group.timezone if group && event.timezone.blank?
     event.pinned = params[:pinned] if event.group && event.group.is_manager(profile.id)
     event.update(
       status: status,
@@ -378,6 +379,10 @@ class Api::EventController < ApiController
     if params[:skip_recurring].present?
       @events = @events.where(recurring_id: nil)
     end
+    if params[:my_event].present?
+      return { reuslt: "error", message: "authentication required" } unless auth_profile
+      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: ["attending","checked"] })
+    end
 
     if params[:start_date].present? && params[:end_date].present?
       start_time = Date.parse(params[:start_date]).in_time_zone(@timezone).at_beginning_of_day
@@ -432,7 +437,7 @@ class Api::EventController < ApiController
   end
 
   def discover
-    @events = Event.includes(:owner, :event_roles).where(status: ["open", "published", "closed"], display: ["normal", "pinned"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
+    @events = Event.includes(:owner, :event_roles).where(status: ["open", "published", "closed"], display: ["normal", "pinned", "public"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
     @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_date: :desc)
     @cnx_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
     @popups = PopupCity.includes(:group).where.not("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
@@ -449,7 +454,7 @@ class Api::EventController < ApiController
     my_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
     my_tracks << nil
     @events = Event.where(status: ["open", "published", "closed"]).where(group_id: group_id)
-    @events = @events.where(display: ["normal", "pinned"])
+    @events = @events.where(display: ["normal", "pinned", "public"])
     @events = @events.where(track_id: my_tracks)
 
     if params[:start_date].present? && params[:end_date].present?
