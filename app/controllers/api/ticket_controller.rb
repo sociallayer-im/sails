@@ -313,6 +313,8 @@ class Api::TicketController < ApiController
     token_address = payment_method.token_address
     amount = ticket_item.amount.to_s
 
+    redirect_uri = params[:redirect_uri] || "https://app.sola.day"
+
     payload = {
       "intent": "Sola Event Payment",
       "items": [
@@ -328,7 +330,7 @@ class Api::TicketController < ApiController
         "chain": 10 # todo
       },
       "paymentOptions": [],
-      "redirectUri": "https://app.sola.day"
+      "redirectUri": redirect_uri
     }
     p payload
 
