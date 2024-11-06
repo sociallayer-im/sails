@@ -349,11 +349,11 @@ class Api::TicketController < ApiController
       })
       JSON.parse(response.body)
 
-      ticket_item.update(txhash: resp["id"])
     rescue RestClient::ExceptionWithResponse => e
       e.response
     end
 
+    ticket_item.update(txhash: resp["id"])
     render json: resp
   end
 
