@@ -311,7 +311,7 @@ class Api::TicketController < ApiController
     p 'payment_method', payment_method
     receiver_address = payment_method.receiver_address
     token_address = payment_method.token_address
-    amount = ticket_item.amount
+    amount = ticket_item.amount.to_s
 
     payload = {
       "intent": "Sola Event Payment",
