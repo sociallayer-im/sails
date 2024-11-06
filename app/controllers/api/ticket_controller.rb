@@ -332,6 +332,13 @@ class Api::TicketController < ApiController
     }
     p payload
 
+    headers = {
+      "Idempotency-Key" => ticket_item.order_number,
+      "Api-Key" => ENV["DAIMO_API_KEY"],
+      "Content-Type" => "application/json",
+    }
+    p headers
+
     resp = begin
       response = RestClient.post("https://pay.daimo.com/api/generate", payload.to_json, {
         "Idempotency-Key" => ticket_item.order_number,
