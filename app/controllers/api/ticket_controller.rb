@@ -348,6 +348,8 @@ class Api::TicketController < ApiController
         "Content-Type" => "application/json",
       })
       JSON.parse(response.body)
+
+      ticket_item.update(txhash: resp["id"])
     rescue RestClient::ExceptionWithResponse => e
       e.response
     end
@@ -357,6 +359,18 @@ class Api::TicketController < ApiController
 
   def daimo_webhook
     p params
+    if params[:type] == "payment_completed"
+      ticket_item = TicketItem.find_by(txhash: params[:paymentId])
+      ticket_item.update(status: "succeeded")
+
+      if ticket_item.participant.payment_status != "succeeded"
+        ticket_item.participant.update(payment_status: "succeeded")
+        if ticket_item.profile.email.present?
+          ticket_item.profile.send_mail_new_event(ticket_item.event)
+        end
+      end
+
+    end
     render json: { result: "ok" }
   end
 
