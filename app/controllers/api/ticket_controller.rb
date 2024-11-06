@@ -306,12 +306,14 @@ class Api::TicketController < ApiController
   def daimo_create_payment_link
     ticket_item = TicketItem.find(params[:ticket_item_id])
     ticket = ticket_item.ticket
+    p 'ticket', ticket
     payment_method = ticket_item.payment_method
+    p 'payment_method', payment_method
     receiver_address = payment_method.receiver_address
     token_address = payment_method.token_address
     amount = ticket_item.amount
 
-    response = RestClient.post("https://pay.daimo.com/api/generate", {
+    payload = {
       "intent": "Sola Event Payment",
       "items": [
         {
@@ -327,12 +329,19 @@ class Api::TicketController < ApiController
       },
       "paymentOptions": [],
       "redirectUri": "https://app.sola.day"
-    }.to_json, {
-      "Idempotency-Key" => ticket_item.order_number,
-      "Api-Key" => ENV["DAIMO_API_KEY"],
-      "Content-Type" => "application/json",
-    })
-    resp = JSON.parse(response.body)
+    }
+    p payload
+
+    resp = begin
+      response = RestClient.post("https://pay.daimo.com/api/generate", payload.to_json, {
+        "Idempotency-Key" => ticket_item.order_number,
+        "Api-Key" => ENV["DAIMO_API_KEY"],
+        "Content-Type" => "application/json",
+      })
+      JSON.parse(response.body)
+    rescue RestClient::ExceptionWithResponse => e
+      e.response
+    end
 
     render json: resp
   end
