@@ -361,17 +361,20 @@ class Api::TicketController < ApiController
     p params
     if params[:type] == "payment_completed"
       ticket_item = TicketItem.find_by(txhash: params[:paymentId])
-      ticket_item.update(status: "succeeded")
+      if ticket_item
+        ticket_item.update(status: "succeeded")
 
-      if ticket_item.participant.payment_status != "succeeded"
-        ticket_item.participant.update(payment_status: "succeeded")
-        if ticket_item.profile.email.present?
-          ticket_item.profile.send_mail_new_event(ticket_item.event)
+        if ticket_item.participant.payment_status != "succeeded"
+          ticket_item.participant.update(payment_status: "succeeded")
+          if ticket_item.profile.email.present?
+            ticket_item.profile.send_mail_new_event(ticket_item.event)
+          end
         end
+        render json: { result: "ok" }
+      else
+        render json: { result: "error", message: "ticket_item not found" }
       end
-
     end
-    render json: { result: "ok" }
   end
 
   private
