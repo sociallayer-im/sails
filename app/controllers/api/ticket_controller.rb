@@ -374,6 +374,8 @@ class Api::TicketController < ApiController
       else
         render json: { result: "error", message: "ticket_item not found" }
       end
+    else
+      render json: { result: "ok" }
     end
   end
 
