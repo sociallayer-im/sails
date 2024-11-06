@@ -6,7 +6,7 @@ class Api::RememberController < ApiController
         {
           path: "remember",
           badge_class_id: 1829,
-          count: 4,
+          count: 2,
           description: "Remember is a badge that allows you to remember a person or a thing.",
         }
       ]
@@ -52,7 +52,7 @@ class Api::RememberController < ApiController
     voucher = Voucher.find(params[:voucher_id])
     sender = voucher.sender
     badge_class = voucher.badge_class
-    activity = Activity.create(item_type: 'Voucher', item_id: voucher.id, initiator_id: profile.id, action: "voucher/join")
+    activity = Activity.find_or_create_by(item_type: 'Voucher', item_id: voucher.id, initiator_id: profile.id, action: "voucher/join")
     render json: { activity: activity.as_json(only: [:id, :action], include: [:initiator => { only: [:id, :handle, :nickname, :image_url] }]), voucher: voucher.as_json, badge_class: badge_class.as_json, sender: sender.as_json(only: [:id, :handle, :nickname, :image_url]) }
   end
 
