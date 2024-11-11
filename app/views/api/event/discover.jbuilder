@@ -21,6 +21,17 @@ json.cnx_popups @cnx_popups do |popup|
   end
 end
 
+json.bkk_popups @bkk_popups do |popup|
+  json.extract! popup, :id, :title, :location, :start_date, :end_date, :group_tags, :website, :image_url
+  group = popup.group
+  json.group do
+    json.id group.id
+    json.handle group.handle
+    json.nickname group.nickname
+    json.image_url group.image_url
+  end
+end
+
 json.popups @popups do |popup|
   json.extract! popup, :id, :title, :location, :start_date, :end_date, :group_tags, :website, :image_url
   group = popup.group
