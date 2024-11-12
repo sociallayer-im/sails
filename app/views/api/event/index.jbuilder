@@ -11,7 +11,7 @@ json.group do
 end
 
 json.events @events do |event|
-  json.extract! event, :id, :title, :event_type, :track_id, :start_time, :end_time, :timezone,  :status, :display, :pinned, :theme, :meeting_url, :location, :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id
+  json.extract! event, :id, :title, :event_type, :track_id, :start_time, :end_time, :timezone,  :status, :display, :pinned, :theme, :meeting_url, :location,:location_data,  :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id
 
   # json.host_info (event.host_info.present? ? JSON.parse(event.host_info) : nil)
   # json.host_info event.parse_host_info
@@ -34,7 +34,7 @@ json.events @events do |event|
 
   if event.venue
     json.venue do
-      json.extract! event.venue, :id, :title, :about, :location, :location_viewport, :formatted_address, :link, :capacity, :geo_lat, :geo_lng, :tags
+      json.extract! event.venue, :id, :title, :about, :location, :location_viewport, :location_data, :formatted_address, :link, :capacity, :geo_lat, :geo_lng, :tags
     end
   else
     json.venue nil
