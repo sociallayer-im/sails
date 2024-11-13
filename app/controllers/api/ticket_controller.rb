@@ -80,6 +80,7 @@ class Api::TicketController < ApiController
         ticket_id: ticket.id,
         event_id: event.id,
         chain: paymethod.chain,
+        protocol: paymethod.protocol,
         participant_id: participant.id,
         amount: amount,
         original_price: paymethod.price,
@@ -312,6 +313,18 @@ class Api::TicketController < ApiController
     receiver_address = payment_method.receiver_address
     token_address = payment_method.token_address
     amount = ticket_item.amount.to_s
+    raise "protocol not daimo" if payment_method.protocol == "daimo"
+
+    chain_id = if payment_method.chain == "base"
+      8453
+    elsif payment_method.chain == "arbitrum"
+      42161
+    elsif payment_method.chain == "op"
+      10
+    else
+      raise "chain not supported"
+    end
+
 
     redirect_uri = params[:redirect_uri] || "https://app.sola.day"
 

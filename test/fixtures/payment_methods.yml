@@ -25,8 +25,21 @@ three:
   item_type: "Ticket"
   item_id: 1803
   chain: "stripe"
+  protocol: "stripe"
   kind: "fiat"
   token_name: "USD"
   token_address: ""
+  receiver_address: nil
+  price: 500
+
+four:
+  id: 2804
+  item_type: "Ticket"
+  item_id: 1804
+  chain: "base"
+  protocol: "daimo"
+  kind: "crypto"
+  token_name: "USDC"
+  token_address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
   receiver_address: nil
   price: 500

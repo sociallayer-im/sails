@@ -25,3 +25,12 @@ three:
   quantity: 5
   status: "normal"
 
+four:
+  id: 1804
+  title: "daimo"
+  content: "daimo ticket"
+  ticket_type: "event"
+  event_id: 801
+  quantity: 5
+  status: "normal"
+

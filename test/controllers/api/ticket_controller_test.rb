@@ -294,6 +294,30 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
   #   assert ticket_item.coupon_id == coupon.id
   # end
 
+
+  test "api#ticket/rsvp with daimo ticket" do
+    travel_to Date.new(2024, 8, 8)
+
+    ticket = Ticket.find_by(event: @event, title: "daimo")
+    paymethod = PaymentMethod.find_by(item: ticket, chain: "base")
+    p @event.id
+    p ticket.id
+    p paymethod.id
+
+    post api_ticket_rsvp_url,
+         params: { auth_token: @auth_token, 
+         id: @event.id, 
+         ticket_id: ticket.id, 
+         payment_method_id: paymethod.id }
+    assert_response :success
+    # assert Participant.find_by(event: @event, profile: @profile, status: "attending").payment_status == "succeeded"
+
+    ticket_item = TicketItem.find_by(event: @event)
+    post api_ticket_daimo_create_payment_link_url, params: { auth_token: @auth_token, ticket_item_id: ticket_item.id }
+    assert_response :success
+    p response.body
+  end
+
   test "api#ticket/rsvp with free group ticket" do
     ticket = Ticket.find_by(event: @event, title: "free")
 
