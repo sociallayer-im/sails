@@ -48,12 +48,12 @@ class ApiController < ApplicationController
 
     begin
       token = params[:auth_token] || fetch_bearer_token
-      decoded_token = JWT.decode token, $hmac_secret, true, { algorithm: "HS256" }
       fetched_token = Doorkeeper::AccessToken.find_by(token: token, revoked_at: nil)
       if fetched_token
         @profile_id = fetched_token.resource_owner_id
         @profile = Profile.find_by(id: @profile_id)
       else
+        decoded_token = JWT.decode token, $hmac_secret, true, { algorithm: "HS256" }
         @profile_id = decoded_token[0]["id"]
         @profile = Profile.find_by(id: @profile_id)
       end
@@ -70,12 +70,12 @@ class ApiController < ApplicationController
 
     begin
       token = params[:auth_token] || fetch_bearer_token
-      decoded_token = JWT.decode token, $hmac_secret, true, { algorithm: "HS256" }
       fetched_token = Doorkeeper::AccessToken.find_by(token: token, revoked_at: nil)
       if fetched_token
         @profile_id = fetched_token.resource_owner_id
         @profile = Profile.find_by(id: @profile_id)
       else
+        decoded_token = JWT.decode token, $hmac_secret, true, { algorithm: "HS256" }
         @profile_id = decoded_token[0]["id"]
         @profile = Profile.find_by(id: @profile_id)
       end
