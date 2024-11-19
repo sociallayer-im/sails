@@ -6,6 +6,9 @@ class Api::CommentController < ApiController
     if comment.update(
       profile: profile,
     )
+      if comment.comment_type == "feedback"
+        CommentMailer.with(comment_id: comment.id).feedback.deliver
+      end
       render json: { result: "ok", comment: comment.as_json }
     else
       render json: { result: "error", message: comment.errors.full_messages.join(", ") }
