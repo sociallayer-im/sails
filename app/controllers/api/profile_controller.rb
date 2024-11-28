@@ -395,9 +395,9 @@ class Api::ProfileController < ApiController
   private
 
   def profile_params
-    params.require(:profile).permit(:image_url, :nickname, :about, :social_links, :location)
     if params[:profile][:social_links]
       params[:profile][:social_links].permit!
     end
+    params.require(:profile).permit(:image_url, :nickname, :about, :social_links, :location)
   end
 end
