@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_12_064132) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_05_101803) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -39,6 +39,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_064132) do
     t.jsonb "intervals"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "role"
   end
 
   create_table "badge_classes", force: :cascade do |t|
@@ -736,6 +737,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_064132) do
     t.datetime "updated_at"
     t.jsonb "social_links", default: {}
     t.string "handle"
+    t.string "mina_address"
+    t.string "fuel_address"
     t.index ["address"], name: "index_profiles_on_address", unique: true
     t.index ["email"], name: "index_profiles_on_email", unique: true
     t.index ["phone"], name: "index_profiles_on_phone", unique: true
@@ -863,6 +866,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_064132) do
     t.string "end_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "role"
   end
 
   create_table "venue_timeslots", force: :cascade do |t|
@@ -873,6 +877,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_12_064132) do
     t.string "end_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "role"
   end
 
   create_table "venues", force: :cascade do |t|
