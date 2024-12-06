@@ -5,4 +5,8 @@ class HomeController < ApplicationController
 
   def demo
   end
+
+  def up
+    render json: "up"
+  end
 end
