@@ -1,6 +1,6 @@
 module.exports = {
   plugins: [
-    require('daisyui'),
+    // require('daisyui'),
   ],
   content: [
     './app/views/**/*.html.erb',
