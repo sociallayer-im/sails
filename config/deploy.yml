@@ -40,8 +40,9 @@ registry:
 env:
   secret:
     # - RAILS_MASTER_KEY
-    - JWT_SECRET_KEY
+    - DATABASE_URL
     - SECRET_KEY_BASE
+    - JWT_SECRET_KEY
     - RESEND_KEY
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
@@ -51,11 +52,8 @@ env:
     - STRIPE_APP_KEY
     - STRIPE_APP_SECRET
     - TEST_EVENT_WEBHOOK_URL
-    - DATABASE_URL
     - NEXT_TOKEN
     - SKYLIGHT_AUTHENTICATION
-    - SECRET_KEY_BASE
-    - JWT_SECRET_KEY
     - DAIMO_API_KEY
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
