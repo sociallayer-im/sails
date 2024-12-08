@@ -28,9 +28,6 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
         }
       }
       assert Venue.find_by(title: "created venue").present?
-      p Venue.find_by(title: "created venue").availabilities.inspect
-      p Venue.find_by(title: "created venue").venue_overrides.inspect
-      p Venue.find_by(title: "created venue").venue_timeslots.inspect
     end
   end
 
@@ -42,7 +39,16 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
     post api_venue_update_url,
       params: { auth_token: auth_token, id: 540, venue: {
         title: "updated venue",
-        about: "updated venue description"
+        about: "updated venue description",
+        availabilities_attributes: [
+          { day: "2024-01-01", intervals: [ [ "09:00", "17:00" ] ], role: "member" }
+        ],
+        venue_overrides_attributes: [
+          { day: "2024-01-01", data: [ [ "09:00", "17:00" ] ], role: "member" }
+        ],
+        venue_timeslots_attributes: [
+          { day_of_week: "monday", start_at: "09:00", end_at: "17:00", role: "member" }
+        ]
       } }
       assert Venue.find_by(title: "updated venue").present?
     end

@@ -9,7 +9,7 @@ class Api::VenueController < ApiController
       group: group,
       visibility: "all"
     )
-    render json: { venue: venue.as_json }
+    render json: { venue: venue.as_json(include: [:availabilities, :venue_overrides, :venue_timeslots]) }
   end
 
   def update
@@ -19,7 +19,7 @@ class Api::VenueController < ApiController
 
     venue.update(venue_params)
 
-    render json: { venue: venue.as_json }
+    render json: { venue: venue.as_json(include: [:availabilities, :venue_overrides, :venue_timeslots]) }
   end
 
   def remove
@@ -29,7 +29,7 @@ class Api::VenueController < ApiController
 
     venue.update(visibility: "none")
 
-    render json: { venue: venue.as_json }
+    render json: { venue: venue.as_json(include: [:availabilities, :venue_overrides, :venue_timeslots]) }
   end
 
   def check_availability
@@ -44,7 +44,7 @@ class Api::VenueController < ApiController
     profile = current_profile!
     group = Group.find_by(id: params[:group_id])
     venues = Venue.where(group: group)
-    render json: { venues: venues.as_json }
+    render json: { venues: venues.as_json.as_json(include: [:availabilities, :venue_overrides, :venue_timeslots]) }
   end
 
   private
