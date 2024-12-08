@@ -10,6 +10,7 @@ class Venue < ApplicationRecord
 
   accepts_nested_attributes_for :venue_timeslots, allow_destroy: true
   accepts_nested_attributes_for :venue_overrides, allow_destroy: true
+  accepts_nested_attributes_for :availabilities, allow_destroy: true
 
   validates :visibility, inclusion: { in: %w(all manager none) }
 

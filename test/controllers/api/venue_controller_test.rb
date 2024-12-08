@@ -15,10 +15,22 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
           title: "created venue",
           location: "new venue location",
           geo_lat: 22.3193,
-          geo_lng: 114.1694
+          geo_lng: 114.1694,
+          availabilities_attributes: [
+            { day: "2024-01-01", intervals: [ [ "09:00", "17:00" ] ], role: "manager" }
+          ],
+          venue_overrides_attributes: [
+            { day: "2024-01-01", data: [ [ "09:00", "17:00" ] ], role: "manager" }
+          ],
+          venue_timeslots_attributes: [
+            { day_of_week: "monday", start_at: "09:00", end_at: "17:00", role: "manager" }
+          ]
         }
       }
       assert Venue.find_by(title: "created venue").present?
+      p Venue.find_by(title: "created venue").availabilities.inspect
+      p Venue.find_by(title: "created venue").venue_overrides.inspect
+      p Venue.find_by(title: "created venue").venue_timeslots.inspect
     end
   end
 
