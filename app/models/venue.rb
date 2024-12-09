@@ -12,7 +12,7 @@ class Venue < ApplicationRecord
   accepts_nested_attributes_for :venue_overrides, allow_destroy: true
   accepts_nested_attributes_for :availabilities, allow_destroy: true
 
-  validates :visibility, inclusion: { in: %w(all manager none) }
+  validates :visibility, inclusion: { in: %w(all member manager none) }, allow_nil: true
 
   def check_availability_old(event_start, event_end, timezone, event_id = nil)
     start_time = event_start.in_time_zone(timezone)
