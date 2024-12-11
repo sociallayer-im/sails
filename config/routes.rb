@@ -33,6 +33,7 @@ Rails.application.routes.draw do
     post "profile/signin_with_world_id", to: "profile#signin_with_world_id"
     post "profile/signin_with_mina", to: "profile#signin_with_mina"
     post "profile/signin_with_fuel", to: "profile#signin_with_fuel"
+    post "profile/signin_with_telegram", to: "profile#signin_with_telegram"
     post "profile/track_list", to: "profile#track_list"
 
     post "group/create", to: "group#create"

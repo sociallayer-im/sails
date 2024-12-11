@@ -161,6 +161,27 @@ class Api::ProfileController < ApiController
     render json: { result: "ok", auth_token: profile.gen_auth_token, fuel_address: params[:fuel_address], id: profile.id, address_type: "fuel" }
   end
 
+  def signin_with_telegram
+    unless params[:next_token] == ENV['NEXT_TOKEN']
+      raise AppError.new("invalid next token")
+    end
+
+    profile = Profile.find_or_create_by(telegram_id: params[:telegram_id])
+    profile.bind_ticket_items
+
+    SigninActivity.create(
+      app: params[:app],
+      address: params[:telegram_id],
+      address_type: "telegram",
+      address_source: params[:address_source],
+      profile_id: profile.id,
+      locale: params[:locale],
+      lang: params[:lang],
+      remote_ip: request.remote_ip,
+      )
+    render json: { result: "ok", auth_token: profile.gen_auth_token, telegram_id: params[:telegram_id], id: profile.id, address_type: "telegram" }
+  end
+
   def signin_with_farcaster
     unless params[:next_token] == ENV['NEXT_TOKEN']
       raise AppError.new("invalid next token")
