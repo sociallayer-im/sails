@@ -34,6 +34,7 @@ gem "resend"
 gem "icalendar"
 gem "hash_diff"
 gem "aws-sdk-s3"
+gem "http"
 
 gem "aliyunsdkcore"
 gem "imagekitio"
