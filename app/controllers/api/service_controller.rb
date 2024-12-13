@@ -31,6 +31,18 @@ class Api::ServiceController < ApiController
     render json: { result: resp.as_json, key: key, url: "#{ENV['S3_URL']}#{key}" }
   end
 
+  def upload_image_v2
+    url = "https://api.cloudflare.com/client/v4/accounts/#{ENV['CLOUDFLARE_ACCOUNT_ID']}/images/v1"
+
+    body=HTTP.headers(
+      :"Authorization" => "Bearer #{ENV['CLOUDFLARE_IMAGE_API_KEY']}",)
+      .post(url, :form => {
+        # :file => HTTP::FormData::File.new("/Users/jiang/Desktop/sola-logo-square.png")
+        :file => HTTP::FormData::File.new(params[:data])
+    })
+    render json: { result: JSON.parse(body.to_s) }
+  end
+
   def send_email
     code = rand(10_000..100_000)
     token = ProfileToken.create(context: params[:context], sent_to: params[:email], code: code)

@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   namespace :api, path: "" do
     post "service/send_email", to: "service#send_email"
     post "service/upload_image", to: "service#upload_image"
+    post "service/upload_image_v2", to: "service#upload_image_v2"
 
     get "siwe/nonce", to: "profile#nonce"
     post "siwe/verify", to: "profile#verify"
