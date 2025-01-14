@@ -152,11 +152,15 @@ class Api::RecurringController < ApiController
       :start_time,
       :end_time,
       :timezone,
+      :display,
+      :theme,
       :meeting_url,
+      :track_id,
       :venue_id,
       :location,
       :formatted_address,
       :location_viewport,
+      :location_data,
       :geo_lat,
       :geo_lng,
       :cover_url,
@@ -170,7 +174,7 @@ class Api::RecurringController < ApiController
       :external_url,
       :notes,
       tags: [],
-      extra: {},
+      extras: {},
       tickets_attributes: [
         :id,
         :title,
@@ -195,6 +199,7 @@ class Api::RecurringController < ApiController
           :id,
           :item_type,
           :item_id,
+          :protocol,
           :chain,
           :kind,
           :token_name,
@@ -205,7 +210,7 @@ class Api::RecurringController < ApiController
         ]
       ],
       coupons_attributes: [ :id, :selector_type, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expires_at, :max_allowed_usages, :order_usage_count, :_destroy ],
-      event_roles_attributes: [ :id, :role, :group_id, :event_id, :profile_id, :email, :nickname, :image_url, :_destroy ],
+      event_roles_attributes: [ :id, :role, :group_id, :event_id, :item_type, :item_id, :email, :nickname, :image_url, :_destroy ],
       )
   end
 end

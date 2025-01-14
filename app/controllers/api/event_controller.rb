@@ -3,6 +3,7 @@ class Api::EventController < ApiController
   def create
     profile = current_profile!
     group = Group.find_by(id: params[:group_id])
+    raise AppError.new("group is freezed") if group && group.status == "freezed"
 
     status = "published"
     @send_approval_email_to_manager = false
@@ -32,7 +33,7 @@ class Api::EventController < ApiController
 
     event = Event.new(event_params)
     event.timezone = group.timezone if group && event.timezone.blank?
-    event.pinned = params[:pinned] if event.group && event.group.is_manager(profile.id)
+    event.pinned = params[:pinned] if group && group.is_manager(profile.id)
     event.update(
       status: status,
       owner: profile,
@@ -40,10 +41,10 @@ class Api::EventController < ApiController
       display: event_params[:display] || "normal",
       event_type: event_params[:event_type] || "event", # todo : could be "group_ticket"
     )
-    p event.errors.full_messages
 
     if event_params[:event_type] == 'group_ticket'
       group.update(group_ticket_event_id: event.id)
+      event.tickets.update_all(ticket_type: "group")
     end
 
     group.increment!(:events_count) if group
@@ -58,7 +59,7 @@ class Api::EventController < ApiController
       end
     end
 
-    event.create_event_webhook
+    # event.create_event_webhook
 
     render json: { result: "ok", event: event.as_json }
   end
@@ -124,6 +125,8 @@ class Api::EventController < ApiController
       return render json: { result: "error", message: "time overlaped in the same venue" }
     end
 
+    status = event.status
+    status = params[:status] if params[:status] && ["open", "published", "closed"].include?(params[:status])
     if event_params[:venue_id] != event.venue_id
       venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
       raise AppError.new("group venue not exists") unless venue
@@ -141,7 +144,7 @@ class Api::EventController < ApiController
     else
       @send_update_email = false
     end
-    event.status = params[:status] if ["open", "published", "closed"].include?(params[:status])
+    event.status = status
     event.save
 
     if @send_update_email
@@ -222,7 +225,7 @@ class Api::EventController < ApiController
       raise AppError.new("event closed")
     end
 
-    if event.end_time + 1.hour < DateTime.now
+    if Rails.env.production? && event.end_time + 1.hour < DateTime.now
       raise AppError.new("event ended")
     end
 
@@ -570,6 +573,7 @@ class Api::EventController < ApiController
       :display,
       :theme,
       :meeting_url,
+      :track_id,
       :venue_id,
       :location,
       :formatted_address,
@@ -613,6 +617,7 @@ class Api::EventController < ApiController
           :id,
           :item_type,
           :item_id,
+          :protocol,
           :chain,
           :kind,
           :token_name,

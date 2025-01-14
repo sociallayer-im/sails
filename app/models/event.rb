@@ -172,7 +172,7 @@ class Event < ApplicationRecord
 
   def dump_json
     {
-      id: self.id,
+      id: self.id.to_s,
       owner_id: self.owner_id,
       owner_name: self.owner.handle,
       owner_nickname: self.owner.nickname,

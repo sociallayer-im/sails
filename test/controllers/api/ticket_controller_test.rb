@@ -305,9 +305,9 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
     p paymethod.id
 
     post api_ticket_rsvp_url,
-         params: { auth_token: @auth_token, 
-         id: @event.id, 
-         ticket_id: ticket.id, 
+         params: { auth_token: @auth_token,
+         id: @event.id,
+         ticket_id: ticket.id,
          payment_method_id: paymethod.id }
     assert_response :success
     # assert Participant.find_by(event: @event, profile: @profile, status: "attending").payment_status == "succeeded"

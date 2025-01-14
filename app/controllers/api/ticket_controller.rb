@@ -12,7 +12,7 @@ class Api::TicketController < ApiController
       raise AppError.new("event closed")
     end
 
-    if event.end_time + 1.hour < DateTime.now
+    if Rails.env.production? && event.end_time + 1.hour < DateTime.now
       raise AppError.new("event ended")
     end
 
@@ -123,7 +123,7 @@ class Api::TicketController < ApiController
 
     if ticket_item.status == "succeeded" && participant.status != "succeeded"
       participant.update(payment_status: "succeeded")
-      if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: profile.id, group_id: ticket.group_id).blank?
+      if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: profile.id, target_id: ticket.group_id).blank?
         Membership.create(profile: profile, group: ticket.group, role: "member", status: "active")
       end
       if profile.email.present?
@@ -313,7 +313,7 @@ class Api::TicketController < ApiController
     receiver_address = payment_method.receiver_address
     token_address = payment_method.token_address
     amount = ticket_item.amount.to_s
-    raise "protocol not daimo" if payment_method.protocol == "daimo"
+    raise "protocol not daimo" if payment_method.protocol != "daimo"
 
     chain_id = if payment_method.chain == "base"
       8453

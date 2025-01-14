@@ -68,7 +68,7 @@ class Api::BadgeController < ApiController
     badge = Badge.find(params[:badge_id])
     authorize badge, :own?
 
-    Badge.decode_swap_code(params[:swap_token])
+    target_badge_id = Badge.decode_swap_code(params[:swap_token])
     target_badge = Badge.find(target_badge_id)
     target_badge_owner_id = target_badge.owner_id
 

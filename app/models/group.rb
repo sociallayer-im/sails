@@ -14,6 +14,7 @@ class Group < ApplicationRecord
   has_many :ticket_items
 
   enum :status, { active: 'active', freezed: 'freezed' }
+  # todo : remove all state
   validates :can_publish_event, inclusion: { in: %w(all everyone member ticket operator manager) }
   validates :can_join_event, inclusion: { in: %w(all everyone member ticket operator manager) }
   validates :can_view_event, inclusion: { in: %w(all everyone member operator manager) }
