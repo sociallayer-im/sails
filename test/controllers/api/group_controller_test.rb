@@ -18,6 +18,16 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     assert Domain.find_by(handle: "newworld", item_type: "Group", item_id: group.id).present?
   end
 
+  test "api#group/get" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+
+    get api_group_get_url, params: { auth_token: auth_token, id: group.id }
+    assert_response :success
+    assert JSON.parse(response.body)["group"]["id"] == group.id
+  end
+
   test "api#group/create with track" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token

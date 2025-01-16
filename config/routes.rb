@@ -111,6 +111,8 @@ Rails.application.routes.draw do
     post "marker/update", to: "marker#update"
     post "marker/remove", to: "marker#remove"
     post "marker/checkin", to: "marker#checkin"
+    get  "marker/list", to: "marker#list"
+    get  "marker/get", to: "marker#get"
 
     post "badge_class/create", to: "badge_class#create"
 

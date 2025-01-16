@@ -18,6 +18,18 @@ class Api::MarkerControllerTest < ActionDispatch::IntegrationTest
       } }
     assert_response :success
     end
+
+    get api_marker_list_url, params: { auth_token: auth_token, group_id: 1 }
+    assert_response :success
+    markers = JSON.parse(response.body)["markers"]
+    assert_equal markers.count, 2
+    assert markers.last["title"] == "created marker"
+
+
+    get api_marker_get_url, params: { auth_token: auth_token, id: Marker.last.id }
+    assert_response :success
+    marker = JSON.parse(response.body)["marker"]
+    assert_equal marker["title"], "created marker"
   end
 
   test "api#marker/update" do

@@ -163,7 +163,8 @@ class Api::GroupController < ApiController
     render json: { result: "ok" }
   end
 
-  def show
+  def get
+    p params[:id]
     @group = Group.find(params[:id])
   end
 

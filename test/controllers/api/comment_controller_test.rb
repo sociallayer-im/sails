@@ -19,7 +19,7 @@ class Api::CommentControllerTest < ActionDispatch::IntegrationTest
     assert comment
     assert comment.profile == profile
 
-    post api_comment_list_url, params: { auth_token: auth_token, comment_type: "comment", item_type: "Event", item_id: 1 }
+    get api_comment_list_url, params: { auth_token: auth_token, comment_type: "comment", item_type: "Event", item_id: 1 }
     assert_response :success
     comments = JSON.parse(response.body)["comments"]
     assert_equal comments.count, 1
