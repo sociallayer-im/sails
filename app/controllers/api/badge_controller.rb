@@ -82,7 +82,20 @@ class Api::BadgeController < ApiController
     render json: { result: "ok" }
   end
 
-  def merge
+  def list
+    profile = Profile.find(params[:profile_id])
+    if params[:owned_badges]
+      badges = profile.owned_badges.where(status: "minted")
+    elsif params[:created_badges]
+      badges = profile.created_badges.where(status: "minted")
+    else
+      badges = Badge.where(status: "minted")
+    end
+    @badges = badges
+  end
+
+  def get
+    @badge = Badge.find(params[:id])
   end
 
 end

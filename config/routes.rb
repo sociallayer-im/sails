@@ -62,7 +62,8 @@ Rails.application.routes.draw do
     post "group/accept_request", to: "group_invite#accept_request"
     post "group/send_invite_by_email", to: "group_invite#send_invite_by_email"
 
-    get "event/get", to: "event#get"
+    get  "group/get", to: "group#get"
+
     post "event/create", to: "event#create"
     post "event/update", to: "event#update"
     post "event/unpublish", to: "event#unpublish"
@@ -73,8 +74,10 @@ Rails.application.routes.draw do
     post "event/remove_participant", to: "event#remove_participant"
     post "event/set_notes", to: "event#set_notes"
 
+    get "event/get", to: "event#get"
     get "event/discover", to: "event#discover"
     get "event/list", to: "event#list"
+    get "event/themes_list", to: "event#themes_list"
     get "event/my_stars", to: "event#my_stars"
     get "event/list_for_calendar", to: "event#list"
     get "event/private_list", to: "event#private_list"
@@ -83,9 +86,8 @@ Rails.application.routes.draw do
     get "event/starred_event_list", to: "event#starred_event_list"
     get "event/created_by_me", to: "event#created_by_me"
     get "event/latest_changed", to: "event#latest_changed"
-    get "event/themes_list", to: "event#themes_list"
 
-    post "comment/list", to: "comment#list"
+    get  "comment/list", to: "comment#list"
     post "comment/create", to: "comment#create"
     post "comment/remove", to: "comment#remove"
     post "comment/star", to: "comment#star"
@@ -101,9 +103,9 @@ Rails.application.routes.draw do
     post "ticket/stripe_client_secret", to: "ticket#stripe_client_secret"
     post "ticket/stripe_config", to: "ticket#stripe_config"
     post "ticket/add_group_ticket_item", to: "ticket#add_group_ticket_item"
-    get  "ticket/list_group_ticket_types", to: "ticket#list_group_ticket_types"
     post "ticket/daimo_create_payment_link", to: "ticket#daimo_create_payment_link"
     post "ticket/daimo_webhook", to: "ticket#daimo_webhook"
+    get  "ticket/list_group_ticket_types", to: "ticket#list_group_ticket_types"
 
     post "marker/create", to: "marker#create"
     post "marker/update", to: "marker#update"
@@ -112,11 +114,20 @@ Rails.application.routes.draw do
 
     post "badge_class/create", to: "badge_class#create"
 
+    post "badge/update", to: "badge#update"
+    post "badge/transfer", to: "badge#transfer"
+    post "badge/burn", to: "badge#burn"
+    post "badge/swap", to: "badge#swap"
+    post "badge/swap_code", to: "badge#swap_code"
+
+    get  "badge/get", to: "badge#get"
+    get  "badge/list", to: "badge#list"
+
     get  "remember/meta", to: "remember#meta"
+    get  "remember/get", to: "remember#get"
     post "remember/create", to: "remember#create"
     post "remember/join", to: "remember#join"
     post "remember/cancel", to: "remember#cancel"
-    get  "remember/get", to: "remember#get"
     post "remember/mint", to: "remember#mint"
 
     post "voucher/create", to: "voucher#create"
