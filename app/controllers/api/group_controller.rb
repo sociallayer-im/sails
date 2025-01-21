@@ -4,13 +4,11 @@ class Api::GroupController < ApiController
 
     handle = params[:handle]
     unless check_profile_handle_and_length(handle)
-      render json: { result: "error", message: "invalid handle" }
-      return
+      raise AppError.new("invalid handle")
     end
 
     if Profile.find_by(handle: handle) || Group.find_by(handle: handle)
-      render json: { result: "error", message: "group profile handle exists" }
-      return
+      raise AppError.new("group profile handle exists")
     end
 
     group = Group.new(group_params)
@@ -59,8 +57,8 @@ class Api::GroupController < ApiController
     raise AppError.new("new_owner not exists") unless new_owner
 
     membership = Membership.find_by(profile_id: new_owner.id, target_id: group.id)
-    return render json: { result: "error", message: "new_owner membership not exists" } if membership.nil?
-    return render json: { result: "error", message: "new_owner is owner of the group" } if membership.role == "owner"
+    raise AppError.new("new_owner membership not exists") if membership.nil?
+    raise AppError.new("new_owner is owner of the group") if membership.role == "owner"
 
     ActiveRecord::Base.transaction do
       old_membership.update(role: "member")

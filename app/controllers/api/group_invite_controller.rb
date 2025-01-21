@@ -4,11 +4,11 @@ class Api::GroupInviteController < ApiController
     group = Group.find(params[:group_id])
 
     if Membership.find_by(profile_id: profile.id, target_id: group.id, role: params[:role])
-      return render json: { receiver_id: receiver_id, result: "error", message: "membership exists" }
+      raise AppError.new("membership exists")
     end
 
     if GroupInvite.find_by(receiver_id: profile.id, group_id: group.id, role: params[:role], status: "requesting")
-      return render json: { receiver_id: receiver_id, result: "error", message: "group invite exists" }
+      raise AppError.new("group invite exists")
     end
 
     invite = GroupInvite.create(

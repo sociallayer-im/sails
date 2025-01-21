@@ -43,19 +43,19 @@ class Api::ProfileController < ApiController
       end
       render json: { result: "ok", auth_token: profile.gen_auth_token, address: address, id: profile.id }
     rescue Siwe::ExpiredMessage
-      render json: { result: "error", message: "Siwe::ExpiredMessage" }
+      raise AppError.new("Siwe::ExpiredMessage")
     rescue Siwe::NotValidMessage
-      render json: { result: "error", message: "Siwe::NotValidMessage" }
+      raise AppError.new("Siwe::NotValidMessage")
     rescue Siwe::InvalidSignature
-      render json: { result: "error", message: "Siwe::InvalidSignature" }
+      raise AppError.new("Siwe::InvalidSignature")
     end
   end
 
   def signin_with_phone
     vcode = ProfileToken.find_by(context: "phone-signin",send_to: params[:phone], code: params[:code]).order('created_at DESC').first
-    return render json: { result: "error", message: "PhoneSignIn::InvalidEmailOrCode" } unless vcode
-    return render json: { result: "error", message: "PhoneSignIn::Expired" } unless DateTime.now < (vcode.created_at + 30.minute)
-    return render json: { result: "error", message: "PhoneSignIn::CodeIsUsed" } if vcode.verified
+    raise AppError.new("PhoneSignIn::InvalidEmailOrCode") unless vcode
+    raise AppError.new("PhoneSignIn::Expired") unless DateTime.now < (vcode.created_at + 30.minute)
+    raise AppError.new("PhoneSignIn::CodeIsUsed") if vcode.verified
 
     vcode.update(verified: true)
 
@@ -76,9 +76,9 @@ class Api::ProfileController < ApiController
 
   def signin_with_email
     token = ProfileToken.where(context: "email-signin", sent_to: params[:email], code: params[:code]).order('created_at DESC').first
-    return render json: { result: "error", message: "EMailSignIn::InvalidEmailOrCode" } unless token
-    return render json: { result: "error", message: "EMailSignIn::Expired" } unless DateTime.now < (token.created_at + 30.minute)
-    return render json: { result: "error", message: "EMailSignIn::CodeIsUsed" } if token.verified
+    raise AppError.new("EMailSignIn::InvalidEmailOrCode") unless token
+    raise AppError.new("EMailSignIn::Expired") unless DateTime.now < (token.created_at + 30.minute)
+    raise AppError.new("EMailSignIn::CodeIsUsed") if token.verified
 
     token.update(verified: true)
 
@@ -330,19 +330,17 @@ class Api::ProfileController < ApiController
     profile = current_profile!
 
     if Profile.find_by(email: params[:email])
-      render json: { result: "error", message: "profile with the same email exists" }
-      return
+      raise AppError.new("profile with the same email exists")
     end
 
     if profile.email
-      render json: { result: "error", message: "profile email exists" }
-      return
+      raise AppError.new("profile email exists")
     end
 
     token = ProfileToken.find_by(sent_to: params[:email], code: params[:code])
-    return render json: { result: "error", message: "EMailSignIn::InvalidEmailOrCode" } unless token
-    return render json: { result: "error", message: "EMailSignIn::Expired" } unless DateTime.now < (token.created_at + 30.minute)
-    return render json: { result: "error", message: "EMailSignIn::CodeIsUsed" } if token.verified
+    raise AppError.new("EMailSignIn::InvalidEmailOrCode") unless token
+    raise AppError.new("EMailSignIn::Expired") unless DateTime.now < (token.created_at + 30.minute)
+    raise AppError.new("EMailSignIn::CodeIsUsed") if token.verified
 
     token.update(verified: true)
 
@@ -362,48 +360,42 @@ class Api::ProfileController < ApiController
       address = message.address
 
       if Profile.find_by(address: address)
-        render json: { result: "error", message: "profile with the same address already exists" }
-        return
+        raise AppError.new("profile with the same address already exists")
       end
 
       if profile.address
-        render json: { result: "error", message: "profile address exists" }
-        return
+        raise AppError.new("profile address exists")
       end
 
       profile.update(address: address)
 
       render json: { result: "ok", email: profile.email, address: message.address, id: profile.id }
     rescue Siwe::ExpiredMessage
-      render json: { result: "error", message: "Siwe::ExpiredMessage" }
+      raise AppError.new("Siwe::ExpiredMessage")
     rescue Siwe::NotValidMessage
-      render json: { result: "error", message: "Siwe::NotValidMessage" }
+      raise AppError.new("Siwe::NotValidMessage")
     rescue Siwe::InvalidSignature
-      render json: { result: "error", message: "Siwe::InvalidSignature" }
+      raise AppError.new("Siwe::InvalidSignature")
     end
   end
 
   def create
     handle = params[:handle]
     unless check_profile_handle_and_length(handle)
-      render json: { result: "error", message: "invalid handle" }
-      return
+      raise AppError.new("invalid handle")
     end
 
     profile = current_profile
     unless profile
-      render json: { result: "error", message: "profile not exists" }
-      return
+      raise AppError.new("profile not exists")
     end
 
     if profile.handle
-      render json: { result: "error", message: "profile handle is already set" }
-      return
+      raise AppError.new("profile handle is already set")
     end
 
     if Profile.find_by(handle: handle) || Group.find_by(handle: handle) || Profile.find_by(username: handle) || Group.find_by(username: handle)
-      render json: { result: "error", message: "profile handle exists" }
-      return
+      raise AppError.new("profile handle exists")
     end
     ActiveRecord::Base.transaction do
       profile.update(handle: handle, username: handle)
@@ -428,8 +420,7 @@ class Api::ProfileController < ApiController
     target = Profile.find(params[:target_id])
 
     if profile.id == target.id
-      render json: { result: "error", message: "can not follow yourself" }
-      return
+      raise AppError.new("can not follow yourself")
     end
 
     Contact.find_or_create_by(source_id: profile.id, target_id: target.id, role: "follower")
