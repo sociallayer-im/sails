@@ -62,8 +62,10 @@ class Api::GroupController < ApiController
     return render json: { result: "error", message: "new_owner membership not exists" } if membership.nil?
     return render json: { result: "error", message: "new_owner is owner of the group" } if membership.role == "owner"
 
-    old_membership.update(role: "member")
-    membership.update(role: "owner")
+    ActiveRecord::Base.transaction do
+      old_membership.update(role: "member")
+      membership.update(role: "owner")
+    end
 
     render json: { result: "ok", group: group }
   end
@@ -164,7 +166,6 @@ class Api::GroupController < ApiController
   end
 
   def get
-    p params[:id]
     @group = Group.find(params[:id])
   end
 
@@ -175,7 +176,8 @@ class Api::GroupController < ApiController
           :chain, :image_url, :nickname, :about, :status, :group_ticket_enabled,
           :tags, :event_taglist, :venue_taglist, :can_publish_event, :can_join_event, :can_view_event,
           :customizer, :logo_url, :banner_link_url, :banner_image_url,
-          :timezone, :location, :metadata, :social_links,
+          :timezone, :location, :metadata,
+          {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           tracks_attributes: [ :id, :tag, :title, :kind, :icon_url, :about, :start_date, :end_date, :_destroy ],
           )
   end

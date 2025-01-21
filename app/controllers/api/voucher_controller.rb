@@ -29,35 +29,29 @@ class Api::VoucherController < ApiController
     # todo : check time and count
     if voucher.strategy == 'code'
       unless voucher.code.to_s == params[:code].to_s
-        render json: { result: "error", message: "voucher code is empty or incorrect" }
-        return
+        raise AppError.new("voucher code is empty or incorrect")
       end
     elsif voucher.strategy == 'event'
       unless voucher.receiver_id == profile.id
-        render json: { result: "error", message: "voucher is not for this user" }
-        return
+        raise AppError.new("voucher is not for this user")
       end
     elsif voucher.strategy == 'account'
       unless voucher.receiver_id == profile.id
-        render json: { result: "error", message: "voucher is not for this user" }
-        return
+        raise AppError.new("voucher is not for this user")
       end
     elsif voucher.strategy == 'address'
       unless voucher.receiver_address == profile.address
-        render json: { result: "error", message: "voucher is not for this user" }
-        return
+        raise AppError.new("voucher is not for this user")
       end
     elsif voucher.strategy == 'email'
       unless voucher.receiver_address == profile.email
-        render json: { result: "error", message: "voucher is not for this user" }
-        return
+        raise AppError.new("voucher is not for this user")
       end
     end
 
     # todo : check by voucher instead!!!
     unless Badge.where(voucher_id: params[:id], owner_id: profile.id).blank?
-      render json: { result: "error", message: "user has already claimed voucher" }
-      return
+      raise AppError.new("user has already claimed voucher")
     end
 
     badge = Badge.new(

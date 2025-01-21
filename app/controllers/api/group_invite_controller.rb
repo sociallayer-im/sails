@@ -60,9 +60,9 @@ class Api::GroupInviteController < ApiController
         if membership && membership.role == "member" && role != "member"
           membership.update(role: role)
           activity = Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: receiver.id)
-          invite = { receiver_id: receiver_id, result: "ok", message: "membership updated" }
+          invite = { receiver_id: receiver_id, result: "ok", message: "membership updated", receiver_address: receiver_address }
         elsif membership
-          invite = { receiver_id: receiver_id, result: "error", message: "membership exists" }
+          invite = { receiver_id: receiver_id, result: "error", message: "membership exists", receiver_address: receiver_address }
         else
           invite = GroupInvite.create(
             sender_id: profile.id,
@@ -94,7 +94,7 @@ class Api::GroupInviteController < ApiController
         mailer = GroupMailer.with(group: group, recipient: invite.receiver_address).group_invite
         mailer.deliver_later
       else
-        invite = { receiver: receiver, result: "error", message: "invalid receiver handle" }
+        invite = { receiver: receiver, result: "error", message: "invalid receiver handle", receiver_address: receiver_address }
       end
 
       group_invites << invite
