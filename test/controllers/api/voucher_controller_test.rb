@@ -37,6 +37,19 @@ class Api::VoucherControllerTest < ActionDispatch::IntegrationTest
     assert_equal profile.owned_badges.count, 1
   end
 
+  test "api#voucher/use with wrong code" do
+    profile = profiles(:two)
+    auth_token = profile.gen_auth_token
+    post api_voucher_use_url, params: {
+      auth_token: auth_token,
+      id: 1,
+      code: "wrong_code"
+    }
+    assert_response 400
+    assert_equal Voucher.find_by(code: "11111").counter, 5 # Counter should remain unchanged
+    assert_equal profile.owned_badges.count, 0 # No badge should be created
+  end
+
   test "api#voucher/revoke" do
     profile = profiles(:one)
     auth_token = profile.gen_auth_token

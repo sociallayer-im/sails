@@ -147,7 +147,7 @@ class Api::VoucherController < ApiController
 
     # TODO: add check again with email input
     receivers = params[:receivers].map do |handle|
-      Profile.find_by(handle: handle) || Profile.find_by(address: handle)
+      Profile.find_by(handle: handle) || Profile.find_by(address: handle) || Profile.find_by(email: handle)
     end
     raise AppError.new("invalid receiver") if receivers.any?{ |e| e.nil? }
     expires_at = params[:expires_at] || DateTime.now + 90.days
@@ -291,10 +291,9 @@ class Api::VoucherController < ApiController
   def reject_badge
     profile = current_profile!
 
-    voucher = Voucher.includes(:badge_class).find(params[:id])
+    voucher = Voucher.includes(:badge_class).find_by(id: params[:id])
     unless voucher.strategy == 'account' && voucher.receiver_id == profile.id
-        render json: { result: "error", message: "voucher is not for this user" }
-        return
+        raise AppError.new("voucher is not for this user")
     end
     voucher.update(counter: 0)
     render json: { voucher: voucher.as_json(include: :badge_class) }
