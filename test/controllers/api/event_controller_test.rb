@@ -34,9 +34,9 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     post api_event_create_url,
-      params: { 
-        auth_token: auth_token, 
-        group_id: group.id, 
+      params: {
+        auth_token: auth_token,
+        group_id: group.id,
         event: {
           title: "Event with Roles",
           tags: %w[live workshop],
@@ -51,16 +51,16 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
             { role: "speaker", email: "speaker@example.com" },
             { role: "moderator", email: "moderator@example.com" }
           ]
-        } 
+        }
       }
-    
+
     assert_response :success
     event = Event.find_by(title: "Event with Roles")
     assert event
     assert_equal "published", event.status
     assert_equal "normal", event.display
     assert_equal profile, event.owner
-    
+
     # Check if event roles were created
     assert_equal 3, event.event_roles.count
     assert event.event_roles.exists?(role: "host", email: "host@example.com")
@@ -72,14 +72,14 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
-    
+
     # Create a profile to be assigned a role
     role_profile = Profile.create(handle: "role_user", email: "role_user@example.com")
 
     post api_event_create_url,
-      params: { 
-        auth_token: auth_token, 
-        group_id: group.id, 
+      params: {
+        auth_token: auth_token,
+        group_id: group.id,
         event: {
           title: "Event with Profile Roles",
           tags: %w[conference networking],
@@ -94,16 +94,16 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
             { role: "speaker", item_type: "Profile", item_id: role_profile.id },
             { role: "moderator", email: "moderator@example.com" }
           ]
-        } 
+        }
       }
-    
+
     assert_response :success
     event = Event.find_by(title: "Event with Profile Roles")
     assert event
     assert_equal "published", event.status
     assert_equal "normal", event.display
     assert_equal profile, event.owner
-    
+
     # Check if event roles were created correctly
     assert_equal 3, event.event_roles.count
     assert event.event_roles.exists?(role: "host", item_type: "Profile", item_id: profile.id)
@@ -220,6 +220,14 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert event.display == "normal"
     assert event.owner == profile2
     assert (Group.find_by(handle: "guildx").events_count - group.events_count) == 1
+
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    get api_event_pending_approval_list_url, params: { auth_token: auth_token }
+    assert_response :success
+    assert_equal 1, JSON.parse(response.body)["events"].count
+    assert JSON.parse(response.body)["events"].first["id"] == event.id
   end
 
   test "api#event/update" do
@@ -402,7 +410,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
 
     response_events = JSON.parse(response.body)
     assert_equal 2, response_events.count
-  end 
+  end
 
   test "api#event/my_event_list" do
     travel_to Date.new(2024, 8, 8)

@@ -561,6 +561,13 @@ class Api::EventController < ApiController
     render json: { themes: themes }
   end
 
+  def pending_approval_list
+    profile = current_profile!
+    @events = Event.where(status: "pending")
+    @events = @events.where(group_id: Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:target_id))
+    render template: "api/event/index_without_group"
+  end
+
   private
 
   def event_params

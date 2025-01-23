@@ -86,6 +86,7 @@ Rails.application.routes.draw do
     get "event/starred_event_list", to: "event#starred_event_list"
     get "event/created_by_me", to: "event#created_by_me"
     get "event/latest_changed", to: "event#latest_changed"
+    get "event/pending_approval_list", to: "event#pending_approval_list"
 
     get  "comment/list", to: "comment#list"
     post "comment/create", to: "comment#create"
