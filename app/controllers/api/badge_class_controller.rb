@@ -32,6 +32,8 @@ class Api::BadgeClassController < ApiController
         :revocable,
         :weighted,
         :encrypted,
+        :badge_type,
+        :display,
       )
   end
 end
