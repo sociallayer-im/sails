@@ -124,6 +124,15 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
     assert group.is_owner(profile2.id)
     assert group.get_owner == profile2
+
+    # Transfer ownership back to original owner
+    post api_group_transfer_owner_url,
+      params: { auth_token: profile2.gen_auth_token, id: group.id, new_owner_handle: "cookie" }
+    assert_response :success
+
+    group = Group.find_by(handle: "guildx")
+    assert group.is_owner(profile.id)
+    assert group.get_owner == profile
   end
 
   test "api#group/freeze_group" do

@@ -3,12 +3,12 @@ class Api::BadgeClassController < ApiController
     profile = current_profile!
 
     # need test
-    if params[:badge_class][:group_id]
-      group = Group.find(params[:badge_class][:group_id])
+    if params[:group_id]
+      group = Group.find(params[:group_id])
       authorize group, :manage?, policy_class: GroupPolicy
     end
 
-    content = Sanitize.fragment(params[:badge_class][:content], Sanitize::Config::RELAXED)
+    content = Sanitize.fragment(params[:content], Sanitize::Config::RELAXED)
 
     badge_class = BadgeClass.new(badge_class_params)
     badge_class.update(
@@ -22,7 +22,7 @@ class Api::BadgeClassController < ApiController
   private
 
   def badge_class_params
-      params.require(:badge_class).permit(
+      params.permit(
         :name,
         :title,
         :group_id,
