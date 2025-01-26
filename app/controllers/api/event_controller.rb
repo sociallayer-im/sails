@@ -320,6 +320,13 @@ class Api::EventController < ApiController
     @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
     group_id = @group.id
 
+    if @group.status == "freezed"
+      return render json: {
+        group: @group.as_json,
+        events: []
+       }
+    end
+
     if auth_profile && @group.is_manager(auth_profile.id)
       pub_tracks = Track.where(group_id: group_id).ids
       pub_tracks << nil
