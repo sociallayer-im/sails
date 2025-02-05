@@ -63,6 +63,7 @@ Rails.application.routes.draw do
     post "group/request_invite", to: "group_invite#request_invite"
     post "group/accept_request", to: "group_invite#accept_request"
     post "group/send_invite_by_email", to: "group_invite#send_invite_by_email"
+    get  "group/icalendar", to: "group#icalendar"
 
     get  "group/get", to: "group#get"
 

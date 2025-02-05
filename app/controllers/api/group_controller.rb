@@ -167,6 +167,33 @@ class Api::GroupController < ApiController
     @group = Group.find(params[:id])
   end
 
+  def icalendar
+    group = Group.find_by(username: params[:group_name]) || Group.find(params[:group_id])
+    pub_tracks = Track.where(group_id: params[:group_id], kind: "public").ids
+    pub_tracks << nil
+
+    cal = Icalendar::Calendar.new
+    events = Event.where(group_id: group.id)
+    events = events.where('start_time > ? and start_time < ?', DateTime.now - 7.days, DateTime.now + 14.days)
+    events = events.where(track_id: pub_tracks)
+    events.each do |ev|
+        cal.event do |e|
+          e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time.in_time_zone("Etc/UTC"))
+          e.dtend       = Icalendar::Values::DateTime.new(ev.end_time.in_time_zone("Etc/UTC"))
+          e.summary     = ev.title || ""
+          e.uid         = "sola-#{ev.id}"
+          e.status      = "CONFIRMED"
+          e.organizer   = Icalendar::Values::CalAddress.new("mailto:send@app.sola.day", cn: group.username)
+          e.url         = "https://app.sola.day/event/detail/#{ev.id}"
+          e.location    = ev.meeting_url || "https://app.sola.day/event/detail/#{ev.id}"
+        end
+    end
+    ics = cal.to_ical
+
+    response.headers['Content-Disposition'] = 'attachment; filename="sola.ics"'
+    render plain: ics
+  end
+
   private
 
   def group_params
