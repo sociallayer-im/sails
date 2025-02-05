@@ -437,7 +437,7 @@ class Api::EventController < ApiController
 
     if auth_profile && params[:with_stars]
       @with_stars = true
-      @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").all
+      @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
     end
 
     limit = params[:limit] ? params[:limit].to_i : 40
@@ -449,8 +449,6 @@ class Api::EventController < ApiController
   def discover
     @events = Event.includes(:owner, :event_roles).where(status: ["open", "published", "closed"], display: ["normal", "pinned", "public"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
     @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_date: :desc)
-    @cnx_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":cnx"]).order(start_date: :desc)
-    @bkk_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":bkk"]).order(start_date: :desc)
     @popups = PopupCity.includes(:group).where.not("group_tags @> ARRAY[?]::varchar[]", [":cnx", ":bkk"]).order(start_date: :desc)
     @groups = Group.includes(:owner).where("group_tags @> ARRAY[?]::varchar[]", [":top"]).order(handle: :desc)
 
@@ -506,8 +504,8 @@ class Api::EventController < ApiController
   def my_event_list
     profile = current_profile!
     if params[:collection] == "my_stars" # todo : remove
-      @stars = Comment.where(profile_id: profile.id, comment_type: "star", item_type: "Event")
-      @events = Event.where(id: @stars.pluck(:item_id))
+      @stars = Comment.where(profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+      @events = Event.where(id: @stars)
       @with_stars = true
     else
       @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: ["attending", "checked"] })
@@ -528,8 +526,8 @@ class Api::EventController < ApiController
 
   def starred_event_list
     profile = current_profile!
-    @stars = Comment.where(profile_id: profile.id, comment_type: "star", item_type: "Event")
-    @events = Event.where(id: @stars.pluck(:item_id))
+    @stars = Comment.where(profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+    @events = Event.where(id: @stars)
     @events = @events.order(start_time: :desc)
     @with_stars = true
 

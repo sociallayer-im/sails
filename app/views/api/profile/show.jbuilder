@@ -1,7 +1,6 @@
-
 if @profile
   json.profile do
-    json.extract! @profile, :id, :handle, :nickname, :phone, :sol_address, :far_fid, :far_address, :fuel_address, :mina_address, :zupass, :image_url, :about, :location, :social_links, :created_at, :updated_at
+    json.partial! 'api/profile/profile_full', profile: @profile
   end
 else
   json.profile nil

@@ -410,6 +410,9 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
 
     response_events = JSON.parse(response.body)["events"]
     assert_equal 4, response_events.count
+
+    p "response_events"
+    p response_events
   end
 
   test "api#event/my_event_list" do
