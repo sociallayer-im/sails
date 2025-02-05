@@ -121,13 +121,13 @@ class Api::EventController < ApiController
     event = Event.find(params[:id])
     authorize event, :update?
 
-    if Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(id: event.id).any?
+    if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(id: event.id).any?
       return render json: { result: "error", message: "time overlaped in the same venue" }
     end
 
     status = event.status
     status = params[:status] if params[:status] && ["open", "published", "closed"].include?(params[:status])
-    if event_params[:venue_id] != event.venue_id
+    if event_params[:venue_id] && event_params[:venue_id] != event.venue_id
       venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
       raise AppError.new("group venue not exists") unless venue
 
