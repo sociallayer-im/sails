@@ -64,6 +64,27 @@ class Api::EventController < ApiController
     render json: { result: "ok", event: event.as_json }
   end
 
+  # def set_badge
+  #   profile = current_profile!
+  #   event = Event.find(params[:id])
+  #   badge_class = BadgeClass.find(params[:badge_class_id])
+  #   authorize event, :update?
+  #   authorize badge_class, :send?
+
+  #   voucher = Voucher.new(
+  #     sender: profile,
+  #     badge_class: badge_class,
+  #     item_type: "Event", item_id: event.id,
+  #     # need test
+  #     strategy: "event",
+  #     counter: 1,
+  #   )
+  #   voucher.save
+
+  #   render json: { result: "ok", event: event.as_json }
+  # end
+
+
   def set_badge
     profile = current_profile!
     event = Event.find(params[:id])
@@ -71,24 +92,51 @@ class Api::EventController < ApiController
     authorize event, :update?
     authorize badge_class, :send?
 
-    voucher = Voucher.new(
-      sender: profile,
-      badge_class: badge_class,
-      item_type: "Event", item_id: event.id,
-      # need test
-      strategy: "event",
-      counter: 1,
+    event.update(
+      badge_class_id: badge_class.id
     )
-    voucher.save
 
     render json: { result: "ok", event: event.as_json }
   end
 
+  # def send_badge
+  #   profile = current_profile!
+  #   event = Event.find(params[:id])
+  #   voucher = Voucher.find_by(item_type: "Event", item_id: event.id)
+  #   raise AppError.new("event voucher not set") unless voucher
+
+  #   authorize event, :update?
+
+  #   vouchers = event.participants.where(status: "checked", voucher_id: nil).map do |participant|
+  #     receiver = participant.profile
+  #     voucher = Voucher.new(
+  #       sender: profile,
+  #       badge_class: badge_class,
+  #       # need test
+  #       message: params[:message],
+  #       strategy: "event",
+  #       counter: 1,
+  #       receiver_address_type: "id",
+  #       receiver_id: receiver.id,
+  #       # need test
+  #       expires_at: (params[:expires_at] || DateTime.now + 90.days),
+  #     )
+  #     voucher.save
+  #     participant.update(voucher_id: voucher.id)
+  #     activity = Activity.create(item: badge_class, initiator_id: profile.id, action: "voucher/send_event_badge")
+
+  #     voucher
+  #   end
+
+  #   render json: { vouchers: vouchers.as_json }
+  # end
+
+
   def send_badge
     profile = current_profile!
     event = Event.find(params[:id])
-    voucher = Voucher.find_by(item_type: "Event", item_id: event.id)
-    raise AppError.new("event voucher not set") unless voucher
+    badge_class = event.badge_class
+    raise AppError.new("event badge_class not set") unless badge_class
 
     authorize event, :update?
 
@@ -99,9 +147,9 @@ class Api::EventController < ApiController
         badge_class: badge_class,
         # need test
         message: params[:message],
-        strategy: "event",
+        strategy: 'event',
         counter: 1,
-        receiver_address_type: "id",
+        receiver_address_type: 'id',
         receiver_id: receiver.id,
         # need test
         expires_at: (params[:expires_at] || DateTime.now + 90.days),

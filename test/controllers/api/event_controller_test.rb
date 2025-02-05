@@ -652,4 +652,41 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
   end
+
+  test "api#event/send_badge" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    event = Event.find_by(title: "my meetup")
+    badge_class = badge_classes(:one)
+
+    profile2 = Profile.find_by(handle: "mooncake")
+    auth_token2 = profile2.gen_auth_token
+    group = Group.find_by(username: "guildx")
+
+    post api_event_set_badge_url,
+params: { auth_token: auth_token, id: event.id, badge_class_id: badge_class.id }
+    assert_response :success
+
+    assert event.reload.badge_class_id == badge_class.id
+
+    post api_event_join_url,
+params: { auth_token: auth_token2, id: event.id }
+    assert_response :success
+
+    post api_event_check_url,
+params: { auth_token: auth_token, id: event.id, profile_id: profile2.id }
+    assert_response :success
+
+    post api_event_send_badge_url,
+params: { auth_token: auth_token, id: event.id }
+    assert_response :success
+
+    assert Voucher.last.receiver_id == profile2.id
+    assert Voucher.last.counter == 1
+
+    post api_voucher_use_url, params: { auth_token: auth_token2, id: Voucher.last.id }
+    assert_response :success
+
+    assert Voucher.last.counter == 0
+  end
 end

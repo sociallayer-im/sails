@@ -75,7 +75,8 @@ Rails.application.routes.draw do
     post "event/cancel", to: "event#cancel"
     post "event/remove_participant", to: "event#remove_participant"
     post "event/set_notes", to: "event#set_notes"
-
+    post "event/set_badge", to: "event#set_badge"
+    post "event/send_badge", to: "event#send_badge"
     get "event/get", to: "event#get"
     get "event/discover", to: "event#discover"
     get "event/list", to: "event#list"
