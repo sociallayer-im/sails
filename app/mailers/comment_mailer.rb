@@ -3,8 +3,8 @@ class CommentMailer < ApplicationMailer
     def feedback
       @comment_id = params[:comment_id]
       @comment = Comment.find(@comment_id)
-      event = Event.find(@comment.item_id)
-      @recipient = event.creator.email
+      @recipient = @comment.item.owner.email
+      @event = @comment.item
       mail(to: [@recipient], subject: 'Social Layer Feedback')
     end
   end

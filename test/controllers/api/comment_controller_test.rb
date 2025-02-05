@@ -3,6 +3,33 @@ require "test_helper"
 class Api::CommentControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
+  test "api#comment/create with feedback type" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+
+    assert_emails 1 do
+      post api_comment_create_url, params: { auth_token: auth_token, comment: {
+        item_type: "Event",
+        item_id: 1,
+        content: "feedback message",
+        content_type: "text",
+        comment_type: "feedback"
+      } }
+    end
+
+    assert_response :success
+    comment = Comment.find_by(content: "feedback message")
+    assert comment
+    assert_equal "feedback", comment.comment_type
+    assert_equal profile, comment.profile
+
+    get api_comment_list_url, params: { auth_token: auth_token, comment_type: "feedback", item_type: "Event", item_id: 1 }
+    assert_response :success
+    comments = JSON.parse(response.body)["comments"]
+    assert_equal 1, comments.count
+    assert_equal "feedback message", comments.first["content"]
+  end
+
   test "api#comment/create" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
