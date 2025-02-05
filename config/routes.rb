@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
+  mount Core::Api => '/api'
+
   namespace :api, path: "" do
     post "service/send_email", to: "service#send_email"
     post "service/upload_image", to: "service#upload_image"
