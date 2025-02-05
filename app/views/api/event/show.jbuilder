@@ -1,7 +1,7 @@
 json.partial! 'api/event/event', event: @event
-json.partial! 'api/profile/profile', profile: @event.owner
-json.partial! 'api/venue/venue', venue: @event.venue
-json.partial! 'api/group/group', group: @event.group
+json.partial! 'api/profile/profile_or_nil', profile: @event.owner
+json.partial! 'api/venue/venue_or_nil', venue: @event.venue
+json.partial! 'api/group/group_or_nil', group: @event.group
 
 json.tickets @event.tickets do |ticket|
   json.extract! ticket, :id, :title, :content, :ticket_type, :quantity, :end_time, :need_approval, :status, :zupass_event_id, :zupass_product_id, :zupass_product_name, :start_date, :end_date, :days_allowed, :tracks_allowed
