@@ -408,8 +408,8 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     get api_event_list_url, params: { auth_token: auth_token, group_id: 1 }
     assert_response :success
 
-    response_events = JSON.parse(response.body)
-    assert_equal 2, response_events.count
+    response_events = JSON.parse(response.body)["events"]
+    assert_equal 4, response_events.count
   end
 
   test "api#event/my_event_list" do
@@ -448,8 +448,8 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     # Test pagination
     get api_event_my_event_list_url, params: { auth_token: auth_token, limit: 1 }
     assert_response :success
-    response_body = JSON.parse(response.body)
-    assert_equal 1, response_body["events"].count
+    response_body = JSON.parse(response.body)["events"]
+    assert_equal 1, response_body.count
   end
 
   test "api#event/private_list" do
@@ -470,8 +470,8 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     get api_event_private_track_list_url, params: { auth_token: auth_token, group_id: 1 }
     assert_response :success
 
-    response_events = JSON.parse(response.body)
-    assert_equal 2, response_events.count
+    response_events = JSON.parse(response.body)["events"]
+    assert_equal 3, response_events.count
   end
 
   test "api#event/private_track_list with track role" do
