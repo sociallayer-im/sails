@@ -9,7 +9,25 @@ $client = Aws::S3::Client.new(
 )
 
 class Api::ServiceController < ApiController
+
+
   def upload_image
+    profile = current_profile!
+
+    imagekitio = ImageKitIo::Client.new(ENV["IMAGEKIT_PRIVATE_KEY"], ENV["IMAGEKIT_PUBLIC_KEY"], ENV["IMAGEKIT_URL_ENDPOINT"])
+    upload = imagekitio.upload_file(
+      file: params[:data],
+      file_name: params[:resource],
+      response_fields: "tags,customCoordinates,isPrivateFile,metadata",
+      tags: [ENV["APP_STAGE"] || "dev"],
+      custom_metadata: {
+        "address": (profile && (profile.address || profile.email)),
+      }
+    )
+    render json: { result: upload[:response] }
+  end
+
+  def upload_image_v1
     profile = current_profile!
 
     sha = Digest::SHA2.new
