@@ -53,7 +53,8 @@ Rails.application.routes.draw do
     post "group/add_manager", to: "group#add_manager"
     post "group/add_operator", to: "group#add_operator"
     post "group/leave", to: "group#leave"
-
+    post "group/add_track", to: "group#add_track"
+    post "group/remove_track", to: "group#remove_track"
     post "group/update_track", to: "group#update_track"
 
     post "group/send_invite", to: "group_invite#send_invite"

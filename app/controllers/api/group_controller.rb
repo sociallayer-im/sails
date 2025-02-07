@@ -36,6 +36,24 @@ class Api::GroupController < ApiController
     render json: { result: "ok", group: group }
   end
 
+  def add_track
+    profile = current_profile!
+    group = Group.find(params[:id])
+    authorize group, :manage?, policy_class: GroupPolicy
+
+    group.tracks.create(track_params)
+    render json: { result: "ok", group: group }
+  end
+
+  def remove_track
+    profile = current_profile!
+    track = Track.find(params[:track_id])
+    authorize track.group, :manage?, policy_class: GroupPolicy
+
+    track.destroy
+    render json: { result: "ok", group: track.group }
+  end
+
   def update_track
     profile = current_profile!
     track = Track.find(params[:track_id])
@@ -201,7 +219,7 @@ class Api::GroupController < ApiController
           :chain, :image_url, :nickname, :about, :status, :group_ticket_enabled,
           :tags, :event_taglist, :venue_taglist, :can_publish_event, :can_join_event, :can_view_event,
           :customizer, :logo_url, :banner_link_url, :banner_image_url,
-          :timezone, :location, :metadata,
+          :timezone, :location, :metadata, :event_tags,
           :event_enabled, :map_enabled,
           {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           tracks_attributes: [ :id, :tag, :title, :kind, :icon_url, :about, :start_date, :end_date, :_destroy ],
