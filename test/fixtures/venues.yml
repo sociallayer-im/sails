@@ -7,3 +7,13 @@ pku:
   geo_lat: "39.98"
   geo_lng: "116.30"
   visibility: "all"
+
+yuanmingyuan:
+  id: 541
+  title: "Yuanmingyuan"
+  location: "5 Yiheyuan Rd, Haidian District, Beijing, China, 100871"
+  group_id: 1
+  owner_id: 1
+  geo_lat: "39.98"
+  geo_lng: "116.30"
+  visibility: "all"

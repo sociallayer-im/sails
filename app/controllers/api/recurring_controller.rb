@@ -114,13 +114,13 @@ class Api::RecurringController < ApiController
     # end
 
     events.each do |event|
+      event.assign_attributes(event_params)
       if params[:start_time_diff]
         event.start_time += params[:start_time_diff].to_i.seconds
       end
       if params[:end_time_diff]
         event.end_time += params[:end_time_diff].to_i.seconds
       end
-      event.assign_attributes(event_params)
       event.save
     end
 

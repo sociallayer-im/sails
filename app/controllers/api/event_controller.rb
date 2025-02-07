@@ -47,6 +47,9 @@ class Api::EventController < ApiController
       event.tickets.update_all(ticket_type: "group")
     end
 
+    p "event.errors.full_messages"
+    p event.errors.full_messages
+
     group.increment!(:events_count) if group
 
     if @send_approval_email_to_manager
@@ -167,7 +170,7 @@ class Api::EventController < ApiController
     status = event.status
     status = params[:status] if params[:status] && ["open", "published", "closed"].include?(params[:status])
     if event_params[:venue_id] && event_params[:venue_id] != event.venue_id
-      venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
+      venue = Venue.find_by(id: event_params[:venue_id], group_id: event.group.id)
       raise AppError.new("group venue not exists") unless venue
 
       if venue.require_approval && !group.is_manager(profile.id)

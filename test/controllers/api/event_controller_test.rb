@@ -693,4 +693,22 @@ params: { auth_token: auth_token, id: event.id }
 
     assert Voucher.last.counter == 0
   end
+
+  test "api#event/update with new venue" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    event = Event.find_by(title: "my meetup")
+    venue = venues(:yuanmingyuan)
+
+    post api_event_update_url,
+      params: { auth_token: auth_token, id: event.id, event: {
+        venue_id: venue.id,
+        location: venue.location
+      }
+    }
+    assert_response :success
+    event.reload
+    assert_equal venue.id, event.venue_id
+    assert_equal venue.location, event.location
+  end
 end

@@ -14,7 +14,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
   test "api#event/create with tickets" do
     post api_event_create_url,
       params: { auth_token: @auth_token, group_id: @group.id, event: {
-        title: "new meetup with tickets",
+        title: "new meetup with tickets x",
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
         end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
         location: "central park",
@@ -42,7 +42,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
       } }
 
     assert_response :success
-    event = Event.find_by(title: "new meetup with tickets")
+    event = Event.find_by(title: "new meetup with tickets x")
     ticket = Ticket.find_by(event: event, title: "fiat")
     assert ticket
     assert ticket.ticket_type == "event"
