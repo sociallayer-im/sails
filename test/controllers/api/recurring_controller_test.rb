@@ -48,5 +48,12 @@ class Api::RecurringControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal recurring.events.order("start_time").map { |ev| [ ev.start_time.to_s, ev.end_time.to_s ] },
     [ [ "2024-07-08 10:20:30 UTC", "2024-07-08 12:20:30 UTC" ], [ "2024-07-15 11:20:30 UTC", "2024-07-15 14:20:30 UTC" ], [ "2024-07-22 11:20:30 UTC", "2024-07-22 14:20:30 UTC" ], [ "2024-07-29 11:20:30 UTC", "2024-07-29 14:20:30 UTC" ], [ "2024-08-05 11:20:30 UTC", "2024-08-05 14:20:30 UTC" ] ]
+
+    post api_recurring_cancel_event_url, params: { auth_token: auth_token, recurring_id: recurring_id, selector: "after", event_id: after_event_id }
+    assert_response :success
+
+    assert_equal recurring.events.order("start_time").map { |ev| [ ev.status, ev.start_time.to_s ] },
+    [["published", "2024-07-08 10:20:30 UTC"], ["cancelled", "2024-07-15 11:20:30 UTC"], ["cancelled", "2024-07-22 11:20:30 UTC"], ["cancelled", "2024-07-29 11:20:30 UTC"], ["cancelled", "2024-08-05 11:20:30 UTC"]]
+
   end
 end

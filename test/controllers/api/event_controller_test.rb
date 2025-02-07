@@ -228,6 +228,10 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal 1, JSON.parse(response.body)["events"].count
     assert JSON.parse(response.body)["events"].first["id"] == event.id
+
+    post api_event_approve_event_url, params: { auth_token: auth_token, id: event.id }
+    assert_response :success
+    assert Event.find(event.id).status == "published"
   end
 
   test "api#event/update" do

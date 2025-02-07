@@ -64,26 +64,17 @@ class Api::EventController < ApiController
     render json: { result: "ok", event: event.as_json }
   end
 
-  # def set_badge
-  #   profile = current_profile!
-  #   event = Event.find(params[:id])
-  #   badge_class = BadgeClass.find(params[:badge_class_id])
-  #   authorize event, :update?
-  #   authorize badge_class, :send?
+  def approve_event
+    profile = current_profile!
+    event = Event.find(params[:id])
+    authorize event.group, :manage?, policy_class: GroupPolicy
 
-  #   voucher = Voucher.new(
-  #     sender: profile,
-  #     badge_class: badge_class,
-  #     item_type: "Event", item_id: event.id,
-  #     # need test
-  #     strategy: "event",
-  #     counter: 1,
-  #   )
-  #   voucher.save
+    event.update(
+      status: "published"
+    )
 
-  #   render json: { result: "ok", event: event.as_json }
-  # end
-
+    render json: { result: "ok", event: event.as_json }
+  end
 
   def set_badge
     profile = current_profile!

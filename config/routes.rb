@@ -91,6 +91,7 @@ Rails.application.routes.draw do
     get "event/created_by_me", to: "event#created_by_me"
     get "event/latest_changed", to: "event#latest_changed"
     get "event/pending_approval_list", to: "event#pending_approval_list"
+    post "event/approve_event", to: "event#approve_event"
 
     get  "comment/list", to: "comment#list"
     post "comment/create", to: "comment#create"
@@ -100,6 +101,7 @@ Rails.application.routes.draw do
 
     post "recurring/create", to: "recurring#create"
     post "recurring/update", to: "recurring#update"
+    post "recurring/cancel_event", to: "recurring#cancel_event"
 
     post "ticket/rsvp", to: "ticket#rsvp"
     post "ticket/set_payment_status", to: "ticket#set_payment_status"
