@@ -189,6 +189,11 @@ class Api::EventController < ApiController
     event.status = status
     event.save
 
+    p "event_params"
+    p event_params
+    p "event.errors.full_messages"
+    p event.errors.full_messages
+
     if @send_update_email
       event.participants.each do |participant|
         participant.profile.send_mail_update_event(event)
