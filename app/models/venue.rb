@@ -6,7 +6,7 @@ class Venue < ApplicationRecord
   has_many :venue_overrides
   has_many :availabilities, as: :item
 
-  validates :end_date, comparison: { greater_than: :start_date }, allow_nil: true
+  validates :end_date, comparison: { greater_than: :start_date }, if: -> { start_date.present? && end_date.present? }
 
   accepts_nested_attributes_for :venue_timeslots, allow_destroy: true
   accepts_nested_attributes_for :venue_overrides, allow_destroy: true
@@ -69,7 +69,7 @@ class Venue < ApplicationRecord
     end_time = event_end.in_time_zone(timezone)
     start_date = start_time.to_date
     end_date = end_time.to_date
-    
+
     if self.start_date
       if start_date < self.start_date
         return false, "Event is before venue availibility begins"
