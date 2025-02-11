@@ -10,6 +10,7 @@ class Coupon < ApplicationRecord
   end
 
   def get_discounted_price(amount)
+    amount = amount.to_i
     original_amount = amount
     if self.expires_at < DateTime.now || self.max_allowed_usages <= self.order_usage_count
       return [amount, nil, nil]

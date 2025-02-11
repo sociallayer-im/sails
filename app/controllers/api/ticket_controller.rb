@@ -260,7 +260,7 @@ class Api::TicketController < ApiController
   end
 
   def coupon_price
-    coupon = Coupon.find_by(selector_type: "code", code: params[:coupon])
+    coupon = Coupon.find_by(selector_type: "code", code: params[:code])
     amount, discount_value, discount_data = coupon.get_discounted_price(params[:amount])
     render json: { coupon_id: coupon.id, amount: amount }
   end
@@ -301,7 +301,7 @@ class Api::TicketController < ApiController
     authorize event, :update?, policy_class: EventPolicy
 
     event.update(event_coupon_params)
-    render json: { result: "ok", track: track }
+    render json: { result: "ok" }
   end
 
   def daimo_create_payment_link

@@ -47,8 +47,7 @@ class Api::EventController < ApiController
       event.tickets.update_all(ticket_type: "group")
     end
 
-    p "event.errors.full_messages"
-    p event.errors.full_messages
+    p "event.errors.full_messages", event.errors.full_messages
 
     group.increment!(:events_count) if group
 

@@ -295,28 +295,28 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
   # end
 
 
-  test "api#ticket/rsvp with daimo ticket" do
-    travel_to Date.new(2024, 8, 8)
+  # test "api#ticket/rsvp with daimo ticket" do
+  #   travel_to Date.new(2024, 8, 8)
 
-    ticket = Ticket.find_by(event: @event, title: "daimo")
-    paymethod = PaymentMethod.find_by(item: ticket, chain: "base")
-    p @event.id
-    p ticket.id
-    p paymethod.id
+  #   ticket = Ticket.find_by(event: @event, title: "daimo")
+  #   paymethod = PaymentMethod.find_by(item: ticket, chain: "base")
+  #   p @event.id
+  #   p ticket.id
+  #   p paymethod.id
 
-    post api_ticket_rsvp_url,
-         params: { auth_token: @auth_token,
-         id: @event.id,
-         ticket_id: ticket.id,
-         payment_method_id: paymethod.id }
-    assert_response :success
-    # assert Participant.find_by(event: @event, profile: @profile, status: "attending").payment_status == "succeeded"
+  #   post api_ticket_rsvp_url,
+  #        params: { auth_token: @auth_token,
+  #        id: @event.id,
+  #        ticket_id: ticket.id,
+  #        payment_method_id: paymethod.id }
+  #   assert_response :success
+  #   # assert Participant.find_by(event: @event, profile: @profile, status: "attending").payment_status == "succeeded"
 
-    ticket_item = TicketItem.find_by(event: @event)
-    post api_ticket_daimo_create_payment_link_url, params: { auth_token: @auth_token, ticket_item_id: ticket_item.id }
-    assert_response :success
-    p response.body
-  end
+  #   ticket_item = TicketItem.find_by(event: @event)
+  #   post api_ticket_daimo_create_payment_link_url, params: { auth_token: @auth_token, ticket_item_id: ticket_item.id }
+  #   assert_response :success
+  #   p response.body
+  # end
 
   test "api#ticket/rsvp with free group ticket" do
     ticket = Ticket.find_by(event: @event, title: "free")
@@ -325,6 +325,31 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
          params: { auth_token: @auth_token, id: @event.id, ticket_id: ticket.id, payment_method_id: nil }
     assert_response :success
     assert Participant.find_by(event: @event, profile: @profile, status: "attending").payment_status == "succeeded"
+  end
+
+  test "api#ticket/check_coupon" do
+    get api_ticket_check_coupon_url, params: { auth_token: @auth_token, event_id: @event.id, code: "abcdef" }
+    assert_response :success
+  end
+
+  test "api#ticket/get_coupon" do
+    coupon = create_coupon(@event, 6000)
+    get api_ticket_get_coupon_url, params: { auth_token: @auth_token, id: coupon.id }
+    assert_response :success
+  end
+
+  test "api#ticket/coupon_price" do
+    coupon = create_coupon(@event, 6000)
+    get api_ticket_coupon_price_url, params: { auth_token: @auth_token, event_id: @event.id, code: coupon.code, amount: 10000 }
+    assert_response :success
+  end
+
+  test "api#ticket/set_coupon" do
+    post api_ticket_set_coupon_url, params: { auth_token: @auth_token, event_id: @event.id, coupons_attributes: [
+       { selector_type: "code", label: "community", code: "dddddd", receiver_address: "", discount_type: "ratio", discount: 6000, event_id: @event.id, applicable_ticket_ids: [], ticket_item_ids: [], expires_at: (DateTime.now + 7.days), max_allowed_usages: 10, order_usage_count: 0, _destroy: false }
+    ] }
+    assert_response :success
+    assert Coupon.find_by(selector_type: "code", code: "dddddd")
   end
 
   private

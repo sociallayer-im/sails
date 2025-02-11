@@ -114,6 +114,10 @@ Rails.application.routes.draw do
     post "ticket/daimo_create_payment_link", to: "ticket#daimo_create_payment_link"
     post "ticket/daimo_webhook", to: "ticket#daimo_webhook"
     get  "ticket/list_group_ticket_types", to: "ticket#list_group_ticket_types"
+    post "ticket/set_coupon", to: "ticket#set_coupon"
+    get  "ticket/check_coupon", to: "ticket#check_coupon"
+    get  "ticket/get_coupon", to: "ticket#get_coupon"
+    get  "ticket/coupon_price", to: "ticket#coupon_price"
 
     post "marker/create", to: "marker#create"
     post "marker/update", to: "marker#update"
