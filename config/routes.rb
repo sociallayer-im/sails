@@ -170,6 +170,8 @@ Rails.application.routes.draw do
     post "vote/cancel", to: "vote#cancel"
     post "vote/cast_vote", to: "vote#cast_vote"
 
+    post "activity/set_read_status", to: "activity#set_read_status"
+
     get "service/get_participanted_events_by_email", to: "service#get_participanted_events_by_email"
     get "service/get_hosted_events_by_email", to: "service#get_hosted_events_by_email"
     get "service/get_user_related_groups", to: "service#get_user_related_groups"
