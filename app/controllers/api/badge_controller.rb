@@ -54,7 +54,7 @@ class Api::BadgeController < ApiController
     authorize badge, :own?
 
     # need test
-    raise AppError.new("invalid state") unless badge.status == "minted"
+    raise AppError.new("invalid state") unless badge.status == "minted" || badge.status == "accepted"
     raise AppError.new("invalid badge_type") if badge.badge_class.transferable
 
     token = badge.gen_swap_code

@@ -301,6 +301,7 @@ class Api::TicketController < ApiController
     authorize event, :update?, policy_class: EventPolicy
 
     event.update(event_coupon_params)
+    p "event.errors.full_messages", event.errors.full_messages
     render json: { result: "ok" }
   end
 

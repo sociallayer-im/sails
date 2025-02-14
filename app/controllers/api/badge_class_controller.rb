@@ -15,6 +15,7 @@ class Api::BadgeClassController < ApiController
       creator_id: profile.id,
       content: content,
     )
+    p "badge_class.errors.full_messages", badge_class.errors.full_messages
     # need domain
     render json: { result: "ok", badge_class: badge_class.as_json }
   end
