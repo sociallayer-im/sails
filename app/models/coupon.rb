@@ -7,6 +7,9 @@ class Coupon < ApplicationRecord
     if code.blank?
       self.code = SecureRandom.hex(6)
     end
+    if expires_at.blank?
+      self.expires_at = DateTime.now + 30.days
+    end
   end
 
   def get_discounted_price(amount)

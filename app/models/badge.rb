@@ -13,7 +13,7 @@ class Badge < ApplicationRecord
 
   def gen_swap_code
     payload = {
-      badge_id: badge.id,
+      badge_id: self.id,
       auth_type: "swap"
     }
     token = JWT.encode payload, $hmac_secret, "HS256"
