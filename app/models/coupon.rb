@@ -23,7 +23,9 @@ class Coupon < ApplicationRecord
       amount = amount * self.discount / 10000
     elsif self.discount_type == "amount"
       if paymethod
-      discount_value = paymethod.chain == "stripe" ? self.discount : self.discount * 10000
+        discount_value = paymethod.chain == "stripe" ? self.discount : self.discount * 10000
+      else
+        discount_value = self.discount
       end
       discount_value = amount if discount_value > amount
       amount = amount - discount_value

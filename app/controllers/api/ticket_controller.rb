@@ -261,7 +261,7 @@ class Api::TicketController < ApiController
 
   def coupon_price
     coupon = Coupon.find_by(selector_type: "code", code: params[:code])
-    amount, discount_value, discount_data = coupon.get_discounted_price(params[:amount])
+    amount, discount_value, discount_data = coupon.get_discounted_price(params[:amount], nil)
     render json: { coupon_id: coupon.id, amount: amount }
   end
 
