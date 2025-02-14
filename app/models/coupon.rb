@@ -12,7 +12,7 @@ class Coupon < ApplicationRecord
     end
   end
 
-  def get_discounted_price(amount)
+  def get_discounted_price(amount, paymethod)
     amount = amount.to_i
     original_amount = amount
     if self.expires_at < DateTime.now || self.max_allowed_usages <= self.order_usage_count
@@ -22,7 +22,9 @@ class Coupon < ApplicationRecord
       return [amount, nil, nil] if self.discount > 10000 || self.discount < 0
       amount = amount * self.discount / 10000
     elsif self.discount_type == "amount"
+      if paymethod
       discount_value = paymethod.chain == "stripe" ? self.discount : self.discount * 10000
+      end
       discount_value = amount if discount_value > amount
       amount = amount - discount_value
     end

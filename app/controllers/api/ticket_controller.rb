@@ -63,7 +63,7 @@ class Api::TicketController < ApiController
           return render json: { result: "error", message: "coupon is not available" }
         end
 
-        amount, discount_value, discount_data = coupon.get_discounted_price(amount)
+        amount, discount_value, discount_data = coupon.get_discounted_price(amount, paymethod)
         if discount_value
           coupon.increment!(:order_usage_count)
           coupon_id = coupon.id
