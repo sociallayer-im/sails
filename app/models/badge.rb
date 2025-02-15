@@ -19,7 +19,7 @@ class Badge < ApplicationRecord
     token = JWT.encode payload, $hmac_secret, "HS256"
   end
 
-  def decode_swap_code
+  def self.decode_swap_code(swap_token)
     decoded_token = JWT.decode swap_token, $hmac_secret, true, { algorithm: "HS256" }
     target_badge_id = decoded_token[0]["badge_id"]
   end

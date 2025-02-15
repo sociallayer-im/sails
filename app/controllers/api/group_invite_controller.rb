@@ -35,8 +35,10 @@ class Api::GroupInviteController < ApiController
       raise AppError.new("invalid role")
     end
 
-    group_invite.update(status: "accepted")
-    membership = group.add_member(group_invite.receiver_id, group_invite.role)
+    ActiveRecord::Base.transaction do
+      group_invite.update(status: "accepted")
+      membership = group.add_member(group_invite.receiver_id, group_invite.role)
+    end
 
     render json: { result: "ok", membership: membership.as_json }
   end

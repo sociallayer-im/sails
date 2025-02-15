@@ -25,8 +25,8 @@ class Api::BadgeController < ApiController
     authorize badge, :own?
 
     # need test
-    raise AppError.new("invalid state") unless badge.status == "minted"
-    raise AppError.new("invalid badge_type") if badge.badge_class.transferable
+    raise AppError.new("invalid state") unless badge.status == "minted" || badge.status == "accepted"
+    raise AppError.new("invalid badge_type") unless badge.badge_class.transferable
     raise AppError.new("invalid target id") if target.nil? || profile.id == target.id
 
     badge.update(owner_id: params[:target_id])
@@ -55,7 +55,7 @@ class Api::BadgeController < ApiController
 
     # need test
     raise AppError.new("invalid state") unless badge.status == "minted" || badge.status == "accepted"
-    raise AppError.new("invalid badge_type") if badge.badge_class.transferable
+    raise AppError.new("invalid badge_type") unless badge.badge_class.transferable
 
     token = badge.gen_swap_code
     activity = Activity.create(item: badge, initiator_id: profile.id, action: "badge/swap_code")
@@ -72,8 +72,8 @@ class Api::BadgeController < ApiController
     target_badge = Badge.find(target_badge_id)
     target_badge_owner_id = target_badge.owner_id
 
-    raise AppError.new("invalid state") unless target_badge.status == "minted"
-    raise AppError.new("invalid badge_type") if target_badge.badge_class.transferable
+    raise AppError.new("invalid state") unless target_badge.status == "minted" || target_badge.status == "accepted"
+    raise AppError.new("invalid badge_type") unless target_badge.badge_class.transferable
 
     badge.update(owner_id: target_badge_owner_id)
     target_badge.update(owner_id: profile.id)

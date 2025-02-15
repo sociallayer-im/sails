@@ -219,8 +219,10 @@ class Api::GroupController < ApiController
           :chain, :image_url, :nickname, :about, :status, :group_ticket_enabled,
           :tags, :event_taglist, :venue_taglist, :can_publish_event, :can_join_event, :can_view_event,
           :customizer, :logo_url, :banner_link_url, :banner_image_url,
-          :timezone, :location, :metadata, :event_tags,
+          :timezone, :location, :metadata,
           :event_enabled, :map_enabled,
+          event_tags: [],
+          group_tags: [],
           {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           tracks_attributes: [ :id, :tag, :title, :kind, :icon_url, :about, :start_date, :end_date, :_destroy ],
           )
