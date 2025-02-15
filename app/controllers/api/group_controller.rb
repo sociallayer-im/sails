@@ -221,9 +221,9 @@ class Api::GroupController < ApiController
           :customizer, :logo_url, :banner_link_url, :banner_image_url,
           :timezone, :location, :metadata,
           :event_enabled, :map_enabled,
+          {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           event_tags: [],
           group_tags: [],
-          # {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           tracks_attributes: [ :id, :tag, :title, :kind, :icon_url, :about, :start_date, :end_date, :_destroy ],
           )
   end
