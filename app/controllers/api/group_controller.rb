@@ -223,7 +223,7 @@ class Api::GroupController < ApiController
           :event_enabled, :map_enabled,
           event_tags: [],
           group_tags: [],
-          {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
+          # {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           tracks_attributes: [ :id, :tag, :title, :kind, :icon_url, :about, :start_date, :end_date, :_destroy ],
           )
   end
