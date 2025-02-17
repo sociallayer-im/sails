@@ -115,7 +115,7 @@ class Api::VoucherController < ApiController
       badge_content: (params[:badge_content].present? && sanitize_text(params[:badge_content]) || nil),
       badge_image: params[:badge_image],
       message: params[:message],
-      counter: params[:counter],
+      counter: params[:counter] || 65535,
       strategy: 'code',
       code: rand(1_000_000..10_000_000),
       expires_at: expires_at,

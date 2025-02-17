@@ -649,6 +649,7 @@ class Api::EventController < ApiController
       :badge_class_id,
       :external_url,
       :notes,
+      :requirement_tags,
       tags: [],
       extras: {},
       tickets_attributes: [
