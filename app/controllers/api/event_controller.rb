@@ -182,6 +182,8 @@ class Api::EventController < ApiController
       end
     end
 
+    p "event_params", event_params
+
     event.assign_attributes(event_params)
     event.pinned = params[:pinned] if event.group && event.group.is_manager(profile.id)
     if (["start_time", "end_time", "location"] - event.changed).present?
