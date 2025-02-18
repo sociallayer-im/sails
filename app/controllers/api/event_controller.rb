@@ -628,7 +628,7 @@ class Api::EventController < ApiController
   private
 
   def event_params
-    params.require(:event).permit(
+    params.permit(
       :event_type,
       :title,
       :start_time,
