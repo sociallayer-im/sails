@@ -149,7 +149,7 @@ class Api::RecurringController < ApiController
   private
 
   def event_params
-    params.require(:event).permit(
+    params.permit(
       :title,
       :start_time,
       :end_time,

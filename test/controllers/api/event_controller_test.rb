@@ -203,7 +203,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     venue.update(require_approval: true)
 
     post api_event_create_url,
-      params: { auth_token: auth_token, group_id: group.id, venue_id: venue.id, event: {
+      params: { auth_token: auth_token, group_id: group.id, venue_id: venue.id,
         title: "new meetup",
         tags: %w[live art],
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
@@ -212,7 +212,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
         content: "wonderful",
         display: "normal",
         event_type: "event"
-      } }
+      }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -248,12 +248,11 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     )
 
     post api_event_update_url,
-      params: { auth_token: auth_token, id: event.id, event: {
+      params: { auth_token: auth_token, id: event.id,
         title: "new meetup",
         tags: %w[science],
         end_time: DateTime.parse("2024-08-10T10:20:30+00:00"),
         extras: { message: "random" }
-      }
     }
     assert_response :success
     event.reload
