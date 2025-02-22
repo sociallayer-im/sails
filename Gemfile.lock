@@ -203,6 +203,9 @@ GEM
       mustermann-grape (~> 1.1.0)
       rack (>= 2)
       zeitwerk
+    grape-entity (1.0.1)
+      activesupport (>= 3.0.0)
+      multi_json (>= 1.3.2)
     hash_diff (1.1.1)
     http (5.2.0)
       addressable (~> 2.8)
@@ -277,6 +280,7 @@ GEM
     mini_portile2 (2.8.8)
     minitest (5.25.4)
     msgpack (1.7.5)
+    multi_json (1.15.0)
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
     multipart-post (2.4.1)
@@ -527,6 +531,7 @@ DEPENDENCIES
   faker
   good_job (~> 4.3)
   grape (~> 2.2)
+  grape-entity
   hash_diff
   http
   icalendar

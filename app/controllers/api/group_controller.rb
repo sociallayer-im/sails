@@ -1,4 +1,20 @@
 class Api::GroupController < ApiController
+  def create_popup
+    profile = current_profile!
+    group = Group.find(params[:group_id])
+    authorize group, :manage?, policy_class: GroupPolicy
+
+    group.popup_cities.create(popup_city_params)
+  end
+
+  def update_popup
+    profile = current_profile!
+    popup = PopupCity.find(params[:id])
+    authorize popup.group, :manage?, policy_class: GroupPolicy
+
+    popup.update(popup_city_params)
+  end
+
   def create
     profile = current_profile!
 
@@ -234,5 +250,11 @@ class Api::GroupController < ApiController
       track_roles_attributes: [ :id, :role, :receiver_address, :profile_id, :_destroy ],
     )
     # todo : auto track role detect with receiver_address/email
+  end
+
+  def popup_city_params
+    params.require(:popup_city).permit(
+      :title, :image_url, :location, :website, :group_tags, :start_date, :end_date
+    )
   end
 end

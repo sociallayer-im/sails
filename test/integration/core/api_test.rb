@@ -17,5 +17,14 @@ module Core
       assert_response :success
       assert_equal(profile.id, JSON.parse(@response.body)["id"])
     end
+
+    test "GET /api/event/get returns event" do
+      event = events(:one)
+      get "/api/event/get", params: { id: event.id }, headers: { "Authorization" => "Bearer #{event.owner.gen_auth_token}" }
+
+      assert_response :success
+      assert_equal(event.id, JSON.parse(@response.body)["id"])
+      p @response.body
+    end
   end
 end
