@@ -101,3 +101,5 @@ gem "kamal", require: false
 gem "thruster", require: false
 gem "grape", "~> 2.2"
 gem "grape-entity"
+
+gem "dockerfile-rails", ">= 1.7", :group => :development
