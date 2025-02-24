@@ -42,6 +42,10 @@ module Core
       instance.is_starred = options[:with_stars].present? && options[:stars].find {|x| x == instance.id }.present?
       options[:with_stars]
     }
+    expose :is_attending, as: :is_attending, if: lambda { |instance, options|
+      instance.is_attending = options[:with_attending].present? && options[:attendings].find {|x| x == instance.id }.present?
+      options[:with_attending]
+    }
   end
 
   class PopupCityEntity < Grape::Entity
@@ -366,7 +370,12 @@ module Core
         @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
       end
 
-      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars
+      if auth_profile && params[:with_attending]
+        @with_attending = true
+        @attendings = Participant.where(profile_id: auth_profile.id, status: ["attending", "checked"]).pluck(:event_id)
+      end
+
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
   end

@@ -40,6 +40,9 @@ class Api::GroupController < ApiController
     end
 
     group.add_member(profile.id, "owner")
+    if params[:with_popup_city]
+      group.popup_cities.create(popup_city_params)
+    end
     render json: { result: "ok", group: group }
   end
 
@@ -253,7 +256,7 @@ class Api::GroupController < ApiController
   end
 
   def popup_city_params
-    params.require(:popup_city).permit(
+    params.permit(
       :title, :image_url, :location, :website, :group_tags, :start_date, :end_date
     )
   end

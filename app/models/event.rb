@@ -23,6 +23,7 @@ class Event < ApplicationRecord
   accepts_nested_attributes_for :coupons, allow_destroy: true
 
   attr_accessor :is_starred
+  attr_accessor :is_attending
 
   ### methods
 
