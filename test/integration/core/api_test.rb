@@ -33,6 +33,7 @@ module Core
 
         assert_response :success
         assert_equal(1, JSON.parse(@response.body)["events"].count)
+        assert_equal(1, JSON.parse(@response.body)["featured_popups"].count)
       end
 
       test "GET /api/event/my_starred returns my starred events" do
