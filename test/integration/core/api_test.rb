@@ -266,13 +266,17 @@ module Core
         TrackRole.create(group: group, profile: profile, track: private_track)
 
         # Test with auth and track role - should see all events
-        get "/api/event/list", params: { group_id: group.id }, headers: { "Authorization" => "Bearer #{auth_token}" }
+        Comment.create(profile: profile, comment_type: "star", item_type: "Event", item_id: public_track_event.id)
+
+        get "/api/event/list", params: { group_id: group.id, with_stars: 1 }, headers: { "Authorization" => "Bearer #{auth_token}" }
         assert_response :success
         events = JSON.parse(@response.body)["events"]
         event_ids = events.map { |e| e["id"] }
         assert_includes event_ids, public_track_event.id
         assert_includes event_ids, private_track_event.id
         assert_includes event_ids, no_track_event.id
+
+        assert events.first["is_starred"]
 
         # Test filtering by track
         get "/api/event/list", params: { group_id: group.id, track_id: private_track.id }, headers: { "Authorization" => "Bearer #{auth_token}" }

@@ -22,6 +22,8 @@ class Event < ApplicationRecord
   accepts_nested_attributes_for :event_roles, allow_destroy: true
   accepts_nested_attributes_for :coupons, allow_destroy: true
 
+  attr_accessor :is_starred
+
   ### methods
 
   def parse_host_info

@@ -39,7 +39,8 @@ module Core
     expose :tickets, using: Core::TicketEntity, if: { type: :full }
     expose :custom_form, using: Core::CustomFormEntity, if: { type: :full }
     expose :is_starred, as: :is_starred, if: lambda { |instance, options|
-      options[:with_stars] == true && options[:stars].find {|x| x == instance.id }.present?
+      instance.is_starred = options[:with_stars].present? && options[:stars].find {|x| x == instance.id }.present?
+      options[:with_stars]
     }
   end
 
@@ -167,6 +168,11 @@ module Core
       end
       @events = @events.order(start_time: :asc)
 
+      if profile && params[:with_stars]
+        @with_stars = true
+        @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+      end
+
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
       # @pagy, @events = pagy(@events, limit: limit)
@@ -174,7 +180,13 @@ module Core
     end
 
     get "event/my_created" do
-      @events = Event.where(owner: current_profile).order(start_time: :desc)
+      profile = current_profile!
+      @events = Event.where(owner: profile).order(start_time: :desc)
+
+      if profile && params[:with_stars]
+        @with_stars = true
+        @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+      end
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
@@ -198,6 +210,11 @@ module Core
       .or(@events.where(id: EventRole.where(item_type: "Profile", item_id: profile.id).pluck(:event_id)))
 
       @events = @events.where(status: "published").where(display: ["hidden"]).order(start_time: :desc)
+
+      if profile && params[:with_stars]
+        @with_stars = true
+        @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+      end
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
@@ -230,10 +247,15 @@ module Core
         @events = @events.order(start_time: :asc)
       end
 
+      if profile && params[:with_stars]
+        @with_stars = true
+        @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+      end
+
       limit = params[:limit] || 40
       limit = 500 if limit > 500
       # @pagy, @events = pagy(@events, limit: limit)
-      present :events, @events, with: Core::EventEntity
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars
     end
 
     get "event/pending" do
@@ -333,14 +355,15 @@ module Core
       end
       @events = @events.order(start_time: :asc)
 
+      limit = params[:limit] || 40
+      limit = 500 if limit > 500
+      # @pagy, @events = pagy(@events, limit: limit)
+
       if auth_profile && params[:with_stars]
         @with_stars = true
         @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
       end
 
-      limit = params[:limit] || 40
-      limit = 500 if limit > 500
-      # @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars
     end
 
