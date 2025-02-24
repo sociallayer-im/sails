@@ -340,7 +340,7 @@ module Core
 
       limit = params[:limit] || 40
       limit = 500 if limit > 500
-      @pagy, @events = pagy(@events, limit: limit)
+      # @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars
     end
 

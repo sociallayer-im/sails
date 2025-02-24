@@ -140,7 +140,7 @@ module Core
       end
 
       test "event/my_private_track" do
-        profile = Profile.create(username: "test_user", address: "0x123")
+        profile = profiles(:one)
         auth_token = profile.gen_auth_token
         group = groups(:two)
 
@@ -196,6 +196,90 @@ module Core
         assert_includes event_ids, public_track_event.id
         assert_includes event_ids, private_track_event.id
         assert_includes event_ids, no_track_event.id
+      end
+
+      test "event/list returns events based on track access" do
+        profile = profiles(:one)
+        auth_token = profile.gen_auth_token
+        group = groups(:two)
+        Membership.find_by(profile: profile, target: group).update(role: "member")
+
+        # Create public track
+        public_track = Track.create(group: group, kind: "public")
+        public_track_event = Event.create(
+          owner: profile,
+          status: "published",
+          display: "normal",
+          title: "Public Track Event",
+          start_time: DateTime.new(2024, 2, 22, 10, 0, 0, "+00:00"),
+          end_time: DateTime.new(2024, 2, 22, 11, 0, 0, "+00:00"),
+          group: group,
+          track: public_track,
+          event_type: "event"
+        )
+
+        # Create private track
+        private_track = Track.create(group: group, kind: "private")
+        private_track_event = Event.create(
+          owner: profile,
+          status: "published",
+          display: "normal",
+          title: "Private Track Event",
+          start_time: DateTime.new(2024, 2, 22, 10, 0, 0, "+00:00"),
+          end_time: DateTime.new(2024, 2, 22, 11, 0, 0, "+00:00"),
+          group: group,
+          track: private_track,
+          event_type: "event"
+        )
+
+        # Create event with no track
+        no_track_event = Event.create(
+          owner: profile,
+          status: "published",
+          display: "normal",
+          title: "No Track Event",
+          start_time: DateTime.new(2024, 2, 22, 10, 0, 0, "+00:00"),
+          end_time: DateTime.new(2024, 2, 22, 11, 0, 0, "+00:00"),
+          group: group,
+          event_type: "event"
+        )
+
+        # Test without auth - should only see public track and no track events
+        get "/api/event/list", params: { group_id: group.id }
+        assert_response :success
+        events = JSON.parse(@response.body)["events"]
+        event_ids = events.map { |e| e["id"] }
+        assert_includes event_ids, public_track_event.id
+        assert_includes event_ids, no_track_event.id
+        assert_not_includes event_ids, private_track_event.id
+
+        # Test with auth but no track role - same as without auth
+        get "/api/event/list", params: { group_id: group.id }, headers: { "Authorization" => "Bearer #{auth_token}" }
+        assert_response :success
+        events = JSON.parse(@response.body)["events"]
+        event_ids = events.map { |e| e["id"] }
+        assert_includes event_ids, public_track_event.id
+        assert_includes event_ids, no_track_event.id
+        assert_not_includes event_ids, private_track_event.id
+
+        # Give access to private track
+        TrackRole.create(group: group, profile: profile, track: private_track)
+
+        # Test with auth and track role - should see all events
+        get "/api/event/list", params: { group_id: group.id }, headers: { "Authorization" => "Bearer #{auth_token}" }
+        assert_response :success
+        events = JSON.parse(@response.body)["events"]
+        event_ids = events.map { |e| e["id"] }
+        assert_includes event_ids, public_track_event.id
+        assert_includes event_ids, private_track_event.id
+        assert_includes event_ids, no_track_event.id
+
+        # Test filtering by track
+        get "/api/event/list", params: { group_id: group.id, track_id: private_track.id }, headers: { "Authorization" => "Bearer #{auth_token}" }
+        assert_response :success
+        events = JSON.parse(@response.body)["events"]
+        event_ids = events.map { |e| e["id"] }
+        assert_equal [private_track_event.id], event_ids
       end
   end
 end
