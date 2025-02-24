@@ -9,7 +9,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     group = Group.find_by(handle: "guildx")
 
     post api_event_create_url,
-      params: { auth_token: auth_token, group_id: group.id, event: {
+      params: { auth_token: auth_token, group_id: group.id,
         title: "new meetup",
         tags: %w[live private_track],
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
@@ -18,7 +18,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
         content: "wonderful",
         display: "normal",
         event_type: "event"
-      } }
+      }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -37,21 +37,19 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       params: {
         auth_token: auth_token,
         group_id: group.id,
-        event: {
-          title: "Event with Roles",
-          tags: %w[live workshop],
-          start_time: DateTime.new(2024, 9, 1, 10, 0, 0),
-          end_time: DateTime.new(2024, 9, 1, 12, 0, 0),
-          location: "Community Center",
-          content: "Workshop with various roles",
-          display: "normal",
-          event_type: "event",
-          event_roles_attributes: [
-            { role: "host", email: "host@example.com" },
-            { role: "speaker", email: "speaker@example.com" },
-            { role: "moderator", email: "moderator@example.com" }
-          ]
-        }
+        title: "Event with Roles",
+        tags: %w[live workshop],
+        start_time: DateTime.new(2024, 9, 1, 10, 0, 0),
+        end_time: DateTime.new(2024, 9, 1, 12, 0, 0),
+        location: "Community Center",
+        content: "Workshop with various roles",
+        display: "normal",
+        event_type: "event",
+        event_roles_attributes: [
+          { role: "host", email: "host@example.com" },
+          { role: "speaker", email: "speaker@example.com" },
+          { role: "moderator", email: "moderator@example.com" }
+        ]
       }
 
     assert_response :success
@@ -80,21 +78,19 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       params: {
         auth_token: auth_token,
         group_id: group.id,
-        event: {
-          title: "Event with Profile Roles",
-          tags: %w[conference networking],
-          start_time: DateTime.new(2024, 10, 1, 9, 0, 0),
-          end_time: DateTime.new(2024, 10, 1, 17, 0, 0),
-          location: "Convention Center",
-          content: "Annual tech conference",
-          display: "normal",
-          event_type: "event",
-          event_roles_attributes: [
-            { role: "host", item_type: "Profile", item_id: profile.id },
-            { role: "speaker", item_type: "Profile", item_id: role_profile.id },
-            { role: "moderator", email: "moderator@example.com" }
-          ]
-        }
+        title: "Event with Profile Roles",
+        tags: %w[conference networking],
+        start_time: DateTime.new(2024, 10, 1, 9, 0, 0),
+        end_time: DateTime.new(2024, 10, 1, 17, 0, 0),
+        location: "Convention Center",
+        content: "Annual tech conference",
+        display: "normal",
+        event_type: "event",
+        event_roles_attributes: [
+          { role: "host", item_type: "Profile", item_id: profile.id },
+          { role: "speaker", item_type: "Profile", item_id: role_profile.id },
+          { role: "moderator", email: "moderator@example.com" }
+        ]
       }
 
     assert_response :success
@@ -127,7 +123,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     Config.create(group_id: group.id, name: "event_webhook_url", value: url)
 
     post api_event_create_url,
-      params: { auth_token: auth_token, group_id: group.id, event: {
+      params: { auth_token: auth_token, group_id: group.id,
         title: "new meetup",
         tags: %w[live art],
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
@@ -136,7 +132,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
         content: "wonderful",
         display: "normal",
         event_type: "event"
-      } }
+      }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -150,7 +146,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
 
     post api_event_create_url,
-      params: { auth_token: auth_token, event: {
+      params: { auth_token: auth_token,
         title: "new meetup",
         tags: %w[live art],
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
@@ -159,7 +155,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
         content: "wonderful",
         display: "normal",
         event_type: "event"
-      } }
+      }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -175,7 +171,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     venue = venues(:pku)
 
     post api_event_create_url,
-      params: { auth_token: auth_token, group_id: group.id, event: {
+      params: { auth_token: auth_token, group_id: group.id,
         title: "new meetup",
         tags: %w[live art],
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
@@ -185,7 +181,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
         display: "normal",
         event_type: "event",
         venue_id: venue.id
-      } }
+      }
     assert_response :success
     event = Event.find_by(title: "new meetup")
     assert event
@@ -700,10 +696,9 @@ params: { auth_token: auth_token, id: event.id }
     venue = venues(:yuanmingyuan)
 
     post api_event_update_url,
-      params: { auth_token: auth_token, id: event.id, event: {
+      params: { auth_token: auth_token, id: event.id,
         venue_id: venue.id,
         location: venue.location
-      }
     }
     assert_response :success
     event.reload

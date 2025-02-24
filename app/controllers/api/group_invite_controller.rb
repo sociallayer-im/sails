@@ -38,9 +38,10 @@ class Api::GroupInviteController < ApiController
     ActiveRecord::Base.transaction do
       group_invite.update(status: "accepted")
       membership = group.add_member(group_invite.receiver_id, group_invite.role)
+      render json: { result: "ok", membership: membership.as_json } and return
     end
 
-    render json: { result: "ok", membership: membership.as_json }
+    render json: { result: "error" }
   end
 
   # todo : should test on duplicated invite and updating existing members, downgrading members

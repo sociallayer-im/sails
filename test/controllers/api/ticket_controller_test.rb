@@ -13,7 +13,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
 
   test "api#event/create with tickets" do
     post api_event_create_url,
-      params: { auth_token: @auth_token, group_id: @group.id, event: {
+      params: { auth_token: @auth_token, group_id: @group.id,
         title: "new meetup with tickets x",
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
         end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
@@ -39,7 +39,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
             ]
           }
         ]
-      } }
+      }
 
     assert_response :success
     event = Event.find_by(title: "new meetup with tickets x")
@@ -51,7 +51,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
 
   test "api#event/create with group tickets" do
     post api_event_create_url,
-      params: { auth_token: @auth_token, group_id: @group.id, event: {
+      params: { auth_token: @auth_token, group_id: @group.id,
         title: "new meetup with tickets",
         start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
         end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
@@ -77,7 +77,7 @@ class Api::TicketControllerTest < ActionDispatch::IntegrationTest
             ]
           }
         ]
-      } }
+      }
 
     assert_response :success
     event = Event.find_by(title: "new meetup with tickets")
