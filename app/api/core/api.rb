@@ -169,7 +169,7 @@ module Core
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
-      @pagy, @events = pagy(@events, limit: limit)
+      # @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity
     end
 
@@ -178,7 +178,7 @@ module Core
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
-      @pagy, @events = pagy(@events, limit: limit)
+      # @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity
     end
 
@@ -186,15 +186,22 @@ module Core
       profile = current_profile!
       group_ids = Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:target_id)
 
-      @events = Event.where(owner: profile)
-      .or(Event.where(group_id: group_ids))
-      .or(Event.joins(:event_roles).where(event_roles: { item_type: "Profile", item_id: profile.id }))
+      @events = Event
+
+      # @events = @events.where(owner: profile)
+      # .or(@events.where(group_id: group_ids))
+      # .or(@events.where(event_roles: { item_type: "Profile", item_id: profile.id }))
+      # @events = @events.where(group_id: group_ids)
+
+      @events = @events.where(owner: profile)
+      .or(@events.where(group_id: group_ids))
+      .or(@events.where(id: EventRole.where(item_type: "Profile", item_id: profile.id).pluck(:event_id)))
 
       @events = @events.where(status: "published").where(display: ["hidden"]).order(start_time: :desc)
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
-      @pagy, @events = pagy(@events, limit: limit)
+      # @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity
     end
 
@@ -225,7 +232,7 @@ module Core
 
       limit = params[:limit] || 40
       limit = 500 if limit > 500
-      @pagy, @events = pagy(@events, limit: limit)
+      # @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity
     end
 
