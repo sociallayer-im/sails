@@ -63,6 +63,8 @@ module Core
     end
 
     helpers do
+      include Pagy::Backend
+
       def fetch_bearer_token
         headers['Authorization']&.split(' ')[1]
       end
@@ -175,7 +177,7 @@ module Core
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
-      # @pagy, @events = pagy(@events, limit: limit)
+      @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity
     end
 
@@ -190,7 +192,7 @@ module Core
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
-      # @pagy, @events = pagy(@events, limit: limit)
+      @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity
     end
 
@@ -218,7 +220,7 @@ module Core
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
-      # @pagy, @events = pagy(@events, limit: limit)
+      @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity
     end
 
@@ -254,7 +256,7 @@ module Core
 
       limit = params[:limit] || 40
       limit = 500 if limit > 500
-      # @pagy, @events = pagy(@events, limit: limit)
+      @pagy, @events = pagy(@events, limit: limit)
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars
     end
 
@@ -357,7 +359,7 @@ module Core
 
       limit = params[:limit] || 40
       limit = 500 if limit > 500
-      # @pagy, @events = pagy(@events, limit: limit)
+      @pagy, @events = pagy(@events, limit: limit)
 
       if auth_profile && params[:with_stars]
         @with_stars = true
