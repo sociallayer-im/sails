@@ -52,7 +52,7 @@ class Api::RecurringController < ApiController
     duration = DateTime.parse(params[:end_time]) - event_time
 
     event_count.times do
-      event = Event.new(params)
+      event = Event.new(event_params)
       event.update(
         start_time: event_time,
         end_time: (event_time + duration),

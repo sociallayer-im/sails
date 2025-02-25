@@ -13,13 +13,11 @@ class Api::RecurringControllerTest < ActionDispatch::IntegrationTest
         event_count: 5,
         interval: "week",
         timezone: "Asia/Shanghai",
-        event: {
-          title: "Weekly Meeting",
-          content: "Team weekly sync-up meeting",
-          start_time: DateTime.new(2024, 7, 8, 10, 20, 30).to_s,
-          end_time: DateTime.new(2024, 7, 8, 12, 20, 30).to_s,
-          location: "central park"
-        }
+        title: "Weekly Meeting",
+        content: "Team weekly sync-up meeting",
+        start_time: DateTime.new(2024, 7, 8, 10, 20, 30).to_s,
+        end_time: DateTime.new(2024, 7, 8, 12, 20, 30).to_s,
+        location: "central park"
       }
     end
     assert_response :success
@@ -40,9 +38,7 @@ class Api::RecurringControllerTest < ActionDispatch::IntegrationTest
         end_time_diff: 7200,
         selector: "after",
         after_event_id: after_event_id,
-        event: {
         title: "New Weekly Meeting"
-      }
     }
     assert_response :success
 
