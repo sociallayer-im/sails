@@ -44,7 +44,7 @@ class Api::VenueController < ApiController
     profile = current_profile!
     group = Group.find_by(id: params[:group_id])
     venues = Venue.where(group: group)
-    render json: { venues: venues.as_json.as_json(include: [:availabilities, :venue_overrides, :venue_timeslots]) }
+    render json: { venues: venues.as_json(include: [:availabilities, :venue_overrides, :venue_timeslots]) }
   end
 
   private

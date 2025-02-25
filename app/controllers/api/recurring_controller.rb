@@ -27,7 +27,7 @@ class Api::RecurringController < ApiController
     end
 
     recurring = Recurring.create(
-      start_time: params[:event][:start_time],
+      start_time: params[:start_time],
       interval: params[:interval],
       event_count: params[:event_count],
       timezone: params[:timezone],
@@ -35,22 +35,24 @@ class Api::RecurringController < ApiController
 
     events = []
     event_count = params[:event_count].to_i
-    event_time = DateTime.parse(params[:event][:start_time])
-    duration = DateTime.parse(params[:event][:end_time]) - event_time
+    event_time = DateTime.parse(params[:start_time])
+    duration = DateTime.parse(params[:end_time]) - event_time
 
-    event_count.times do
-      start_time = event_time,
-      end_time = (event_time + duration)
-      if params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).any?
-        return render json: { result: "error", message: "time overlaped in the same venue" }
+    if params[:venue_id]
+      event_count.times do
+        start_time = event_time,
+        end_time = (event_time + duration)
+        if Event.where(venue_id: params[:venue_id]).where("start_time < ? AND end_time > ?", end_time, start_time).any?
+          return render json: { result: "error", message: "time overlaped in the same venue" }
+        end
       end
     end
 
-    event_time = DateTime.parse(params[:event][:start_time])
-    duration = DateTime.parse(params[:event][:end_time]) - event_time
+    event_time = DateTime.parse(params[:start_time])
+    duration = DateTime.parse(params[:end_time]) - event_time
 
     event_count.times do
-      event = Event.new(event_params)
+      event = Event.new(params)
       event.update(
         start_time: event_time,
         end_time: (event_time + duration),
@@ -61,8 +63,6 @@ class Api::RecurringController < ApiController
         display: "normal",
         event_type: "event",
       )
-
-      p
 
       events << event
 
@@ -103,7 +103,7 @@ class Api::RecurringController < ApiController
     # todo : recurring owner column
     # authorize event, :update?
 
-    # if params[:event][:venue_id] != event.venue_id
+    # if params[:venue_id] != event.venue_id
     #   venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
     #   raise AppError.new("group venue not exists") unless venue
 
@@ -113,7 +113,15 @@ class Api::RecurringController < ApiController
     #   end
     # end
 
-    p "event_params", event_params
+    if params[:venue_id]
+      event_count.times do
+        start_time = event_time,
+        end_time = (event_time + duration)
+        if Event.where(venue_id: params[:venue_id]).where("start_time < ? AND end_time > ?", end_time, start_time).where.not(id: events.ids).any?
+          return render json: { result: "error", message: "time overlaped in the same venue" }
+        end
+      end
+    end
 
     events.each do |event|
       event.assign_attributes(event_params)
