@@ -21,29 +21,22 @@ class Api::VoucherController < ApiController
     voucher = Voucher.find(params[:id])
     badge_class = voucher.badge_class
 
-    if params[:index].present? && Activity.find_by(initiator_id: profile.id, data: params[:index].to_s).present?
-      return render json: { result: "error", message: "you have claimed the wamo code" }
-    end
-    raise AppError.new("invalid voucher") if voucher.counter == 0 || voucher.expires_at < DateTime.now()
+    raise AppError.new("invalid voucher") if voucher.invalid?
 
-    # todo : check time and count
-    if voucher.strategy == 'code'
+    case voucher.strategy
+    when 'code'
       unless voucher.code.to_s == params[:code].to_s
         raise AppError.new("voucher code is empty or incorrect")
       end
-    elsif voucher.strategy == 'event'
+    when 'event', 'account'
       unless voucher.receiver_id == profile.id
         raise AppError.new("voucher is not for this user")
       end
-    elsif voucher.strategy == 'account'
-      unless voucher.receiver_id == profile.id
-        raise AppError.new("voucher is not for this user")
-      end
-    elsif voucher.strategy == 'address'
+    when 'address'
       unless voucher.receiver_address == profile.address
         raise AppError.new("voucher is not for this user")
       end
-    elsif voucher.strategy == 'email'
+    when 'email'
       unless voucher.receiver_address == profile.email
         raise AppError.new("voucher is not for this user")
       end

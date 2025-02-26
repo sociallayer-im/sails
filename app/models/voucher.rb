@@ -9,4 +9,8 @@ class Voucher < ApplicationRecord
   validates :receiver_address_type, inclusion: { in: %w(id email address) }, allow_nil: true
   validates :strategy, inclusion: { in: %w(code account address email event remember) }
   validates :counter, numericality: { greater_than_or_equal_to: 0 }
+
+  def invalid?
+    counter == 0 || expires_at < DateTime.now()
+  end
 end

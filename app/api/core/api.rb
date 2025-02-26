@@ -278,18 +278,18 @@ module Core
         error!({ result: 'error', message: "group is freezed" }, 400)
       end
 
-      auth_profile = current_profile
-      if auth_profile
-        if @group.is_manager(auth_profile.id)
+      profile = current_profile
+      if profile
+        if @group.is_manager(profile.id)
           pub_tracks = Track.where(group_id: group_id).ids
           pub_tracks << nil
         elsif @group.group_union.present?
-          managing_groups = Membership.where(profile_id: auth_profile.id, role: ["owner", "manager", "operator"], id: @group.group_union).ids
-          pub_tracks = Track.where(group_id: managing_groups).ids + Track.where(group_id: @group.group_union, kind: "public").ids + TrackRole.where(group_id: @group.group_union, profile_id: auth_profile.id).pluck(:track_id)
+          managing_groups = Membership.where(profile_id: profile.id, role: ["owner", "manager", "operator"], id: @group.group_union).ids
+          pub_tracks = Track.where(group_id: managing_groups).ids + Track.where(group_id: @group.group_union, kind: "public").ids + TrackRole.where(group_id: @group.group_union, profile_id: profile.id).pluck(:track_id)
           pub_tracks = pub_tracks.compact
           pub_tracks << nil
         else
-          pub_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: auth_profile.id).pluck(:track_id)
+          pub_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
           pub_tracks << nil
         end
       else
@@ -306,10 +306,10 @@ module Core
       @timezone = @group.timezone || params[:timezone] || 'UTC'
       @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published", "closed"]).where(group_id: event_group_ids)
       if @group.can_view_event == "member"
-        if (auth_profile.blank? || !@group.is_member(auth_profile.id))
+        if (profile.blank? || !@group.is_member(profile.id))
           @events = @events.where("events.tags @> ARRAY[?]::varchar[]", ["public"])
         end
-      elsif params[:private_event].present? && auth_profile && @group.is_manager(auth_profile.id)
+      elsif params[:private_event].present? && profile && @group.is_manager(profile.id)
         @events = @events.where(display: "private")
       elsif params[:private_event].present?
         @events = @events.where(display: "none")
@@ -365,14 +365,14 @@ module Core
       limit = 500 if limit > 500
       @pagy, @events = pagy(@events, limit: limit)
 
-      if auth_profile && params[:with_stars]
+      if profile && params[:with_stars]
         @with_stars = true
-        @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+        @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
       end
 
-      if auth_profile && params[:with_attending]
+      if profile && params[:with_attending]
         @with_attending = true
-        @attendings = Participant.where(profile_id: auth_profile.id, status: ["attending", "checked"]).pluck(:event_id)
+        @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
       end
 
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
