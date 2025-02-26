@@ -53,7 +53,6 @@ module Core
     expose :group, using: Core::GroupEntity
   end
 
-
   class Api < Grape::API
     version 'v1', using: :header, vendor: 'sola'
     format :json
@@ -65,6 +64,8 @@ module Core
     rescue_from AppError do |e|
       error!({ result: 'error', message: e.message }, 400)
     end
+
+
 
     helpers do
       include Pagy::Backend
@@ -127,6 +128,16 @@ module Core
 
     get "profile/me" do
       current_profile
+    end
+
+    get "profile/get_by_email" do
+      profile = Profile.find_by(email: params[:email])
+      present :profile, profile, with: Core::ProfileEntity
+    end
+
+    get "profile/get_by_handle" do
+      profile = Profile.find_by(handle: params[:handle])
+      present :profile, profile, with: Core::ProfileEntity
     end
 
     get "event/themes" do
@@ -204,16 +215,14 @@ module Core
       profile = current_profile!
       group_ids = Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:target_id)
 
-      @events = Event
+      owned_events = Event.where(owner: profile)
+      group_events = Event.where(group_id: group_ids)
+      role_event_ids = EventRole.where(item_type: "Profile", item_id: profile.id).select(:event_id)
+      role_events = Event.where(id: role_event_ids)
 
-      # @events = @events.where(owner: profile)
-      # .or(@events.where(group_id: group_ids))
-      # .or(@events.where(event_roles: { item_type: "Profile", item_id: profile.id }))
-      # @events = @events.where(group_id: group_ids)
-
-      @events = @events.where(owner: profile)
-      .or(@events.where(group_id: group_ids))
-      .or(@events.where(id: EventRole.where(item_type: "Profile", item_id: profile.id).pluck(:event_id)))
+      @events = owned_events
+        .or(group_events)
+        .or(role_events)
 
       @events = @events.where(status: "published").where(display: ["hidden"]).order(start_time: :desc)
 

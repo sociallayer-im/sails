@@ -37,7 +37,7 @@ Rails.application.routes.draw do
     post "profile/signin_with_mina", to: "profile#signin_with_mina"
     post "profile/signin_with_fuel", to: "profile#signin_with_fuel"
     post "profile/signin_with_telegram", to: "profile#signin_with_telegram"
-    post "profile/track_list", to: "profile#track_list"
+    get  "profile/track_list", to: "profile#track_list"
 
     post "group/create", to: "group#create"
     post "group/update", to: "group#update"
