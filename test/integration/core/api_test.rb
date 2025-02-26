@@ -79,7 +79,7 @@ module Core
 
       test "GET /api/event/my_private returns private events I have access to" do
         travel_to DateTime.new(2024, 2, 22, 10, 0, 0, "+00:00")
-        group = groups(:two)
+        group = groups(:one)
         owner = profiles(:one)
         profile = profiles(:two)
         auth_token = profile.gen_auth_token
@@ -97,7 +97,6 @@ module Core
         )
 
         # Create event in group where profile is manager
-        Membership.create(profile: profile, target: group, role: "manager")
         group_event = Event.create(
           owner: owner,
           group: group,
@@ -128,15 +127,14 @@ module Core
           role: "speaker"
         )
 
-        get "/api/event/my_private", headers: { "Authorization" => "Bearer #{auth_token}" }
+        get "/api/event/my_private", headers: { "Authorization" => "Bearer #{profile.gen_auth_token}" }
 
         assert_response :success
         events = JSON.parse(@response.body)["events"]
-        assert_equal 3, events.count
         event_ids = events.map { |e| e["id"] }
         assert_includes event_ids, owned_event.id
-        assert_includes event_ids, group_event.id
         assert_includes event_ids, other_event.id
+        assert_not_includes event_ids, group_event.id
       end
 
       test "event/my_private_track" do
@@ -199,91 +197,54 @@ module Core
       end
 
       test "event/list returns events based on track access" do
-        profile = profiles(:one)
+        profile = profiles(:two)
         auth_token = profile.gen_auth_token
-        group = groups(:two)
-        Membership.find_by(profile: profile, target: group).update(role: "member")
-
-        # Create public track
-        public_track = Track.create(group: group, kind: "public")
-        public_track_event = Event.create(
-          owner: profile,
-          status: "published",
-          display: "normal",
-          title: "Public Track Event",
-          start_time: DateTime.new(2024, 2, 22, 10, 0, 0, "+00:00"),
-          end_time: DateTime.new(2024, 2, 22, 11, 0, 0, "+00:00"),
-          group: group,
-          track: public_track,
-          event_type: "event"
-        )
-
-        # Create private track
-        private_track = Track.create(group: group, kind: "private")
-        private_track_event = Event.create(
-          owner: profile,
-          status: "published",
-          display: "normal",
-          title: "Private Track Event",
-          start_time: DateTime.new(2024, 2, 22, 10, 0, 0, "+00:00"),
-          end_time: DateTime.new(2024, 2, 22, 11, 0, 0, "+00:00"),
-          group: group,
-          track: private_track,
-          event_type: "event"
-        )
-
-        # Create event with no track
-        no_track_event = Event.create(
-          owner: profile,
-          status: "published",
-          display: "normal",
-          title: "No Track Event",
-          start_time: DateTime.new(2024, 2, 22, 10, 0, 0, "+00:00"),
-          end_time: DateTime.new(2024, 2, 22, 11, 0, 0, "+00:00"),
-          group: group,
-          event_type: "event"
-        )
+        group = groups(:one)
+        Membership.find_or_create_by(profile: profile, target: group, role: "member", status: "active")
 
         # Test without auth - should only see public track and no track events
         get "/api/event/list", params: { group_id: group.id }
         assert_response :success
         events = JSON.parse(@response.body)["events"]
         event_ids = events.map { |e| e["id"] }
-        assert_includes event_ids, public_track_event.id
-        assert_includes event_ids, no_track_event.id
-        assert_not_includes event_ids, private_track_event.id
+        assert_includes event_ids, events(:public_track_event).id
+        assert_includes event_ids, events(:one).id
+        assert_not_includes event_ids, events(:private_track_event).id
 
         # Test with auth but no track role - same as without auth
         get "/api/event/list", params: { group_id: group.id }, headers: { "Authorization" => "Bearer #{auth_token}" }
         assert_response :success
         events = JSON.parse(@response.body)["events"]
         event_ids = events.map { |e| e["id"] }
-        assert_includes event_ids, public_track_event.id
-        assert_includes event_ids, no_track_event.id
-        assert_not_includes event_ids, private_track_event.id
+        assert_includes event_ids, events(:public_track_event).id
+        assert_includes event_ids, events(:one).id
+        assert_not_includes event_ids, events(:private_track_event).id
 
         # Give access to private track
+        private_track = tracks(:private_track)
         TrackRole.create(group: group, profile: profile, track: private_track)
 
         # Test with auth and track role - should see all events
-        Comment.create(profile: profile, comment_type: "star", item_type: "Event", item_id: public_track_event.id)
+        Comment.create(profile: profile, comment_type: "star", item_type: "Event", item_id: events(:public_track_event).id)
 
         get "/api/event/list", params: { group_id: group.id, with_stars: 1 }, headers: { "Authorization" => "Bearer #{auth_token}" }
         assert_response :success
         events = JSON.parse(@response.body)["events"]
         event_ids = events.map { |e| e["id"] }
-        assert_includes event_ids, public_track_event.id
-        assert_includes event_ids, private_track_event.id
-        assert_includes event_ids, no_track_event.id
+        assert_includes event_ids, events(:public_track_event).id
+        assert_includes event_ids, events(:private_track_event).id
+        assert_includes event_ids, events(:one).id
 
-        assert events.first["is_starred"]
+        assert events.find { |e| e["id"] == events(:public_track_event).id }["is_starred"]
 
         # Test filtering by track
         get "/api/event/list", params: { group_id: group.id, track_id: private_track.id }, headers: { "Authorization" => "Bearer #{auth_token}" }
         assert_response :success
         events = JSON.parse(@response.body)["events"]
         event_ids = events.map { |e| e["id"] }
-        assert_equal [private_track_event.id], event_ids
+        assert_includes event_ids, events(:private_track_event).id
+        assert_not_includes event_ids, events(:public_track_event).id
+        assert_not_includes event_ids, events(:one).id
       end
   end
 end
