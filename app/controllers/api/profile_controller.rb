@@ -110,7 +110,7 @@ class Api::ProfileController < ApiController
       app: params[:app],
       address: params[:email],
       address_type: "email",
-      address_source: "#{params[:address_source]}:google"
+      address_source: "#{params[:address_source]}:google",
       profile_id: profile.id,
       locale: params[:locale],
       lang: params[:lang],
