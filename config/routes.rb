@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     get  "profile/get_by_handle", to: "profile#get_by_handle"
     post "profile/signin_with_email", to: "profile#signin_with_email"
     post "profile/set_verified_email", to: "profile#set_verified_email"
+    post "profile/signin_with_google", to: "profile#signin_with_google"
     post "profile/signin_with_zkemail", to: "profile#signin_with_zkemail"
     post "profile/signin_with_multi_zupass", to: "profile#signin_with_multi_zupass"
     post "profile/signin_with_solana", to: "profile#signin_with_solana"

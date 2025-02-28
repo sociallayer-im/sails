@@ -223,10 +223,9 @@ module Core
       @events = owned_events
         .or(group_events)
         .or(role_events)
+        .where(status: "published").where(display: ["hidden"]).order(start_time: :desc)
 
-      @events = @events.where(status: "published").where(display: ["hidden"]).order(start_time: :desc)
-
-      if profile && params[:with_stars]
+      if params[:with_stars]
         @with_stars = true
         @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
       end
@@ -234,7 +233,7 @@ module Core
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
       @pagy, @events = pagy(@events, limit: limit)
-      present :events, @events, with: Core::EventEntity
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars
     end
 
     get "event/my_private_track" do
@@ -262,7 +261,7 @@ module Core
         @events = @events.order(start_time: :asc)
       end
 
-      if profile && params[:with_stars]
+      if params[:with_stars]
         @with_stars = true
         @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
       end

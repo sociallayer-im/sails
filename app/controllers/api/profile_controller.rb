@@ -98,6 +98,27 @@ class Api::ProfileController < ApiController
     render json: { result: "ok", auth_token: profile.gen_auth_token, email: params[:email], id: profile.id, address_type: "email" }
   end
 
+  def signin_with_google
+    unless params[:next_token] == ENV['NEXT_TOKEN']
+      raise AppError.new("invalid next token")
+    end
+
+    profile = Profile.find_or_create_by(email: params[:email])
+    profile.bind_ticket_items
+
+    SigninActivity.create(
+      app: params[:app],
+      address: params[:email],
+      address_type: "email",
+      address_source: "#{params[:address_source]}:google"
+      profile_id: profile.id,
+      locale: params[:locale],
+      lang: params[:lang],
+      remote_ip: request.remote_ip,
+      )
+    render json: { result: "ok", auth_token: profile.gen_auth_token, email: params[:email], id: profile.id, address_type: "email" }
+  end
+
   def signin_with_zkemail
     unless params[:next_token] == ENV['NEXT_TOKEN']
       raise AppError.new("invalid next token")
