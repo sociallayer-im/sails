@@ -487,15 +487,16 @@ class Api::EventController < ApiController
       @events = @events.order(start_time: :asc)
     end
 
+    limit = params[:limit] ? params[:limit].to_i : 40
+    limit = 1000 if limit > 1000
+    # @pagy, @events = pagy(@events, limit: limit)
+    @events = @events.page(params[:page]).per(limit)
+
     if auth_profile && params[:with_stars]
       @with_stars = true
       @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
     end
 
-    limit = params[:limit] ? params[:limit].to_i : 40
-    limit = 1000 if limit > 1000
-    # @pagy, @events = pagy(@events, limit: limit)
-    @events = @events.page(params[:page]).per(limit)
     render template: "api/event/index"
   end
 
