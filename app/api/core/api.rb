@@ -279,7 +279,7 @@ module Core
     end
 
     get "event/list" do
-      @group = Group.where("id = ? OR handle = ?", params[:group_id], params[:group_id]).first
+      @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
       group_id = @group.id
 
       if @group.status == "freezed"
@@ -369,7 +369,7 @@ module Core
       end
       @events = @events.order(start_time: :asc)
 
-      limit = params[:limit] || 40
+      limit = params[:limit].to_i || 40
       limit = 500 if limit > 500
       @pagy, @events = pagy(@events, limit: limit)
 
