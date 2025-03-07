@@ -369,7 +369,7 @@ module Core
       end
       @events = @events.order(start_time: :asc)
 
-      limit = params[:limit].to_i || 40
+      limit = params[:limit] ? params[:limit].to_i : 40
       limit = 500 if limit > 500
       @pagy, @events = pagy(@events, limit: limit)
 
