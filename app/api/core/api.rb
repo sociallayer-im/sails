@@ -170,8 +170,16 @@ module Core
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
-      @events = @events.limit(limit)
-      present :events, @events, with: Core::EventEntity
+      @events = @events.page(params[:page]).per(limit)
+
+      @stars = @events.ids
+
+      if profile && params[:with_attending]
+        @with_attending = true
+        @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
+      end
+
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
     get "event/my_attending" do
@@ -185,30 +193,42 @@ module Core
       end
       @events = @events.order(start_time: :asc)
 
+      limit = params[:limit] ? params[:limit].to_i : 40
+      limit = 1000 if limit > 1000
+      @events = @events.page(params[:page]).per(limit)
+
       if profile && params[:with_stars]
         @with_stars = true
         @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
       end
 
-      limit = params[:limit] ? params[:limit].to_i : 40
-      limit = 1000 if limit > 1000
-      @pagy, @events = pagy(@events, limit: limit)
-      present :events, @events, with: Core::EventEntity
+      if profile && params[:with_attending]
+        @with_attending = true
+        @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
+      end
+
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
     get "event/my_created" do
       profile = current_profile!
       @events = Event.where(owner: profile).order(start_time: :desc)
 
+      limit = params[:limit] ? params[:limit].to_i : 40
+      limit = 1000 if limit > 1000
+      @events = @events.page(params[:page]).per(limit)
+
       if profile && params[:with_stars]
         @with_stars = true
         @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
       end
 
-      limit = params[:limit] ? params[:limit].to_i : 40
-      limit = 1000 if limit > 1000
-      @pagy, @events = pagy(@events, limit: limit)
-      present :events, @events, with: Core::EventEntity
+      if profile && params[:with_attending]
+        @with_attending = true
+        @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
+      end
+
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
     get "event/my_private" do
@@ -225,22 +245,28 @@ module Core
         .or(role_events)
         .where(status: "published").where(display: ["hidden"]).order(start_time: :desc)
 
-      if params[:with_stars]
-        @with_stars = true
-        @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
-      end
+        limit = params[:limit] ? params[:limit].to_i : 40
+        limit = 1000 if limit > 1000
+        @events = @events.page(params[:page]).per(limit)
 
-      limit = params[:limit] ? params[:limit].to_i : 40
-      limit = 1000 if limit > 1000
-      @pagy, @events = pagy(@events, limit: limit)
-      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars
+        if profile && params[:with_stars]
+          @with_stars = true
+          @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+        end
+
+        if profile && params[:with_attending]
+          @with_attending = true
+          @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
+        end
+
+        present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
     get "event/my_private_track" do
       profile = current_profile!
-      group_id = params[:group_id]
-      group = Group.find(group_id)
-      @group = group
+      @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+      group_id = @group.id
+
       my_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
       my_tracks << nil
       @events = Event.where(group_id: group_id).where(status: ["open", "published", "closed"]).where(display: ["normal", "pinned", "public"])
@@ -261,21 +287,42 @@ module Core
         @events = @events.order(start_time: :asc)
       end
 
-      if params[:with_stars]
+      limit = params[:limit] ? params[:limit].to_i : 40
+      limit = 1000 if limit > 1000
+      @events = @events.page(params[:page]).per(limit)
+
+      if profile && params[:with_stars]
         @with_stars = true
         @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
       end
 
-      limit = params[:limit] || 40
-      limit = 500 if limit > 500
-      @pagy, @events = pagy(@events, limit: limit)
-      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars
+      if profile && params[:with_attending]
+        @with_attending = true
+        @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
+      end
+
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
     get "event/pending" do
       group_ids = Membership.where(profile_id: current_profile.id, role: ["owner", "manager"]).pluck(:target_id)
       @events = Event.includes(:owner, :event_roles).where(status: "pending").where(group_id: group_ids).order(created_at: :desc)
-      present :events, @events, with: Core::EventEntity
+
+      limit = params[:limit] ? params[:limit].to_i : 40
+      limit = 1000 if limit > 1000
+      @events = @events.page(params[:page]).per(limit)
+
+      if profile && params[:with_stars]
+        @with_stars = true
+        @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+      end
+
+      if profile && params[:with_attending]
+        @with_attending = true
+        @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
+      end
+
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
     get "event/list" do
@@ -370,8 +417,8 @@ module Core
       @events = @events.order(start_time: :asc)
 
       limit = params[:limit] ? params[:limit].to_i : 40
-      limit = 500 if limit > 500
-      @pagy, @events = pagy(@events, limit: limit)
+      limit = 1000 if limit > 1000
+      @events = @events.page(params[:page]).per(limit)
 
       if profile && params[:with_stars]
         @with_stars = true
