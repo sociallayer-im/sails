@@ -51,7 +51,7 @@ class Api::VenueController < ApiController
 
   def venue_params
     params.require(:venue).permit(
-      :title, :location, :about, :link, :capacity, :formatted_address, :location_viewport, :location_data, :geo_lat, :geo_lng, :start_date, :end_date, :require_approval, :visibility, :tags,
+      :title, :location, :about, :link, :capacity, :formatted_address, :location_viewport, :location_data, :geo_lat, :geo_lng, :start_date, :end_date, :require_approval, :visibility, :tags, image_urls, :featured_image_url, :amenities,
       venue_overrides_attributes: [ :id, :venue_id, :day, :disabled, :start_at, :end_at, :role, :_destroy ],
       venue_timeslots_attributes: [ :id, :venue_id, :day_of_week, :disabled, :start_at, :end_at, :role, :_destroy ],
       availabilities_attributes: [ :id, :item_id, :item_type, :day_of_week, :day, :intervals, :role, :_destroy ]

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_11_035246) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -905,6 +905,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_11_035246) do
     t.string "visibility", comment: "all | manager | none"
     t.datetime "updated_at"
     t.string "location_data"
+    t.string "amenities", default: [], array: true
+    t.string "image_urls", default: [], array: true
+    t.string "featured_image_url"
   end
 
   create_table "vote_options", force: :cascade do |t|
