@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for sails on 2025-02-24T03:50:12+08:00
+# fly.toml app configuration file generated for sola-sails on 2025-04-05T17:44:22+08:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'sails'
-primary_region = 'dfw'
+app = 'sola-sails'
+primary_region = 'sin'
 console_command = '/rails/bin/rails console'
 
 [build]
@@ -13,13 +13,13 @@ console_command = '/rails/bin/rails console'
   release_command = './bin/rails db:prepare'
 
 [env]
-  PORT = '8080'
+  PORT = '3000'
 
 [processes]
   app = './bin/rails server'
 
 [http_service]
-  internal_port = 8080
+  internal_port = 3000
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
@@ -29,4 +29,4 @@ console_command = '/rails/bin/rails console'
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
-  cpus = 1
+  cpus = 2
