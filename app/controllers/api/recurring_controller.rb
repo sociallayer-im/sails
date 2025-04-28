@@ -60,7 +60,7 @@ class Api::RecurringController < ApiController
         status: status,
         owner: profile,
         group: group,
-        display: "normal",
+        display: event_params[:display] || "normal",
         event_type: "event",
       )
 
