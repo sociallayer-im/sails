@@ -8,20 +8,16 @@ class Api::EventController < ApiController
     status = "published"
     @send_approval_email_to_manager = false
     if group && params[:venue_id]
-      p "has venue_id"
       venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
-      p "venue", venue
       raise AppError.new("group venue not exists") unless venue
 
       if venue.require_approval && !group.is_manager(profile.id)
-        p "require approval"
         status = "pending"
         @send_approval_email_to_manager = true
       end
     elsif params[:venue_id]
       raise AppError.new("group is empty")
     end
-    p "status", status
 
     # todo : allow group setting for pending event
 
@@ -31,7 +27,7 @@ class Api::EventController < ApiController
       authorize badge_class, :send?
     end
 
-    if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).any?
+    if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(status: "cancelled").any?
       return render json: { result: "error", message: "time overlaped in the same venue" }
     end
 
