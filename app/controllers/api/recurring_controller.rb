@@ -42,7 +42,7 @@ class Api::RecurringController < ApiController
       event_count.times do
         start_time = event_time
         end_time = (event_time + duration)
-        if Event.where(venue_id: params[:venue_id]).where("start_time < ?", end_time).where("end_time > ?", start_time).any?
+        if Event.where(venue_id: params[:venue_id]).where("start_time < ?", end_time).where("end_time > ?", start_time).where.not(status: "cancelled").any?
           return render json: { result: "error", message: "time overlaped in the same venue" }
         end
       end
