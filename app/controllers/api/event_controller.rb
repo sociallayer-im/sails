@@ -277,6 +277,12 @@ class Api::EventController < ApiController
       raise AppError.new("event ended")
     end
 
+    if event.group_id == 3579 || !event.group.is_member(profile.id)
+      if !Event.edge_esmeralda_verification(profile.email)
+        raise AppError.new("group membership required for Edge Esmeralda")
+      end
+    end
+
     if event.venue && event.venue.capacity && event.venue.capacity > 0 && event.participants_count >= event.venue.capacity
       raise AppError.new("exceed venue capacity")
     end

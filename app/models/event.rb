@@ -27,6 +27,31 @@ class Event < ApplicationRecord
 
   ### methods
 
+  def self.edge_esmeralda_verification()
+    if self.group_id == 3579
+      self.edge_esmeralda_api_check(self.owner.email)
+    end
+  end
+
+  def self.edge_esmeralda_api_check(email)
+    begin
+      url = "https://api-citizen-portal.simplefi.tech/attendees/search/email?email=#{email}"
+      response = RestClient.get(url, {
+        "x-api-key": "hP@&Oy&w6X2&AM#R6%"
+      })
+      data = JSON.parse(response)
+      data = data.find { |item| item["application_id"] == 3143 }
+      if data
+        data["products"].find { |item| item["popup_city_id"] == 4 }
+        return true
+      end
+    rescue => e
+      p e
+    end
+
+    false
+  end
+
   def parse_host_info
     return nil if host_info.nil?
     result = {}
