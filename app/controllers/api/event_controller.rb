@@ -278,7 +278,7 @@ class Api::EventController < ApiController
     end
 
     if event.group_id == 3579 || !event.group.is_member(profile.id)
-      if !Event.edge_esmeralda_verification(profile.email)
+      if !Event.edge_esmeralda_api_check(profile.email)
         raise AppError.new("group membership required for Edge Esmeralda")
       end
     end
