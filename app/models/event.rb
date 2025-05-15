@@ -40,9 +40,8 @@ class Event < ApplicationRecord
         "x-api-key": "hP@&Oy&w6X2&AM#R6%"
       })
       data = JSON.parse(response)
-      data = data.find { |item| item["application_id"] == 3143 }
+      data = data.find { |item| item["products"].find { |item| item["popup_city_id"] == 4 } }
       if data
-        data["products"].find { |item| item["popup_city_id"] == 4 }
         return true
       end
     rescue => e
