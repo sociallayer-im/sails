@@ -10,8 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_15_000000) do
+  create_schema "hdb_catalog"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "activities", force: :cascade do |t|
@@ -29,6 +32,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.boolean "has_read", default: false
     t.string "item_type"
     t.string "target_type"
+    t.index ["created_at"], name: "index_activities_on_created_at"
+    t.index ["initiator_id"], name: "index_activities_on_initiator_id"
+    t.index ["item_type", "item_id"], name: "index_activities_on_item_type_and_item_id"
   end
 
   create_table "availabilities", force: :cascade do |t|
@@ -97,7 +103,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
 
   create_table "comments", force: :cascade do |t|
     t.integer "title"
-    t.string "item_type"
+    t.string "item_type", default: "Group"
     t.integer "item_id"
     t.integer "reply_parent_id"
     t.text "content"
@@ -111,6 +117,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.integer "edit_parent_id"
     t.integer "badge_id"
     t.datetime "updated_at"
+    t.index ["item_type", "item_id", "status"], name: "index_comments_on_item_type_and_item_id_and_status"
+    t.index ["profile_id", "comment_type"], name: "index_comments_on_profile_id_and_comment_type"
   end
 
   create_table "configs", force: :cascade do |t|
@@ -237,7 +245,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.string "location_data"
     t.boolean "pinned", default: false
     t.string "theme"
+    t.index ["group_id", "status", "start_time"], name: "index_events_on_group_id_and_status_and_start_time"
     t.index ["group_id"], name: "index_events_on_group_id"
+    t.index ["owner_id"], name: "index_events_on_owner_id"
+    t.index ["recurring_id"], name: "index_events_on_recurring_id"
+    t.index ["track_id", "status"], name: "index_events_on_track_id_and_status"
+    t.index ["venue_id"], name: "index_events_on_venue_id"
   end
 
   create_table "followings", force: :cascade do |t|
@@ -454,6 +467,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.datetime "updated_at"
     t.string "handle"
     t.integer "group_union", array: true
+    t.index ["group_tags"], name: "index_groups_on_group_tags", using: :gin
+    t.index ["handle"], name: "index_groups_on_handle"
+    t.index ["status"], name: "index_groups_on_status"
   end
 
   create_table "mail_tokens", force: :cascade do |t|
@@ -501,6 +517,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.datetime "created_at", null: false
     t.datetime "updated_at"
     t.string "location_data"
+    t.index ["geo_lat", "geo_lng"], name: "index_markers_on_geo_lat_and_geo_lng"
+    t.index ["group_id", "status"], name: "index_markers_on_group_id_and_status"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -513,6 +531,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.jsonb "data"
     t.datetime "updated_at"
     t.index ["profile_id", "target_id"], name: "index_memberships_on_profile_id_and_target_id", unique: true
+    t.index ["target_id", "role"], name: "index_memberships_on_target_id_and_role"
   end
 
   create_table "oauth_access_grants", force: :cascade do |t|
@@ -594,7 +613,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.string "payment_data"
     t.string "payment_chain"
     t.datetime "register_time"
+    t.index ["event_id", "status"], name: "index_participants_on_event_id_and_status"
     t.index ["event_id"], name: "index_participants_on_event_id"
+    t.index ["profile_id", "status"], name: "index_participants_on_profile_id_and_status"
     t.index ["profile_id"], name: "index_participants_on_profile_id"
   end
 
@@ -806,6 +827,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.string "selector_address"
     t.decimal "original_price", precision: 40
     t.string "protocol"
+    t.index ["event_id", "status"], name: "index_ticket_items_on_event_id_and_status"
+    t.index ["order_number"], name: "index_ticket_items_on_order_number"
+    t.index ["profile_id", "status"], name: "index_ticket_items_on_profile_id_and_status"
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -834,6 +858,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.date "days_allowed", array: true
     t.datetime "updated_at"
     t.integer "tracks_allowed", default: [], array: true
+    t.index ["event_id", "status"], name: "index_tickets_on_event_id_and_status"
+    t.index ["group_id", "status"], name: "index_tickets_on_group_id_and_status"
   end
 
   create_table "track_roles", force: :cascade do |t|
@@ -908,6 +934,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_26_032503) do
     t.string "amenities", default: [], array: true
     t.string "image_urls", default: [], array: true
     t.string "featured_image_url"
+    t.index ["group_id", "visibility"], name: "index_venues_on_group_id_and_visibility"
   end
 
   create_table "vote_options", force: :cascade do |t|
