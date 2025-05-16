@@ -85,6 +85,10 @@ class Api::ProfileController < ApiController
     profile = Profile.find_or_create_by(email: params[:email])
     profile.bind_ticket_items
 
+    if !Group.find(3579).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
+      Group.find(3579).add_member(profile.id, "member")
+    end
+
     SigninActivity.create(
       app: params[:app],
       address: params[:email],

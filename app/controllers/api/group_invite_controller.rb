@@ -112,10 +112,8 @@ class Api::GroupInviteController < ApiController
     group = Group.find(group_invite.group_id)
     authorize group_invite, :accept?
     raise AppError.new("invalid status") unless group_invite.status == "sending"
-
-    group_invite.update(status: "accepted")
     raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
-
+    group_invite.update(status: "accepted")
     group.add_member(profile.id, group_invite.role)
     render json: { result: "ok" }
   end
