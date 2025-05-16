@@ -1,29 +1,61 @@
-# API Knowledge
+# API Layer Knowledge
 
 ## Overview
-The API layer in this application is implemented using two approaches:
-1. Grape API in `app/api/core/api.rb`
-2. Rails controllers in `app/controllers/api/`
-
-## Grape API
-- Located in `app/api/core/api.rb`
-- Uses Grape entities for serialization
-- Provides endpoints for core functionality
-- Handles authentication via JWT tokens
-- Includes error handling for AppError and AuthTokenError
-
-## Rails API Controllers
-- Located in `app/controllers/api/`
-- Inherit from `ApiController` which handles authentication and error handling
-- Use Pundit for authorization
-- Return JSON responses
+The API layer uses two approaches:
+1. Grape API (`app/api/core/api.rb`)
+2. Rails API controllers (`app/controllers/api/`)
 
 ## Authentication
-- JWT tokens are used for authentication
-- `current_profile` and `current_profile!` methods are used to get the authenticated user
-- Doorkeeper is also integrated for OAuth authentication
+- JWT token-based authentication
+- Doorkeeper OAuth integration
+- `current_profile` and `current_profile!` methods for auth
+- Multiple signin methods supported:
+  - Email
+  - Google
+  - Solana
+  - Farcaster
+  - World ID
+  - Mina
+  - Fuel
+  - Telegram
+  - ZK Email
+  - Multi Zupass
 
 ## Error Handling
 - `AppError` for general application errors
 - `AuthTokenError` for authentication errors
-- Both are rescued and return appropriate HTTP status codes and error messages
+- Consistent error response format:
+  ```json
+  {
+    "result": "error",
+    "message": "error description"
+  }
+  ```
+
+## API Entities
+- `ProfileEntity`: User profile data
+- `VenueEntity`: Venue/location data
+- `GroupEntity`: Group information
+- `TicketEntity`: Ticket details
+- `EventRoleEntity`: Event role assignments
+- `FormFieldEntity`: Custom form fields
+- `CustomFormEntity`: Event forms
+- `EventEntity`: Event information
+- `PopupCityEntity`: Popup city data
+
+## Key Endpoints
+- Profile management
+- Event operations
+- Group management
+- Ticket handling
+- Venue management
+- Badge and point systems
+- Voting mechanisms
+- Activity tracking
+
+## Best Practices
+- Use appropriate HTTP methods
+- Validate input parameters
+- Handle errors consistently
+- Document API changes
+- Test new endpoints

@@ -1,29 +1,40 @@
 # Configuration Knowledge
 
-## Overview
-This directory contains configuration files for the Rails application.
+## Key Configuration Files
 
-## Key Files
-- **application.rb**: Main application configuration
-- **routes.rb**: Defines the application routes
-- **database.yml**: Database configuration
-- **environments/**: Environment-specific configurations
-- **initializers/**: Initialization code that runs when the app starts
+### Application Configuration
+- `config/application.rb`: Main Rails configuration
+- `config/environments/`: Environment-specific settings
+- `config/database.yml`: Database configuration
+- `config/routes.rb`: Application routing
 
-## Routes
-- API routes are defined in `routes.rb` under the `api` namespace
-- The application also includes some web routes for sessions and home pages
+### Initializers
+- `config/initializers/doorkeeper.rb`: OAuth provider setup
+- `config/initializers/assets.rb`: Asset pipeline config
+- `config/initializers/inflections.rb`: Custom pluralization rules
+- Other initializers for various gems
 
-## Database
-- PostgreSQL is used as the database
-- Configuration is in `database.yml`
-- Different environments (development, test, production) have separate database configurations
+### Localization
+- `config/locales/en.yml`: English translations
+- `config/locales/doorkeeper.en.yml`: OAuth translations
 
-## Initializers
-- **doorkeeper.rb**: Configuration for OAuth provider
-- **assets.rb**: Asset pipeline configuration
-- Other initializers for various gems and features
+### Deployment
+- `config/deploy.yml`: Kamal deployment configuration
+- `config/dockerfile.yml`: Docker build configuration
 
-## Deployment
-- Deployment configuration is in `deploy.yml`
-- The application is deployed using Kamal and Docker
+## Environment Variables
+Required environment variables:
+- `RAILS_MAX_THREADS`: Database connection pool size
+- `SOLIA_DATABASE_PASSWORD`: Production database password
+- Other sensitive credentials in `credentials.yml.enc`
+
+## Database Configuration
+- Development: `solia_development`
+- Test: `solia_test`
+- Production: `solia_production`
+
+## Best Practices
+- Keep sensitive data in credentials
+- Use environment variables for configuration
+- Document configuration changes
+- Test configuration updates

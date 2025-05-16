@@ -10,24 +10,42 @@ Sails is a Ruby on Rails application that provides API endpoints for managing ev
 - **Authentication**: JWT tokens and Doorkeeper
 - **Frontend**: Rails with Stimulus, Turbo, and Tailwind CSS
 - **Testing**: Rails default testing framework
+- **Deployment**: Kamal and Docker
 
 ## Development Practices
 - Run tests with `bin/rails test`
 - Check code style with `bin/rubocop`
+- Run type checking before commits
+- Follow Ruby style guide
 
-## Key Concepts
-- The application is primarily API-driven with endpoints defined in both `config/routes.rb` and `app/api/core/api.rb`
-- Authentication is handled through JWT tokens and Doorkeeper
-- The application follows a standard Rails MVC architecture
-- Pundit is used for authorization policies
+## Key Features
+- Event management with recurring events support
+- Group management with roles (owner, manager, operator, member)
+- Profile system with multiple authentication methods
+- Ticket system with payment integration (Stripe, Daimo)
+- Badge and point system
+- Venue management with availability checking
+- Custom forms for events
+- Voting system
+- Activity tracking
+- Email notifications
 
 ## Architecture
-- **Controllers**: Located in `app/controllers/`
-- **Models**: Located in `app/models/`
-- **API Endpoints**: Defined in both `config/routes.rb` and `app/api/core/api.rb`
-- **Views**: Located in `app/views/`
-- **Policies**: Located in `app/policies/`
+- **API Layer**: 
+  - Grape API in `app/api/core/api.rb`
+  - Rails controllers in `app/controllers/api/`
+- **Models**: Business logic and data models in `app/models/`
+- **Policies**: Authorization rules in `app/policies/`
+- **Mailers**: Email templates in `app/mailers/`
+- **Views**: Frontend templates in `app/views/`
+
+## Testing
+- Model tests for validations and business logic
+- Controller tests for API endpoints
+- Integration tests for complex workflows
+- Fixtures for test data
 
 ## Deployment
-- The application is deployed using Kamal and Docker
-- Deployment configuration is in `.kamal/` directory and `config/deploy.yml`
+- Uses Kamal for deployment orchestration
+- Docker containerization
+- Configuration in `.kamal/` and `config/deploy.yml`
