@@ -1,5 +1,6 @@
 require "aws-sdk-s3"
 require "digest"
+require "icalendar/tzinfo"
 
 $client = Aws::S3::Client.new(
   access_key_id: "#{ENV['AWS_ACCESS_KEY_ID']}",
@@ -98,13 +99,17 @@ class Api::ServiceController < ApiController
     group = Group.find(params[:group_id])
     cal = Icalendar::Calendar.new
 
-    cal.timezone do |t|
-      t.tzid = "Etc/UTC"
-    end
+    timezone = group.timezone || "Etc/UTC"
+
+    # Add full VTIMEZONE block using tzinfo
+    tz = TZInfo::Timezone.get(timezone)
+    timezone_obj = tz.ical_timezone(Time.now)
+    cal.add_timezone(timezone_obj)
+
     Event.where(group_id: group.id, status: ['published']).where('start_time > ?', DateTime.now - 7.days).each do |ev|
         cal.event do |e|
-          e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time.in_time_zone("Etc/UTC"))
-          e.dtend       = Icalendar::Values::DateTime.new(ev.end_time.in_time_zone("Etc/UTC"))
+          e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time.in_time_zone(timezone), tzid: timezone)
+          e.dtend       = Icalendar::Values::DateTime.new(ev.end_time.in_time_zone(timezone), tzid: timezone)
           e.summary     = ev.title || ""
           e.uid         = "sola-#{ev.id}"
           e.status      = "CONFIRMED"
