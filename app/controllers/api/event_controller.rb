@@ -519,7 +519,7 @@ class Api::EventController < ApiController
     @group = group
     my_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
     my_tracks << nil
-    @events = Event.where(status: ["open", "published", "closed"]).where(group_id: group_id)
+    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published", "closed"]).where(group_id: group_id)
     @events = @events.where(display: ["normal", "pinned", "public"])
     @events = @events.where(track_id: my_tracks)
 

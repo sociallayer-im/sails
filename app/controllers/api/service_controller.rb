@@ -97,6 +97,10 @@ class Api::ServiceController < ApiController
   def icalendar_for_group
     group = Group.find(params[:group_id])
     cal = Icalendar::Calendar.new
+
+    cal.timezone do |t|
+      t.tzid = "Etc/UTC"
+    end
     Event.where(group_id: group.id, status: ['published']).where('start_time > ?', DateTime.now - 7.days).each do |ev|
         cal.event do |e|
           e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time.in_time_zone("Etc/UTC"))
