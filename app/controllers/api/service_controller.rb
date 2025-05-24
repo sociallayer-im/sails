@@ -108,8 +108,8 @@ class Api::ServiceController < ApiController
 
     Event.where(group_id: group.id, status: ['published']).where('start_time > ?', DateTime.now - 7.days).each do |ev|
         cal.event do |e|
-          e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time.in_time_zone(timezone), tzid: timezone)
-          e.dtend       = Icalendar::Values::DateTime.new(ev.end_time.in_time_zone(timezone), tzid: timezone)
+          e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time, tzid: timezone)
+          e.dtend       = Icalendar::Values::DateTime.new(ev.end_time, tzid: timezone)
           e.summary     = ev.title || ""
           e.uid         = "sola-#{ev.id}"
           e.status      = "CONFIRMED"
@@ -120,7 +120,7 @@ class Api::ServiceController < ApiController
     end
     ics = cal.to_ical
 
-    render plain: ics
+    render plain: ics, mime_type: "text/calendar"
   end
 
   def get_participanted_events_by_email

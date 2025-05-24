@@ -208,15 +208,20 @@ class Api::GroupController < ApiController
     group = Group.find_by(username: params[:group_name]) || Group.find(params[:group_id])
     pub_tracks = Track.where(group_id: params[:group_id], kind: "public").ids
     pub_tracks << nil
+    timezone = group.timezone || "Etc/UTC"
 
     cal = Icalendar::Calendar.new
-    events = Event.where(group_id: group.id)
-    events = events.where('start_time > ? and start_time < ?', DateTime.now - 7.days, DateTime.now + 14.days)
-    events = events.where(track_id: pub_tracks)
+
+    cal.timezone do |t|
+      t.tzid = timezone
+    end
+
+    events = Event.where(group_id: group.id, track_id: pub_tracks, status: ["published", "open", "closed"]).where.not(display: "private")
+    events = events.where('start_time > ? and start_time < ?', DateTime.now - 7.days, DateTime.now + 30.days)
     events.each do |ev|
         cal.event do |e|
-          e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time.in_time_zone("Etc/UTC"))
-          e.dtend       = Icalendar::Values::DateTime.new(ev.end_time.in_time_zone("Etc/UTC"))
+          e.dtstart     = Icalendar::Values::DateTime.new(ev.start_time.in_time_zone(timezone), tzid: timezone)
+          e.dtend       = Icalendar::Values::DateTime.new(ev.end_time.in_time_zone(timezone), tzid: timezone)
           e.summary     = ev.title || ""
           e.uid         = "sola-#{ev.id}"
           e.status      = "CONFIRMED"
