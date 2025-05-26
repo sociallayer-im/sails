@@ -206,7 +206,7 @@ class Api::GroupController < ApiController
 
   def icalendar
     group = Group.find_by(username: params[:group_name]) || Group.find(params[:group_id])
-    pub_tracks = Track.where(group_id: params[:group_id], kind: "public").ids
+    pub_tracks = Track.where(group_id: group.id, kind: "public").ids
     pub_tracks << nil
     timezone = group.timezone || "Etc/UTC"
 
@@ -215,7 +215,6 @@ class Api::GroupController < ApiController
     cal.timezone do |t|
       t.tzid = timezone
     end
-
     events = Event.where(group_id: group.id, track_id: pub_tracks, status: ["published", "open", "closed"]).where.not(display: "private")
     events = events.where('start_time > ? and start_time < ?', DateTime.now - 7.days, DateTime.now + 30.days)
     events.each do |ev|
@@ -232,7 +231,7 @@ class Api::GroupController < ApiController
     end
     ics = cal.to_ical
 
-    response.headers['Content-Disposition'] = 'attachment; filename="sola.ics"'
+    # response.headers['Content-Disposition'] = 'attachment; filename="sola.ics"'
     render plain: ics
   end
 
