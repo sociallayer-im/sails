@@ -414,7 +414,7 @@ module Core
       elsif params[:collection] == "pinned"
         @events = @events.where(pinned: true)
       end
-      @events = @events.order(start_time: :asc)
+      @events = @events.order(pinned: :desc).order(start_time: :asc)
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
