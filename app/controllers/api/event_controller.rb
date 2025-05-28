@@ -162,7 +162,7 @@ class Api::EventController < ApiController
     event = Event.find(params[:id])
     authorize event, :update?
 
-    if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(id: event.id).any?
+    if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(id: event.id).where.not(status: "cancelled").any?
       return render json: { result: "error", message: "time overlaped in the same venue" }
     end
 
