@@ -391,6 +391,9 @@ module Core
       if params[:theme]
         @events = @events.where(theme: params[:theme])
       end
+      if params[:pinned].present?
+        @events = @events.where(pinned: true)
+      end
 
       if params[:skip_multiday].present?
         @events =  @events.where("end_time - start_time <= interval '1 day'")
@@ -414,7 +417,7 @@ module Core
       elsif params[:collection] == "pinned"
         @events = @events.where(pinned: true)
       end
-      @events = @events.order(pinned: :desc).order(start_time: :asc)
+      @events = @events.order(start_time: :asc)
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
