@@ -162,6 +162,7 @@ Rails.application.routes.draw do
     post "venue/update", to: "venue#update"
     post "venue/remove", to: "venue#remove"
     post "venue/check_availability", to: "venue#check_availability"
+    get  "venue/get", to: "venue#get"
 
     post "point_class/create", to: "point_class#create"
     post "point/create", to: "point#create"

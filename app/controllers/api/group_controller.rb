@@ -201,11 +201,11 @@ class Api::GroupController < ApiController
   end
 
   def get
-    @group = Group.find(params[:id])
+    @group = Group.find_by(handle: params[:group_id]) || Group.find(params[:group_id])
   end
 
   def icalendar
-    group = Group.find_by(username: params[:group_name]) || Group.find(params[:group_id])
+    group = Group.find_by(handle: params[:group_name]) || Group.find(params[:group_id])
     pub_tracks = Track.where(group_id: group.id, kind: "public").ids
     pub_tracks << nil
     timezone = group.timezone || "Etc/UTC"

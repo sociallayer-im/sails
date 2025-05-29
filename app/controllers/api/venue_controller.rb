@@ -22,6 +22,11 @@ class Api::VenueController < ApiController
     render json: { venue: venue.as_json(include: [:availabilities, :venue_overrides, :venue_timeslots]) }
   end
 
+  def get
+    venue = Venue.find(params[:id])
+    render json: { venue: venue.as_json(include: [:availabilities, :venue_overrides, :venue_timeslots]) }
+  end
+
   def remove
     profile = current_profile!
     venue = Venue.find(params[:id])

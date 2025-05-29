@@ -140,6 +140,11 @@ module Core
       present :profile, profile, with: Core::ProfileEntity
     end
 
+    get "profile/get" do
+      profile = Profile.find_by(id: params[:id]) || Profile.find_by(handle: params[:id])
+      present :profile, profile, with: Core::ProfileEntity
+    end
+
     get "event/themes" do
       themes = Event.where(group_id: params[:group_id]).distinct(:theme).pluck(:theme)
       { themes: themes }
