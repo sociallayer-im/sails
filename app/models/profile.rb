@@ -88,7 +88,7 @@ class Profile < ApplicationRecord
 
   def send_mail_cancel_event(event)
     if self.email.present?
-      mailer = EventMailer.with(event_id: event.id, recipient: self.email).event_updated
+      mailer = EventMailer.with(event_id: event.id, recipient: self.email).event_cancelled
       mailer.deliver_later
     end
   end

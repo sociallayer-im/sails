@@ -74,6 +74,7 @@ Rails.application.configure do
   # config.active_job.queue_adapter = :resque
   # config.active_job.queue_name_prefix = "solia_production"
   config.active_job.queue_adapter = :good_job
+  config.good_job.execution_mode = :async
 
   # Disable caching for Action Mailer templates even if Action Controller
   # caching is enabled.
