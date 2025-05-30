@@ -34,7 +34,7 @@ Sign in with Google OAuth.
 
 Additional sign-in methods available for:
 - ZK Email (`/profile/signin_with_zkemail`)
-- Multi Zupass (`/profile/signin_with_multi_zupass`) 
+- Multi Zupass (`/profile/signin_with_multi_zupass`)
 - Solana (`/profile/signin_with_solana`)
 - Farcaster (`/profile/signin_with_farcaster`)
 - World ID (`/profile/signin_with_world_id`)
@@ -58,7 +58,7 @@ Create new profile.
 - Returns: `{ result: "ok" }`
 
 ```http
-POST /profile/update 
+POST /profile/update
 ```
 Update profile details.
 - Body: `{ image_url?: string, nickname?: string, about?: string, location?: string, social_links?: object }`
@@ -208,7 +208,7 @@ List events for a group.
 GET /event/discover
 ```
 Get featured events and groups.
-- Returns: 
+- Returns:
   - `events`: Featured events
   - `featured_popups`: Featured popup events
   - `popups`: All popup events
@@ -236,7 +236,7 @@ Check venue availability.
 POST /ticket/rsvp
 ```
 RSVP for event with ticket.
-- Body: 
+- Body:
   - `id: number` (event id)
   - `ticket_id: number`
   - `payment_method_id?: number`
@@ -905,7 +905,7 @@ Show sign in page.
 POST /verify
 ```
 Send email verification code.
-- Body: 
+- Body:
   - `email: string`
   - `context: string`
 - Returns: Redirects to verifier page
@@ -983,3 +983,87 @@ Common HTTP status codes:
 - 404: Not Found
 - 422: Unprocessable Entity
 - 500: Internal Server Error
+
+## Get Organizers of a Group
+
+**Endpoint:**
+`GET /v1/profile/organizers`
+
+**Description:**
+Returns a list of unique organizers (profiles) who have created events in the specified group.
+
+**Parameters:**
+
+| Name         | Type   | In     | Required | Description                                      |
+|--------------|--------|--------|----------|--------------------------------------------------|
+| group_id     | string | query  | Yes      | The ID or handle of the group to query organizers for. |
+
+**Response:**
+
+- **200 OK**
+
+```json
+{
+  "organizers": [
+    {
+      "id": 123,
+      "handle": "alice",
+      "email": "alice@example.com",
+      "nickname": "Alice",
+      "phone": "123-456-7890",
+      "sol_address": "...",
+      "far_fid": "...",
+      "far_address": "...",
+      "fuel_address": "...",
+      "mina_address": "...",
+      "zupass": "...",
+      "image_url": "https://...",
+      "social_links": {"twitter": "@alice"},
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-02T00:00:00Z"
+    }
+    // ... more organizers
+  ]
+}
+```
+
+**Entity:**
+Each organizer is represented by the `ProfileDetailEntity`, which includes fields such as `id`, `handle`, `email`, `nickname`, `phone`, `sol_address`, `image_url`, `social_links`, and timestamps.
+
+**Example Request:**
+
+```
+GET /v1/profile/organizers?group_id=42
+Authorization: Bearer <token>
+```
+
+**Example Response:**
+
+```json
+{
+  "organizers": [
+    {
+      "id": 1,
+      "handle": "alice",
+      "email": "alice@example.com",
+      "nickname": "Alice",
+      "phone": "123-456-7890",
+      "sol_address": "So1a...",
+      "far_fid": null,
+      "far_address": null,
+      "fuel_address": null,
+      "mina_address": null,
+      "zupass": null,
+      "image_url": "https://example.com/alice.jpg",
+      "social_links": {},
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-02T00:00:00Z"
+    }
+  ]
+}
+```
+
+**Notes:**
+- The endpoint will return all unique event owners (organizers) for the specified group.
+- You can use either the group's `id` or `handle` as the `group_id` parameter.
+- The endpoint does not require authentication, but if your API is generally protected, you may need to provide an auth token.

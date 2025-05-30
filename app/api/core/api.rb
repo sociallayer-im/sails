@@ -6,6 +6,10 @@ module Core
     expose :id, :handle, :nickname, :phone, :sol_address, :far_fid, :far_address, :fuel_address, :mina_address, :zupass, :image_url, :social_links, :created_at, :updated_at
   end
 
+  class ProfileDetailEntity < Grape::Entity
+    expose :id, :handle, :email, :nickname, :phone, :sol_address, :far_fid, :far_address, :fuel_address, :mina_address, :zupass, :image_url, :social_links, :created_at, :updated_at
+  end
+
   class VenueEntity < Grape::Entity
     expose :id, :title, :about, :location, :location_viewport, :location_data, :formatted_address, :link, :capacity, :geo_lat, :geo_lng, :tags
   end
@@ -54,7 +58,6 @@ module Core
   end
 
   class Api < Grape::API
-    version 'v1', using: :header, vendor: 'sola'
     format :json
 
     rescue_from AuthTokenError do |e|
@@ -187,6 +190,34 @@ module Core
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
+    get "event/attending" do
+      profile = Profile.find_by(id: params[:profile_id]) || Profile.find_by(handle: params[:profile_id])
+
+      @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: ["attending", "checked"] })
+      if params[:collection] == "upcoming"
+        @events = @events.where("end_time >= ?", DateTime.now)
+      elsif params[:collection] == "past"
+        @events = @events.where("end_time < ?", DateTime.now)
+      end
+      @events = @events.order(created_at: :desc)
+
+      limit = params[:limit] ? params[:limit].to_i : 40
+      limit = 1000 if limit > 1000
+      @events = @events.page(params[:page]).per(limit)
+
+      if profile && params[:with_stars]
+        @with_stars = true
+        @stars = Comment.where(item_id: @events.ids, profile_id: profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
+      end
+
+      if profile && params[:with_attending]
+        @with_attending = true
+        @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
+      end
+
+      present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
+    end
+
     get "event/my_attending" do
       profile = current_profile!
 
@@ -196,7 +227,7 @@ module Core
       elsif params[:collection] == "past"
         @events = @events.where("end_time < ?", DateTime.now)
       end
-      @events = @events.order(start_time: :asc)
+      @events = @events.order(created_at: :desc)
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
@@ -217,7 +248,7 @@ module Core
 
     get "event/my_created" do
       profile = current_profile!
-      @events = Event.where(owner: profile).order(start_time: :desc)
+      @events = Event.where(owner: profile).order(created_at: :desc)
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
@@ -440,6 +471,31 @@ module Core
 
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
+
+
+
+  get "profile/organizers" do
+    group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+    events = Event.includes(:owner).where(group_id: group.id, status: "published", display: ["normal", "pinned", "public"]).order(owner_id: :asc, created_at: :desc).limit(100).all
+    # @organizers = events.map(&:owner).uniq
+
+    items = []
+    events.each do |event|
+      items << {
+        id: event.id,
+        title: event.title,
+        start_time: event.start_time,
+        end_time: event.end_time,
+        owner_id: event.owner.id,
+        owner_handle: event.owner.handle,
+        owner_email: event.owner.email,
+        owner_nickname: event.owner.nickname,
+        owner_image_url: event.owner.image_url,
+      }
+    end
+
+    items
+  end
 
   end
 end
