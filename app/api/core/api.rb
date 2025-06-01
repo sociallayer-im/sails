@@ -39,6 +39,7 @@ module Core
     expose :id, :title, :event_type, :track_id, :start_time, :end_time, :timezone,  :status, :display, :pinned, :theme, :meeting_url, :location,:location_data,  :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id
     expose :owner, using: Core::ProfileEntity
     expose :group, using: Core::GroupEntity
+    expose :venue, using: Core::VenueEntity
     expose :event_roles, using: Core::EventRoleEntity
     expose :tickets, using: Core::TicketEntity, if: { type: :full }
     expose :custom_form, using: Core::CustomFormEntity, if: { type: :full }
