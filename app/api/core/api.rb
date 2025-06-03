@@ -1,3 +1,5 @@
+require 'csv'
+
 module Core
   class AppError < StandardError; end
   class AuthTokenError < StandardError; end
@@ -473,30 +475,47 @@ module Core
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
+    get "participant/csv" do
+      group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+      evs = group.events.where.not(status: "cancelled")
+      participants = Participant.includes(:event, :profile).where(event: evs).where.not(status: "cancelled").order(:event_id)
 
+      fields = ['event_id', 'event_title', 'handle', 'nickname', 'email', 'created_at']
+      csv_data = CSV.generate do |csv|
+        csv << fields
+        participants.each do |participant|
+          csv << [participant.event_id, participant.event.title, participant.profile.handle, participant.profile.nickname, participant.profile.email, participant.created_at]
+        end
+      end
 
-  get "profile/organizers" do
-    group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
-    events = Event.includes(:owner).where(group_id: group.id, status: "published", display: ["normal", "pinned", "public"]).order(owner_id: :asc, created_at: :desc).limit(100).all
-    # @organizers = events.map(&:owner).uniq
-
-    items = []
-    events.each do |event|
-      items << {
-        id: event.id,
-        title: event.title,
-        start_time: event.start_time,
-        end_time: event.end_time,
-        owner_id: event.owner.id,
-        owner_handle: event.owner.handle,
-        owner_email: event.owner.email,
-        owner_nickname: event.owner.nickname,
-        owner_image_url: event.owner.image_url,
-      }
+      header['Content-Type'] = 'text/csv'
+      header['Content-Disposition'] = 'attachment; filename=participants.csv'
+      env['api.format'] = :binary
+      body csv_data
     end
 
-    items
-  end
+    get "profile/organizers" do
+      group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+      events = Event.includes(:owner).where(group_id: group.id, status: "published", display: ["normal", "pinned", "public"]).order(owner_id: :asc, created_at: :desc).limit(100).all
+      # @organizers = events.map(&:owner).uniq
+
+      items = []
+      events.each do |event|
+        items << {
+          id: event.id,
+          title: event.title,
+          start_time: event.start_time,
+          end_time: event.end_time,
+          owner_id: event.owner.id,
+          owner_handle: event.owner.handle,
+          owner_email: event.owner.email,
+          owner_nickname: event.owner.nickname,
+          owner_image_url: event.owner.image_url,
+        }
+      end
+
+      items
+    end
 
   end
 end
