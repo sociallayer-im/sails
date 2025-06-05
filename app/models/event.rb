@@ -27,6 +27,14 @@ class Event < ApplicationRecord
 
   ### methods
 
+  def local_start_time
+    self.start_time.in_time_zone(self.timezone).to_s
+  end
+
+  def local_end_time
+    self.end_time.in_time_zone(self.timezone).to_s
+  end
+
   def self.edge_esmeralda_verification()
     if self.group_id == 3579
       self.edge_esmeralda_api_check(self.owner.email)

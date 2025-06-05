@@ -38,7 +38,7 @@ module Core
   end
 
   class EventEntity < Grape::Entity
-    expose :id, :title, :event_type, :track_id, :start_time, :end_time, :timezone,  :status, :display, :pinned, :theme, :meeting_url, :location,:location_data,  :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id
+    expose :id, :title, :event_type, :track_id, :start_time, :end_time, :local_start_time, :local_end_time, :timezone,  :status, :display, :pinned, :theme, :meeting_url, :location,:location_data,  :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id
     expose :owner, using: Core::ProfileEntity
     expose :group, using: Core::GroupEntity
     expose :venue, using: Core::VenueEntity
