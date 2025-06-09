@@ -27,6 +27,14 @@ class Event < ApplicationRecord
 
   ### methods
 
+  def self.update_tags(group, old_tag, new_tag)
+    evs=Event.where(group: group).where("events.tags @> ARRAY[?]::varchar[]", [old_tag])
+    evs.each do |ev|
+      ev.tags = ev.tags - [old_tag] + [new_tag]
+      ev.save
+    end
+  end
+
   def local_start_time
     self.start_time.in_time_zone(self.timezone).to_s
   end
