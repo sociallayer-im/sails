@@ -484,6 +484,14 @@ module Core
     get "participant/csv" do
       group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
       evs = group.events.where.not(status: "cancelled")
+
+      if params[:start_date].present? && params[:end_date].present?
+        timezone = group.timezone || params[:timezone] || 'UTC'
+        start_time = Date.parse(params[:start_date]).in_time_zone(timezone).at_beginning_of_day
+        end_time = Date.parse(params[:end_date]).in_time_zone(timezone).at_end_of_day
+        evs = evs.where("start_time <= ? AND end_time >= ?", end_time, start_time)
+      end
+
       participants = Participant.includes(:event, :profile).where(event: evs).where.not(status: "cancelled").order(:event_id)
 
       fields = ['event_id', 'event_title', 'handle', 'nickname', 'email', 'created_at']
@@ -502,7 +510,17 @@ module Core
 
     get "event/csv" do
       group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
-      evs = group.events.includes(:owner).where.not(status: "cancelled").order(start_time: :asc)
+      evs = group.events.includes(:owner)
+
+
+      if params[:start_date].present? && params[:end_date].present?
+        timezone = group.timezone || params[:timezone] || 'UTC'
+        start_time = Date.parse(params[:start_date]).in_time_zone(timezone).at_beginning_of_day
+        end_time = Date.parse(params[:end_date]).in_time_zone(timezone).at_end_of_day
+        evs = evs.where("start_time <= ? AND end_time >= ?", end_time, start_time)
+      end
+
+      evs = evs.where.not(status: "cancelled").order(start_time: :asc)
 
       fields = ['event_id', 'event_title', 'start_time', 'end_time', 'owner_id', 'owner_handle', 'owner_email', 'owner_nickname', 'owner_image_url']
       csv_data = CSV.generate do |csv|
