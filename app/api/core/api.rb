@@ -472,6 +472,12 @@ module Core
         @attendings = Participant.where(profile_id: profile.id, status: ["attending", "checked"]).pluck(:event_id)
       end
 
+      # puts "--------------------------------"
+      # p @events.pluck(:id, :title, :start_time, :end_time)
+      # puts "--------------------------------"
+
+      # @events.pluck(:id, :title, :start_time, :end_time).as_json
+
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
     end
 
@@ -490,6 +496,24 @@ module Core
 
       header['Content-Type'] = 'text/csv'
       header['Content-Disposition'] = 'attachment; filename=participants.csv'
+      env['api.format'] = :binary
+      body csv_data
+    end
+
+    get "event/csv" do
+      group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+      evs = group.events.includes(:owner).where.not(status: "cancelled").order(start_time: :asc)
+
+      fields = ['event_id', 'event_title', 'start_time', 'end_time', 'owner_id', 'owner_handle', 'owner_email', 'owner_nickname', 'owner_image_url']
+      csv_data = CSV.generate do |csv|
+        csv << fields
+        evs.each do |event|
+          csv << [event.id, event.title, event.start_time, event.end_time, event.owner.id, event.owner.handle, event.owner.email, event.owner.nickname, event.owner.image_url]
+        end
+      end
+
+      header['Content-Type'] = 'text/csv'
+      header['Content-Disposition'] = 'attachment; filename=events.csv'
       env['api.format'] = :binary
       body csv_data
     end
