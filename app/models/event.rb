@@ -284,6 +284,7 @@ class Event < ApplicationRecord
     timezone = self.timezone
 
     cal = Icalendar::Calendar.new
+    cal.ip_method      = "REQUEST"
     cal.event do |e|
       e.dtstart     = Icalendar::Values::DateTime.new(self.start_time.in_time_zone(timezone))
       e.dtend       = Icalendar::Values::DateTime.new(self.end_time.in_time_zone(timezone))
@@ -291,10 +292,35 @@ class Event < ApplicationRecord
       e.description = self.content || ""
       e.uid         = "sola-#{self.id}"
       e.status      = "CONFIRMED"
-      # e.organizer   = Icalendar::Values::CalAddress.new("mailto:#{$SENDER_EMAIL}", cn: "sola")
-      # e.attendee    = ["mailto:#{params[:recipient]}"]
+      e.organizer   = Icalendar::Values::CalAddress.new( cn: "sola")
+      # e.attendee    = Icalendar::Values::CalAddress.new("mailto:a@example.com", cn: "a@example.com")
       e.url         = self.event_url
       e.location    = self.event_url
+    end
+
+    ics = cal.to_ical
+  end
+
+  def to_cal_for(email)
+    $SENDER_EMAIL = "send@app.sola.day"
+    $SOLA_HOST = "https://app.sola.day"
+    timezone = self.timezone
+
+    location = self.venue.present? ? self.venue.title : self.location
+
+    cal = Icalendar::Calendar.new
+    cal.ip_method      = "REQUEST"
+    cal.event do |e|
+      e.dtstart     = Icalendar::Values::DateTime.new(self.start_time.in_time_zone(timezone))
+      e.dtend       = Icalendar::Values::DateTime.new(self.end_time.in_time_zone(timezone))
+      e.summary     = self.title || ""
+      e.description = self.content || ""
+      e.uid         = "sola-#{self.id}"
+      e.status      = "CONFIRMED"
+      e.organizer   = Icalendar::Values::CalAddress.new( cn: "sola")
+      e.attendee    = Icalendar::Values::CalAddress.new("mailto:#{email}", cn: email)
+      e.url         = self.event_url
+      e.location    = location
     end
 
     ics = cal.to_ical
