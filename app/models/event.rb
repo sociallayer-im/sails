@@ -317,7 +317,7 @@ class Event < ApplicationRecord
       e.description = self.content || ""
       e.uid         = "sola-#{self.id}"
       e.status      = "CONFIRMED"
-      e.organizer   = Icalendar::Values::CalAddress.new( cn: "sola")
+      e.organizer   = Icalendar::Values::CalAddress.new("mailto:event@sola.day", cn: "sola")
       e.attendee    = Icalendar::Values::CalAddress.new("mailto:#{email}", cn: email)
       e.url         = self.event_url
       e.location    = location

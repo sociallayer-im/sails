@@ -456,7 +456,11 @@ module Core
       elsif params[:collection] == "pinned"
         @events = @events.where(pinned: true)
       end
-      @events = @events.order(start_time: :asc)
+      if params[:collection] == "past" || params[:private_event].present?
+        @events = @events.order(start_time: :desc)
+      else
+        @events = @events.order(start_time: :asc)
+      end
 
       limit = params[:limit] ? params[:limit].to_i : 40
       limit = 1000 if limit > 1000
