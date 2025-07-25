@@ -12,6 +12,7 @@ class Event < ApplicationRecord
   has_many :event_roles, dependent: :delete_all
   has_many :coupons, dependent: :delete_all
   has_many :stars, -> { where(item_type: "Event", comment_type: "star") }, class_name: "Comment", foreign_key: "item_id"
+  has_many :operator_notes, dependent: :delete_all
 
   validates :end_time, comparison: { greater_than: :start_time }
   validates :status, inclusion: { in: %w(draft open pending published closed cancelled) }
@@ -21,6 +22,7 @@ class Event < ApplicationRecord
   accepts_nested_attributes_for :tickets, allow_destroy: true
   accepts_nested_attributes_for :event_roles, allow_destroy: true
   accepts_nested_attributes_for :coupons, allow_destroy: true
+  accepts_nested_attributes_for :operator_notes, allow_destroy: true
 
   attr_accessor :is_starred
   attr_accessor :is_attending

@@ -38,7 +38,7 @@ module Core
   end
 
   class EventEntity < Grape::Entity
-    expose :id, :title, :event_type, :track_id, :start_time, :end_time, :local_start_time, :local_end_time, :timezone,  :status, :display, :pinned, :theme, :meeting_url, :location,:location_data,  :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id
+    expose :id, :title, :event_type, :track_id, :start_time, :end_time, :local_start_time, :local_end_time, :timezone,  :status, :display, :pinned, :theme, :meeting_url, :location,:location_data,  :formatted_address, :geo_lat, :geo_lng, :cover_url, :require_approval, :tags, :max_participant, :min_participant, :participants_count, :badge_class_id, :external_url, :recurring_id, :op_status, :op_priority, :op_labels, :assigned_operators
     expose :owner, using: Core::ProfileEntity
     expose :group, using: Core::GroupEntity
     expose :venue, using: Core::VenueEntity
@@ -483,6 +483,26 @@ module Core
       # @events.pluck(:id, :title, :start_time, :end_time).as_json
 
       present :events, @events, with: Core::EventEntity, with_stars: @with_stars, stars: @stars, with_attending: @with_attending, attendings: @attendings
+    end
+
+    post "event/update_op_info" do
+      profile = current_profile!
+
+      @event = Event.find(params[:id])
+      # authorize event, :update?
+
+      @event.update(op_status: params[:op_status], op_priority: params[:op_priority], op_labels: params[:op_labels], assigned_operators: params[:assigned_operators])
+      present :event, @event, with: Core::EventEntity
+    end
+
+    post "event/add_op_note" do
+      profile = current_profile!
+
+      @event = Event.find(params[:id])
+      # authorize event, :update?
+
+      note = OperatorNote.create(author: profile, event: @event, content: params[:content], mentions: params[:mentions].map(&:to_i))
+      note
     end
 
     get "participant/csv" do

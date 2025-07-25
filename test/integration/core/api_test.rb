@@ -246,5 +246,23 @@ module Core
         assert_not_includes event_ids, events(:public_track_event).id
         assert_not_includes event_ids, events(:one).id
       end
+
+      test "event/update_op_info" do
+        profile = profiles(:one)
+        auth_token = profile.gen_auth_token
+        event = events(:one)
+        event.update(op_status: "pending", op_priority: "low", op_labels: ["label1", "label2"], assigned_operators: [profile.id])
+        post "/api/event/update_op_info", params: { id: event.id }, headers: { "Authorization" => "Bearer #{auth_token}" }
+        p @response.body
+      end
+
+      test "event/add_op_note" do
+        profile = profiles(:one)
+        auth_token = profile.gen_auth_token
+        event = events(:one)
+        post "/api/event/add_op_note", params: { id: event.id, content: "test", mentions: [profile.id] }, headers: { "Authorization" => "Bearer #{auth_token}" }
+        p @response.body
+      end
+
   end
 end

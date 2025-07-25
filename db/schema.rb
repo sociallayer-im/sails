@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_15_000000) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_20_135325) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -245,6 +245,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_15_000000) do
     t.string "location_data"
     t.boolean "pinned", default: false
     t.string "theme"
+    t.string "op_status"
+    t.string "op_priority"
+    t.string "op_labels", default: [], array: true
+    t.integer "assigned_operators", default: [], array: true
     t.index ["group_id", "status", "start_time"], name: "index_events_on_group_id_and_status_and_start_time"
     t.index ["group_id"], name: "index_events_on_group_id"
     t.index ["owner_id"], name: "index_events_on_owner_id"
@@ -467,6 +471,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_15_000000) do
     t.datetime "updated_at"
     t.string "handle"
     t.integer "group_union", array: true
+    t.string "op_label_list", default: [], array: true
     t.index ["group_tags"], name: "index_groups_on_group_tags", using: :gin
     t.index ["handle"], name: "index_groups_on_handle"
     t.index ["status"], name: "index_groups_on_status"
@@ -574,6 +579,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_15_000000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true
+  end
+
+  create_table "operator_notes", force: :cascade do |t|
+    t.integer "author_id"
+    t.integer "event_id"
+    t.text "content"
+    t.integer "mentions", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "order_items", force: :cascade do |t|
