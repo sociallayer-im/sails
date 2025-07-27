@@ -247,6 +247,7 @@ class Api::GroupController < ApiController
           {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           event_tags: [],
           group_tags: [],
+          op_label_list: [],
           tracks_attributes: [ :id, :tag, :title, :kind, :icon_url, :about, :start_date, :end_date, :_destroy ],
           )
   end
