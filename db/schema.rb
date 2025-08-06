@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_20_135325) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_06_093937) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -948,6 +948,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_20_135325) do
     t.string "amenities", default: [], array: true
     t.string "image_urls", default: [], array: true
     t.string "featured_image_url"
+    t.integer "track_ids", default: [], array: true
     t.index ["group_id", "visibility"], name: "index_venues_on_group_id_and_visibility"
   end
 

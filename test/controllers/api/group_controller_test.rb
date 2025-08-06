@@ -413,4 +413,31 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
 
     assert group.is_member(profile2.id)
   end
+
+  test "api#group/update_popup_admin" do
+    profile = Profile.find_by(handle: "cookie")
+    profile.update(status: "admin")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    popup = group.popup_cities.create(title: "Popup 1", image_url: "https://example.com/image1.png", location: "Location 1", website: "https://example.com/website1.com", start_date: "2024-01-01", end_date: "2024-12-31")
+    post api_group_update_popup_admin_url,
+      params: { auth_token: auth_token, id: popup.id,
+        title: "Updated Popup 1", image_url: "https://example.com/image1_updated.png", location: "Location 1", website: "https://example.com/website1_updated.com", start_date: "2024-01-01", end_date: "2024-12-31", group_tags: ["tag1", "tag2"] }
+    assert_response :success
+    popup.reload
+    assert_equal "Updated Popup 1", popup.title
+    assert_equal ["tag1", "tag2"], popup.group_tags
+  end
+
+  test "api#group/delete_popup_admin" do
+    profile = Profile.find_by(handle: "cookie")
+    profile.update(status: "admin")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    popup = group.popup_cities.create(title: "Popup 1", image_url: "https://example.com/image1.png", location: "Location 1", website: "https://example.com/website1.com", start_date: "2024-01-01", end_date: "2024-12-31")
+    post api_group_delete_popup_admin_url,
+      params: { auth_token: auth_token, id: popup.id }
+    assert_response :success
+    assert_nil PopupCity.find_by(id: popup.id)
+  end
 end

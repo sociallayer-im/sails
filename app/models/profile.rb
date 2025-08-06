@@ -36,10 +36,10 @@ class Profile < ApplicationRecord
   has_many :contact_targets, :through => :source_contacts, :source => "target", foreign_key: "source_id"
 
   has_many :ticket_items
-  enum :status, { active: 'active', freezed: 'freezed' }
+  enum :status, { active: 'active', freezed: 'freezed', admin: 'admin' }
 
   def admin?
-    self.permissions.include?("admin")
+    self.status == "admin"
   end
 
   def gen_auth_token

@@ -15,6 +15,23 @@ class Api::GroupController < ApiController
     popup.update(popup_city_params)
   end
 
+  def update_popup_admin
+    profile = current_profile!
+    popup = PopupCity.find(params[:id])
+    raise AppError.new("not admin") unless profile.admin?
+
+    popup.update(popup_city_admin_params)
+    render json: { result: "ok" }
+  end
+
+  def delete_popup_admin
+    profile = current_profile!
+    popup = PopupCity.find(params[:id])
+    raise AppError.new("not admin") unless profile.admin?
+    popup.destroy
+    render json: { result: "ok" }
+  end
+
   def create
     profile = current_profile!
 
@@ -288,7 +305,14 @@ class Api::GroupController < ApiController
 
   def popup_city_params
     params.permit(
-      :title, :image_url, :location, :website, :group_tags, :start_date, :end_date
+      :title, :image_url, :location, :website, :start_date, :end_date
+    )
+  end
+
+  def popup_city_admin_params
+    params.permit(
+      :title, :image_url, :location, :website, :start_date, :end_date,
+      group_tags: []
     )
   end
 end

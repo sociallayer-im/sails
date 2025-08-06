@@ -16,6 +16,7 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
           location: "new venue location",
           geo_lat: 22.3193,
           geo_lng: 114.1694,
+          track_ids: [1],
           availabilities_attributes: [
             { day: "2024-01-01", intervals: [ [ "09:00", "17:00" ] ], role: "manager" }
           ],
@@ -28,6 +29,7 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
         }
       }
       assert Venue.find_by(title: "created venue").present?
+      assert Venue.find_by(title: "created venue").track_ids == [1]
     end
   end
 
@@ -40,6 +42,7 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
       params: { auth_token: auth_token, id: 540, venue: {
         title: "updated venue",
         about: "updated venue description",
+        track_ids: [2],
         availabilities_attributes: [
           { day: "2024-01-01", intervals: [ [ "09:00", "17:00" ] ], role: "member" }
         ],
@@ -51,6 +54,7 @@ class Api::VenueControllerTest < ActionDispatch::IntegrationTest
         ]
       } }
       assert Venue.find_by(title: "updated venue").present?
+      assert Venue.find_by(title: "updated venue").track_ids == [2]
     end
   end
 
