@@ -35,6 +35,9 @@ gem "icalendar"
 gem "hash_diff"
 gem "aws-sdk-s3"
 gem "http"
+gem "nokogiri", ">= 1.18.9"
+gem "thor", ">= 1.4.0"
+
 
 gem "aliyunsdkcore"
 gem "imagekitio"

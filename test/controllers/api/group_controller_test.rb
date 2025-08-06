@@ -23,7 +23,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    get api_group_get_url, params: { auth_token: auth_token, id: group.id }
+    get api_group_get_url, params: { auth_token: auth_token, group_id: group.id }
     assert_response :success
     assert JSON.parse(response.body)["group"]["id"] == group.id
   end
