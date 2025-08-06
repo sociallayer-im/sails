@@ -66,10 +66,7 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
 
     post api_group_update_track_url,
       params: { auth_token: auth_token, track_id: track.id, track: {
-        title: "Updated Track 1", kind: "private", icon_url: "https://example.com/icon1_updated.png", about: "Updated About Track 1", start_date: "2024-02-01", end_date: "2024-11-30",
-        track_roles_attributes: [
-          { role: "manager", profile_id: profile2.id }
-        ]
+        title: "Updated Track 1", kind: "private", icon_url: "https://example.com/icon1_updated.png", about: "Updated About Track 1", start_date: "2024-02-01", end_date: "2024-11-30"
       } }
     assert_response :success
 
@@ -80,9 +77,65 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated About Track 1", track.about
     assert_equal Date.parse("2024-02-01"), track.start_date
     assert_equal Date.parse("2024-11-30"), track.end_date
+    assert track.track_roles.count == 0
+  end
+
+  test "api#group/add_track" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    post api_group_add_track_url,
+      params: { auth_token: auth_token, group_id: group.id, track: {
+        tag: "track1", title: "New Track 1", kind: "public", icon_url: "https://example.com/icon1.png", about: "About Track 1", start_date: "2024-01-01", end_date: "2024-12-31"
+      } }
+    assert_response :success
+    track = group.tracks.find_by(tag: "track1")
+    assert track.present?
+    assert_equal "track1", track.tag
+    assert_equal "New Track 1", track.title
+    assert_equal "public", track.kind
+    assert_equal "https://example.com/icon1.png", track.icon_url
+    assert_equal "About Track 1", track.about
+    assert_equal Date.parse("2024-01-01"), track.start_date
+    assert_equal Date.parse("2024-12-31"), track.end_date
+  end
+
+  test "api#group/remove_track" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    track = group.tracks.create(tag: "track1", title: "Track 1", kind: "public", icon_url: "https://example.com/icon1.png", about: "About Track 1", start_date: "2024-01-01", end_date: "2024-12-31")
+    post api_group_remove_track_url,
+      params: { auth_token: auth_token, track_id: track.id }
+    assert_response :success
+  end
+
+  test "api#group/add_track_role" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    track = group.tracks.create(tag: "track1", title: "Track 1", kind: "public", icon_url: "https://example.com/icon1.png", about: "About Track 1", start_date: "2024-01-01", end_date: "2024-12-31")
+    post api_group_add_track_role_url,
+      params: { auth_token: auth_token, track_id: track.id, track_role: {
+        role: "manager", profile_id: profile.id
+      } }
+    assert_response :success
+    track.reload
     assert track.track_roles.count == 1
     assert track.track_roles.first.role == "manager"
-    assert track.track_roles.first.profile_id == profile2.id
+    assert track.track_roles.first.profile_id == profile.id
+  end
+
+  test "api#group/remove_track_role" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    track = group.tracks.create(tag: "track1", title: "Track 1", kind: "public", icon_url: "https://example.com/icon1.png", about: "About Track 1", start_date: "2024-01-01", end_date: "2024-12-31")
+    TrackRole.create(track_id: track.id, profile_id: profile.id, role: "manager")
+    post api_group_remove_track_role_url,
+      params: { auth_token: auth_token, track_id: track.id, profile_id: profile.id }
+    assert_response :success
+    assert track.track_roles.count == 0
   end
 
   test "api#group/update" do # optimize this test function

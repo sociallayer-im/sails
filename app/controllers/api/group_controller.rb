@@ -57,7 +57,7 @@ class Api::GroupController < ApiController
 
   def add_track
     profile = current_profile!
-    group = Group.find(params[:id])
+    group = Group.find(params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
 
     group.tracks.create(track_params)
@@ -80,6 +80,26 @@ class Api::GroupController < ApiController
 
     track.update(track_params)
     render json: { result: "ok", track: track }
+  end
+
+  def add_track_role
+    profile = current_profile!
+    track = Track.find(params[:track_id])
+    authorize track.group, :manage?, policy_class: GroupPolicy
+
+    tr = TrackRole.new(track_role_params)
+    tr.track_id = track.id
+    tr.group_id = track.group_id
+    tr.save
+    render json: { result: "ok", track_role: tr }
+  end
+
+  def remove_track_role
+    profile = current_profile!
+    tr = TrackRole.find_by(track_id: params[:track_id], profile_id: params[:profile_id])
+    authorize tr.track.group, :manage?, policy_class: GroupPolicy
+    tr.destroy
+    render json: { result: "ok", track_role: tr }
   end
 
   def transfer_owner
@@ -258,6 +278,12 @@ class Api::GroupController < ApiController
       track_roles_attributes: [ :id, :role, :receiver_address, :profile_id, :_destroy ],
     )
     # todo : auto track role detect with receiver_address/email
+  end
+
+  def track_role_params
+    params.require(:track_role).permit(
+      :role, :receiver_address, :profile_id, :_destroy,
+    )
   end
 
   def popup_city_params

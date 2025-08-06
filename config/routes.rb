@@ -57,6 +57,8 @@ Rails.application.routes.draw do
     post "group/add_track", to: "group#add_track"
     post "group/remove_track", to: "group#remove_track"
     post "group/update_track", to: "group#update_track"
+    post "group/add_track_role", to: "group#add_track_role"
+    post "group/remove_track_role", to: "group#remove_track_role"
 
     post "group/create_popup", to: "group#create_popup"
     post "group/update_popup", to: "group#update_popup"
