@@ -82,6 +82,7 @@ Rails.application.routes.draw do
     post "event/unpublish", to: "event#unpublish"
     post "event/check_group_permission", to: "event#check_group_permission"
     post "event/join", to: "event#join"
+    post "event/approve_participant", to: "event#approve_participant"
     post "event/check", to: "event#check"
     post "event/cancel", to: "event#cancel"
     post "event/remove_participant", to: "event#remove_participant"

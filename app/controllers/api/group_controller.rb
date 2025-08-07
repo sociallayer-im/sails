@@ -77,8 +77,10 @@ class Api::GroupController < ApiController
     group = Group.find(params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
 
-    group.tracks.create(track_params)
-    render json: { result: "ok", group: group }
+    track = Track.new(track_params)
+    track.group_id = group.id
+    track.save
+    render json: { result: "ok", track: track }
   end
 
   def remove_track

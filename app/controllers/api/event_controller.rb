@@ -297,6 +297,10 @@ class Api::EventController < ApiController
       raise AppError.new("group ticket check failed")
     end
 
+    if event.require_approval && !event.group.is_manager(profile.id)
+      status = "pending"
+    end
+
     participant = Participant.find_by(event_id: event.id, profile_id: profile.id)
     if !participant
       participant = Participant.new(
@@ -317,6 +321,14 @@ class Api::EventController < ApiController
     profile.send_mail_new_event(event)
 
     render json: { participant: participant.as_json }
+  end
+
+  def approve_participant
+    profile = current_profile!
+    participant = Participant.find(params[:participant_id])
+    authorize participant, :approve?
+    participant.update(status: "attending")
+    render json: { result: "ok", participant: participant.as_json }
   end
 
   def check

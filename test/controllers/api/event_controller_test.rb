@@ -302,6 +302,27 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert Participant.find_by(event: event).status == "checked"
   end
 
+  test "api#event/approve_participant" do
+    profile = Profile.find_by(handle: "cookie")
+    attendee = Profile.find_by(handle: "mooncake")
+    auth_token = profile.gen_auth_token
+    attendee_auth_token = attendee.gen_auth_token
+
+    event = Event.find_by(title: "my meetup")
+    event.update(require_approval: true)
+
+    post api_event_join_url,
+      params: { auth_token: attendee_auth_token, id: event.id }
+    assert_response :success
+    assert Participant.find_by(event: event).status == "pending"
+
+    participant = Participant.find_by(event: event, profile: attendee)
+
+    post api_event_approve_participant_url, params: { auth_token: auth_token, id: event.id, participant_id: participant.id }
+    assert_response :success
+    assert Participant.find_by(event: event).status == "attending"
+  end
+
   test "api#event/join with ticket restriction and valid for specific date" do
     travel_to Date.new(2024, 8, 8)
     profile = Profile.find_by(handle: "cookie")

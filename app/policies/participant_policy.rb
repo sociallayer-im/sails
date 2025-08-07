@@ -10,4 +10,8 @@ class ParticipantPolicy < ApplicationPolicy
     @participant.event.owner_id == @profile.id || @participant.event.group.is_manager(@profile.id) ||
     @participant.profile_id == @profile.id
   end
+
+  def approve?
+    @participant.event.owner_id == @profile.id || @participant.event.group.is_manager(@profile.id)
+  end
 end
