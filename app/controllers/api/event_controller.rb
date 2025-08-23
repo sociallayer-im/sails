@@ -298,7 +298,7 @@ class Api::EventController < ApiController
     end
 
     if event.require_approval && !event.group.is_manager(profile.id)
-      status = "pending"
+      status = "reviewing"
     end
 
     participant = Participant.find_by(event_id: event.id, profile_id: profile.id)
@@ -328,6 +328,14 @@ class Api::EventController < ApiController
     participant = Participant.find(params[:participant_id])
     authorize participant, :approve?
     participant.update(status: "attending")
+    render json: { result: "ok", participant: participant.as_json }
+  end
+
+  def reject_participant
+    profile = current_profile!
+    participant = Participant.find(params[:participant_id])
+    authorize participant, :approve?
+    participant.update(status: "rejected")
     render json: { result: "ok", participant: participant.as_json }
   end
 

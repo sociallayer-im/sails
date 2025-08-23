@@ -5,7 +5,7 @@ module Core
   class AuthTokenError < StandardError; end
 
   class ProfileEntity < Grape::Entity
-    expose :id, :handle, :nickname, :phone, :sol_address, :far_fid, :far_address, :fuel_address, :mina_address, :zupass, :image_url, :social_links, :created_at, :updated_at
+    expose :id, :handle, :nickname, :email, :image_url, :social_links, :created_at, :updated_at
   end
 
   class ProfileDetailEntity < Grape::Entity

@@ -315,6 +315,6 @@ class Api::GroupController < ApiController
     params.permit(
       :title, :image_url, :location, :website, :start_date, :end_date,
       group_tags: []
-    )
+    ).tap { |p| p[:group_tags] = params[:group_tags] }
   end
 end
