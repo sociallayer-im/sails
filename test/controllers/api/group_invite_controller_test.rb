@@ -5,10 +5,10 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
 
   test "api#group/send_invite" do
     profile = Profile.find_by(handle: "cookie")
+    profile2 = Profile.find_by(handle: "mooncake")
     auth_token = profile.gen_auth_token
     group = Group.find_by(handle: "guildx")
 
-    assert_difference "GroupInvite.count", 1 do
     post api_group_send_invite_url, params: {
       auth_token: auth_token,
       group_id: group.id,
@@ -16,10 +16,8 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
       receivers: [ "mooncake" ],
       message: "please join the group"
      }
-    end
     assert_response :success
-    group_invite = GroupInvite.find_by(group: group, sender: profile)
-    assert group_invite.status == "sending"
+    assert group.is_member(profile2.id)
   end
 
   test "api#group/send_invite to existing member for upgrading" do
