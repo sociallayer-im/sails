@@ -126,6 +126,22 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     assert track.track_roles.first.profile_id == profile.id
   end
 
+  test "api#group/add_track_members" do
+    profile = Profile.find_by(handle: "cookie")
+    profile2 = Profile.find_by(handle: "mooncake")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    track = group.tracks.create(tag: "track1", title: "Track 1", kind: "public", icon_url: "https://example.com/icon1.png", about: "About Track 1", start_date: "2024-01-01", end_date: "2024-12-31")
+    post api_group_add_track_members_url,
+      params: { auth_token: auth_token, track_id: track.id, track_member_emails: ["cookie@gmail.com", "mooncake@gmail.com" ] }
+    assert_response :success
+    assert track.track_roles.count == 2
+    assert track.track_roles.first.role == "member"
+    assert track.track_roles.first.profile_id == profile.id
+    assert track.track_roles.second.role == "member"
+    assert track.track_roles.second.profile_id == profile2.id
+  end
+
   test "api#group/remove_track_role" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token

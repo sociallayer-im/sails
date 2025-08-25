@@ -113,6 +113,23 @@ class Api::GroupController < ApiController
     render json: { result: "ok", track_role: tr }
   end
 
+  def add_track_members
+    profile = current_profile!
+    track = Track.find(params[:track_id])
+    authorize track.group, :manage?, policy_class: GroupPolicy
+
+    members =params[:track_member_emails].map do |item|
+      item = Profile.find_by(email: item) || Profile.find_by(handle: item) || Profile.find_by(address: item)
+      next unless item
+
+      # membership = Membership.find_by(profile_id: item.id, target_id: track.group_id)
+      # next unless membership
+
+      tr = TrackRole.create(profile_id: item.id, track_id: track.id, group_id: track.group_id, role: "member")
+    end
+    render json: { result: "ok", track_members: members }
+  end
+
   def remove_track_role
     profile = current_profile!
     tr = TrackRole.find_by(track_id: params[:track_id], profile_id: params[:profile_id])
