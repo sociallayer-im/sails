@@ -421,11 +421,11 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
       receivers: [ profile2.handle ], role: "member", message: "welcome" }
     assert_response :success
 
-    group_invite = GroupInvite.find_by(receiver: profile2)
+    # group_invite = GroupInvite.find_by(receiver: profile2)
 
-    post api_group_accept_invite_url, params: { auth_token: auth_token2, group_invite_id: group_invite.id }
-    assert_response :success
-    assert response.body == "{\"result\":\"ok\"}"
+    # post api_group_accept_invite_url, params: { auth_token: auth_token2, group_invite_id: group_invite.id }
+    # assert_response :success
+    # assert response.body == "{\"result\":\"ok\"}"
 
     assert group.is_member(profile2.id)
   end

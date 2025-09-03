@@ -62,7 +62,7 @@ class Api::GroupInviteController < ApiController
         membership = Membership.find_by(profile_id: receiver.id, target_id: group.id)
         if membership && membership.role == "member" && role != "member"
           membership.update(role: role)
-          activity = Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: receiver.id)
+          activity = Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: receiver.id, memo: "membership updated")
           invite = { receiver_id: receiver_id, result: "ok", message: "membership updated", receiver_address: receiver_address }
         elsif membership
           invite = { receiver_id: receiver_id, result: "error", message: "membership exists", receiver_address: receiver_address }
@@ -76,7 +76,7 @@ class Api::GroupInviteController < ApiController
           #   receiver_id: receiver_id,
           # )
           group.add_member(receiver_id, role)
-          activity = Activity.create(item: invite, initiator_id: profile.id, action: "group_invite/send", receiver_type: "id", receiver_id: receiver.id)
+          activity = Activity.create(item: invite, initiator_id: profile.id, action: "group_invite/send", receiver_type: "id", receiver_id: receiver.id, memo: "membership created")
           invite = { receiver_id: receiver_id, result: "ok", message: "membership created", receiver_address: receiver_address }
         end
 
