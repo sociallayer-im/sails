@@ -673,6 +673,7 @@ class Api::EventController < ApiController
       :cover_url,
       :require_approval,
       :content,
+      :kind,
       :tags,
       :max_participant,
       :min_participant,
