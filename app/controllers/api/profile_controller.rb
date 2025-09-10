@@ -22,8 +22,8 @@ class Api::ProfileController < ApiController
 
       profile = Profile.find_or_create_by(address: address)
 
-      if !Group.find(3579).is_member(profile.id) && profile.email.present? && Event.edge_esmeralda_api_check(profile.email)
-        Group.find(3579).add_member(profile.id, "member")
+      if !Group.find(3635).is_member(profile.id) && profile.email.present? && Event.edge_esmeralda_api_check(profile.email)
+        Group.find(3635).add_member(profile.id, "member")
       end
 
       SigninActivity.create(
@@ -89,8 +89,8 @@ class Api::ProfileController < ApiController
     profile = Profile.find_or_create_by(email: params[:email])
     profile.bind_ticket_items
 
-    if !Group.find(3579).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
-      Group.find(3579).add_member(profile.id, "member")
+    if !Group.find(3635).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
+      Group.find(3635).add_member(profile.id, "member")
     end
 
     SigninActivity.create(
@@ -114,8 +114,8 @@ class Api::ProfileController < ApiController
     profile = Profile.find_or_create_by(email: params[:email])
     profile.bind_ticket_items
 
-    if !Group.find(3579).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
-      Group.find(3579).add_member(profile.id, "member")
+    if !Group.find(3635).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
+      Group.find(3635).add_member(profile.id, "member")
     end
 
     SigninActivity.create(
@@ -278,8 +278,8 @@ class Api::ProfileController < ApiController
       )
     profile.bind_ticket_items
 
-    if !Group.find(3579).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
-      Group.find(3579).add_member(profile.id, "member")
+    if !Group.find(3635).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
+      Group.find(3635).add_member(profile.id, "member")
     end
 
     # todo : save zupass data of profile

@@ -55,6 +55,24 @@ module Core
     }
   end
 
+  class SimpleEventEntity < Grape::Entity
+    expose :id, :title, :kind, :track_id, :start_time, :end_time, :status, :display, :pinned
+    expose :owner_info
+    expose :group_info
+  end
+
+  class SimpleEventAndAttendeesEntity < Grape::Entity
+    expose :id, :title, :kind, :track_id, :start_time, :end_time, :status, :display, :pinned
+    expose :owner_info
+    expose :group_info
+    expose :attendees_info
+  end
+
+  class ParticipantEntity < Grape::Entity
+    expose :id, :event_id, :profile_id, :status, :created_at
+    expose :profile_name, :profile_image_url
+  end
+
   class PopupCityEntity < Grape::Entity
     expose :id, :title, :location, :start_date, :end_date, :group_tags, :website, :image_url
     expose :group, using: Core::GroupEntity
@@ -530,6 +548,23 @@ module Core
       header['Content-Disposition'] = 'attachment; filename=participants.csv'
       env['api.format'] = :binary
       body csv_data
+    end
+
+    get "social/attending_events" do
+      profile = Profile.find_by(handle: params[:handle]) || Profile.find_by(id: params[:profile_id])
+      @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: ["attending", "checked"] })
+      present :events, @events, with: Core::SimpleEventEntity
+    end
+
+    get "social/hosting_events" do
+      profile = Profile.find_by(handle: params[:handle]) || Profile.find_by(id: params[:profile_id])
+      @events = Event.joins(:event_roles).where(event_roles: { item_id: profile.id, item_type: "Profile" })
+      present :events, @events, with: Core::SimpleEventEntity
+    end
+
+    get "social/attendees" do
+      @participants = Participant.joins(:profile).where(event_id: params[:event_ids].split(","))
+      present :participants, @participants, with: Core::ParticipantEntity
     end
 
     get "event/csv" do

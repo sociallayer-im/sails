@@ -46,7 +46,8 @@ class Event < ApplicationRecord
   end
 
   def self.edge_esmeralda_verification()
-    if self.group_id == 3579
+    # if self.group_id == 3579
+    if self.group_id == 3635
       self.edge_esmeralda_api_check(self.owner.email)
     end
   end
@@ -58,7 +59,7 @@ class Event < ApplicationRecord
         "x-api-key": "hP@&Oy&w6X2&AM#R6%"
       })
       data = JSON.parse(response)
-      data = data.find { |item| item["products"].find { |item| item["popup_city_id"] == 4 } }
+      data = data.find { |item| item["products"].find { |item| item["popup_city_id"] == 2 } }
       if data
         return true
       end
@@ -193,6 +194,32 @@ class Event < ApplicationRecord
           image_url:  obj.image_url || item["image_url"],
         )
       end
+    end
+  end
+
+  def owner_info
+    {
+      id: self.owner_id,
+      name: self.owner.handle,
+      image_url: self.owner.image_url,
+    }
+  end
+
+  def group_info
+    {
+      id: self.group_id,
+      name: self.group.handle,
+      image_url: self.group.image_url,
+    }
+  end
+
+  def attendees_info
+    self.participants.where(status: ["attending", "checked"]).map do |participant|
+      {
+        id: participant.profile_id,
+        name: participant.profile.handle,
+        image_url: participant.profile.image_url,
+      }
     end
   end
 

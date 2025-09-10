@@ -11,7 +11,10 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.2].define(version: 2025_09_06_072649) do
+  create_schema "hdb_catalog"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "activities", force: :cascade do |t|
@@ -100,7 +103,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_06_072649) do
 
   create_table "comments", force: :cascade do |t|
     t.integer "title"
-    t.string "item_type"
+    t.string "item_type", default: "Group"
     t.integer "item_id"
     t.integer "reply_parent_id"
     t.text "content"
