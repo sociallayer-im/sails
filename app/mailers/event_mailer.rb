@@ -41,4 +41,10 @@ class EventMailer < ApplicationMailer
     mail(to: [@recipient], subject: subject)
   end
 
+  def venue_review()
+    @group = params[:group]
+    @event = params[:event]
+    @recipient = params[:recipient]
+    mail(to: [@recipient], subject: 'Social Layer Pending Event Review')
+  end
 end
