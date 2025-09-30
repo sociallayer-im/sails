@@ -47,7 +47,7 @@ class Api::ServiceController < ApiController
       bucket: "sola",
       key: key
     })
-    render json: { result: resp.as_json, key: key, url: "#{ENV['S3_URL']}#{key}" }
+    render json: { resp: resp.as_json, key: key, result: { url: "#{ENV['S3_URL']}#{key}" } }
   end
 
   def upload_image_v2
