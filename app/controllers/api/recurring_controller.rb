@@ -137,6 +137,31 @@ class Api::RecurringController < ApiController
       if params[:end_time_diff]
         update_params[:end_time] = event.end_time + params[:end_time_diff].to_i.seconds
       end
+
+      # Handle event_roles: destroy previous ones not in new request and ignore _destroy flagged items
+      if params[:event_roles_attributes].present?
+        # Filter out items with _destroy flag
+        new_event_roles = params[:event_roles_attributes].reject { |er| er[:_destroy].present? }
+
+        # Destroy all existing event_roles for this event
+        event.event_roles.destroy_all
+
+        # Remove event_roles_attributes from update_params to handle manually
+        update_params.delete(:event_roles_attributes)
+
+        # Create new event_roles
+        new_event_roles.each do |role_attrs|
+          event.event_roles.create(
+            role: role_attrs[:role],
+            item_type: role_attrs[:item_type],
+            item_id: role_attrs[:item_id],
+            email: role_attrs[:email],
+            nickname: role_attrs[:nickname],
+            image_url: role_attrs[:image_url]
+          )
+        end
+      end
+
       event.update(update_params)
     end
 
@@ -227,7 +252,7 @@ class Api::RecurringController < ApiController
         ]
       ],
       coupons_attributes: [ :id, :selector_type, :label, :code, :receiver_address, :discount_type, :discount, :event_id, :applicable_ticket_ids, :ticket_item_ids, :expires_at, :max_allowed_usages, :order_usage_count, :_destroy ],
-      event_roles_attributes: [ :id, :role, :group_id, :event_id, :item_type, :item_id, :email, :nickname, :image_url, :_destroy ],
+      event_roles_attributes: [ :id, :role, :event_id, :item_type, :item_id, :email, :nickname, :image_url, :_destroy ],
       )
   end
 end
