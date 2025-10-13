@@ -130,14 +130,14 @@ class Api::RecurringController < ApiController
     end
 
     events.each do |event|
-      event.assign_attributes(event_params)
+      update_params = event_params.dup
       if params[:start_time_diff]
-        event.start_time += params[:start_time_diff].to_i.seconds
+        update_params[:start_time] = event.start_time + params[:start_time_diff].to_i.seconds
       end
       if params[:end_time_diff]
-        event.end_time += params[:end_time_diff].to_i.seconds
+        update_params[:end_time] = event.end_time + params[:end_time_diff].to_i.seconds
       end
-      event.save
+      event.update(update_params)
     end
 
     render json: { result: "ok" }
