@@ -445,6 +445,9 @@ module Core
       if params[:venue_id]
         @events = @events.where(venue_id: params[:venue_id])
       end
+      if params[:pending]
+        @events = @events.where(status: "pending")
+      end
       if params[:kind]
         @events = @events.where(kind: params[:kind])
       end
