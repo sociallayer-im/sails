@@ -473,6 +473,9 @@ module Core
         start_time = params[:start_time]
         end_time = params[:end_time]
         @events = @events.where("start_time <= ? AND end_time >= ?", end_time, start_time)
+      elsif params[:collection] == "today"
+        today = DateTime.now.in_time_zone(@timezone)
+        @events = @events.where("start_time >= ? AND end_time <= ?", today.beginning_of_day, today.end_of_day)
       elsif params[:collection] == "upcoming"
         @events = @events.where("end_time >= ?", DateTime.now)
       elsif params[:collection] == "past"

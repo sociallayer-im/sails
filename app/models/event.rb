@@ -336,13 +336,17 @@ class Event < ApplicationRecord
     timezone = self.timezone
 
     location = self.venue.present? ? self.venue.title : self.location
+    title = self.title || ""
+    if self.status == "cancelled"
+      title = "Cancelled: #{title}"
+    end
 
     cal = Icalendar::Calendar.new
     cal.ip_method      = "REQUEST"
     cal.event do |e|
       e.dtstart     = Icalendar::Values::DateTime.new(self.start_time.in_time_zone(timezone))
       e.dtend       = Icalendar::Values::DateTime.new(self.end_time.in_time_zone(timezone))
-      e.summary     = self.title || ""
+      e.summary     = self.title
       e.description = self.content || ""
       e.uid         = "sola-#{self.id}"
       e.status      = "CONFIRMED"
