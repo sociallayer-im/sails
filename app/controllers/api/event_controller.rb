@@ -279,10 +279,14 @@ class Api::EventController < ApiController
     # if event.group_id == 3579 && !event.group.is_member(profile.id)
     if event.group_id == 3635 && !event.group.is_member(profile.id)
       if !Event.edge_esmeralda_api_check(profile.email)
-        raise AppError.new("group membership required for Edge Esmeralda")
+        raise AppError.new("group membership required for Edge Patagonia")
       else
         event.group.add_member(profile.id, "member")
       end
+    end
+
+    if event.max_participant && event.participants_count >= event.max_participant
+      raise AppError.new("event max participant reached")
     end
 
     if event.venue && event.venue.capacity && event.venue.capacity > 0 && event.participants_count >= event.venue.capacity
@@ -298,7 +302,7 @@ class Api::EventController < ApiController
     end
 
     if event.require_approval && !event.group.is_manager(profile.id)
-      status = "reviewing"
+      status = "pending"
     end
 
     participant = Participant.find_by(event_id: event.id, profile_id: profile.id)

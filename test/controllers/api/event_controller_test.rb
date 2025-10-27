@@ -401,7 +401,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     perform_enqueued_jobs
     email = ActionMailer::Base.deliveries.last
     assert_equal [attendee.email], email.to
-    assert_equal 'Social Layer Event Updated', email.subject
+    assert_equal 'Social Layer Event Cancelled', email.subject
   end
 
   test "api#event/get" do
