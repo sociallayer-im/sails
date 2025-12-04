@@ -14,7 +14,7 @@ class Event < ApplicationRecord
   has_many :stars, -> { where(item_type: "Event", comment_type: "star") }, class_name: "Comment", foreign_key: "item_id"
   has_many :operator_notes, dependent: :delete_all
 
-  validates :end_time, comparison: { greater_than: :start_time }
+  # validates :end_time, comparison: { greater_than: :start_time }
   validates :status, inclusion: { in: %w(draft open pending published closed cancelled) }
   validates :display, inclusion: { in: %w(normal hidden private public) }
   validates :event_type, inclusion: { in: %w(event group_ticket) }

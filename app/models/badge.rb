@@ -2,7 +2,7 @@ class Badge < ApplicationRecord
   belongs_to :badge_class
   belongs_to :owner, class_name: "Profile", foreign_key: "owner_id"
   belongs_to :creator, class_name: "Profile", foreign_key: "creator_id"
-  belongs_to :voucher
+  belongs_to :voucher, optional: true
   has_one :participant
   has_many :comments
   has_many :activities, as: :item

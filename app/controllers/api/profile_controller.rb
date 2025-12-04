@@ -382,6 +382,11 @@ class Api::ProfileController < ApiController
     token.update(verified: true)
 
     profile.update(email: params[:email])
+    profile.bind_ticket_items
+
+    if !Group.find(3635).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
+      Group.find(3635).add_member(profile.id, "member")
+    end
 
     render json: { result: "ok", email: params[:email], id: profile.id }
   end

@@ -30,6 +30,9 @@ class Api::EventController < ApiController
     if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(status: "cancelled").any?
       return render json: { result: "error", message: "time overlaped in the same venue" }
     end
+    if group && [3646, 3531].include?(group.id) && event_params[:venue_id] && Event.where(group_id: [3646, 3531]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(status: "cancelled").any?
+      return render json: { result: "error", message: "time overlaped in the same venue" }
+    end
 
     event = Event.new(event_params)
     event.timezone = group.timezone if group && event.timezone.blank?
