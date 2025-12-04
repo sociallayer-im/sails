@@ -120,6 +120,49 @@ class Api::GroupInviteController < ApiController
     render json: { result: "ok" }
   end
 
+
+  def send_invite_with_code
+    profile = current_profile!
+    group = Group.find(params[:group_id])
+    authorize group, :manage?, policy_class: GroupPolicy
+    role = params[:role]
+    expires_at = (DateTime.now + 30.days)
+    code = rand(10_0000..100_0000).to_s
+
+    group_invite = GroupInvite.create(
+      sender_id: profile.id,
+      group_id: group.id,
+      message: params[:message],
+      role: role,
+      expires_at: expires_at,
+      receiver_address_type: "code",
+      receiver_address: code,
+    )
+
+    render json: { group_invite: group_invite }
+  end
+
+  def accept_invite_with_code
+    profile = current_profile!
+    group_invite = GroupInvite.find_by(id: params[:group_invite_id], status: "sending")
+    group = Group.find(group_invite.group_id)
+    raise AppError.new("invalid code") unless group_invite.receiver_address == params[:code]
+    raise AppError.new("invalid status") unless group_invite.status == "sending"
+    raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
+    group_invite.update(status: "accepted")
+    # group.add_member(profile.id, group_invite.role)
+    membership = Membership.find_by(profile_id: profile.id, target_id: group.id)
+    if membership && membership.role == "member" && group_invite.role != "member"
+      membership.update(role: group_invite.role)
+      Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: profile.id, memo: params[:message] || "membership updated")
+    elsif membership.blank?
+      group.add_member(profile.id, group_invite.role)
+      Activity.create(initiator_id: profile.id, action: "group_invite/add_member", receiver_type: "id", receiver_id: profile.id, memo: params[:message] || "membership created")
+    end
+    render json: { result: "ok" }
+  end
+
+
   def cancel_invite
     profile = current_profile!
     group_invite = GroupInvite.find(params[:group_invite_id])

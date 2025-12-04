@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
-  mount Core::Api => '/api'
+  mount Core::Api => "/api"
 
   namespace :api, path: "" do
     post "service/send_email", to: "service#send_email"
@@ -77,6 +77,8 @@ Rails.application.routes.draw do
     post "group/accept_request", to: "group_invite#accept_request"
     post "group/send_invite_by_email", to: "group_invite#send_invite_by_email"
     get  "group/icalendar", to: "group#icalendar"
+    post "group/send_invite_with_code", to: "group_invite#send_invite_with_code"
+    post "group/accept_invite_with_code", to: "group_invite#accept_invite_with_code"
 
     get  "group/get", to: "group#get"
 
@@ -196,7 +198,7 @@ Rails.application.routes.draw do
   post   "verify",   to: "sessions#verify"
   get    "verifier",   to: "sessions#verifier"
   delete "sign_out", to: "sessions#destroy"
-  resources :sessions, only: [:index, :show]
+  resources :sessions, only: [ :index, :show ]
 
   # Defines the root path route ("/")
   get  "demo",  to: "home#demo"

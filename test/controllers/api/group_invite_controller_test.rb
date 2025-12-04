@@ -81,8 +81,8 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
 
     perform_enqueued_jobs
     email = ActionMailer::Base.deliveries.last
-    assert_equal ["dimsum@mail.com"], email.to
-    assert_equal 'Social Layer Group Invite', email.subject
+    assert_equal [ "dimsum@mail.com" ], email.to
+    assert_equal "Social Layer Group Invite", email.subject
 
     profile2.update(email: "dimsum@mail.com")
     auth_token2 = profile2.gen_auth_token
@@ -186,5 +186,41 @@ class Api::GroupInviteControllerTest < ActionDispatch::IntegrationTest
 
     assert group.is_member(requester.id)
     assert_equal "member", group.is_member(requester.id).role
+  end
+
+  test "api#group/send_invite_with_code" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    requester = profiles(:two)
+    profile2 = Profile.find_by(handle: "dimsum")
+    auth_token2 = profile2.gen_auth_token
+
+    post api_group_send_invite_with_code_url, params: {
+      auth_token: auth_token,
+      group_id: group.id,
+      role: "member",
+      message: "please join the group"
+    }
+    assert_response :success
+    resp = JSON.parse(response.body)
+    invite_id = resp["group_invite"]["id"]
+    code = resp["group_invite"]["receiver_address"]
+
+    p code
+
+    post api_group_accept_invite_with_code_url, params: {
+      auth_token: auth_token2,
+      group_invite_id: invite_id,
+      code: code
+    }
+    assert_response :success
+    p response.body
+
+    group_invite = GroupInvite.find_by(group: group, receiver_address: code)
+    assert_equal "accepted", group_invite.status
+
+    assert group.is_member(profile2.id)
+    assert_equal "member", group.is_member(profile2.id).role
   end
 end
