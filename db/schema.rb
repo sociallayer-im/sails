@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_06_072649) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_04_072427) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -470,6 +470,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_06_072649) do
     t.string "handle"
     t.integer "group_union", array: true
     t.string "op_label_list", default: [], array: true
+    t.integer "venue_union", array: true
     t.index ["group_tags"], name: "index_groups_on_group_tags", using: :gin
     t.index ["handle"], name: "index_groups_on_handle"
     t.index ["status"], name: "index_groups_on_status"

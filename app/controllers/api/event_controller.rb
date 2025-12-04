@@ -1,5 +1,4 @@
 class Api::EventController < ApiController
-
   def create
     profile = current_profile!
     group = Group.find_by(id: params[:group_id])
@@ -8,7 +7,12 @@ class Api::EventController < ApiController
     status = "published"
     @send_approval_email_to_manager = false
     if group && params[:venue_id]
-      venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
+      venue = nil
+      if group.venue_union
+        venue = Venue.find_by(id: params[:venue_id], group_id: group.venue_union)
+      else
+        venue = Venue.find_by(id: params[:venue_id], group_id: group.id)
+      end
       raise AppError.new("group venue not exists") unless venue
 
       if venue.require_approval && !group.is_manager(profile.id)
@@ -30,9 +34,6 @@ class Api::EventController < ApiController
     if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(status: "cancelled").any?
       return render json: { result: "error", message: "time overlaped in the same venue" }
     end
-    if group && [3646, 3531].include?(group.id) && event_params[:venue_id] && Event.where(group_id: [3646, 3531]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(status: "cancelled").any?
-      return render json: { result: "error", message: "time overlaped in the same venue" }
-    end
 
     event = Event.new(event_params)
     event.timezone = group.timezone if group && event.timezone.blank?
@@ -45,7 +46,7 @@ class Api::EventController < ApiController
       event_type: event_params[:event_type] || "event", # todo : could be "group_ticket"
     )
 
-    if event_params[:event_type] == 'group_ticket'
+    if event_params[:event_type] == "group_ticket"
       group.update(group_ticket_event_id: event.id)
       event.tickets.update_all(ticket_type: "group")
     end
@@ -142,9 +143,9 @@ class Api::EventController < ApiController
         badge_class: badge_class,
         # need test
         message: params[:message],
-        strategy: 'event',
+        strategy: "event",
         counter: 1,
-        receiver_address_type: 'id',
+        receiver_address_type: "id",
         receiver_id: receiver.id,
         # need test
         expires_at: (params[:expires_at] || DateTime.now + 90.days),
@@ -169,7 +170,7 @@ class Api::EventController < ApiController
     end
 
     status = event.status
-    status = params[:status] if params[:status] && ["open", "published", "closed"].include?(params[:status])
+    status = params[:status] if params[:status] && [ "open", "published", "closed" ].include?(params[:status])
     if event_params[:venue_id] && event_params[:venue_id] != event.venue_id
       venue = Venue.find_by(id: event_params[:venue_id], group_id: event.group.id)
       raise AppError.new("group venue not exists") unless venue
@@ -184,7 +185,7 @@ class Api::EventController < ApiController
 
     event.assign_attributes(event_params)
     event.pinned = params[:pinned] if event.group && event.group.is_manager(profile.id)
-    if (["start_time", "end_time", "location"] - event.changed).present?
+    if ([ "start_time", "end_time", "location" ] - event.changed).present?
       @send_update_email = true
     else
       @send_update_email = false
@@ -414,7 +415,7 @@ class Api::EventController < ApiController
       pub_tracks = Track.where(group_id: group_id).ids
       pub_tracks << nil
     elsif auth_profile && @group.group_union.present?
-      managing_groups = Membership.where(profile_id: auth_profile.id, role: ["owner", "manager", "operator"], id: @group.group_union).ids
+      managing_groups = Membership.where(profile_id: auth_profile.id, role: [ "owner", "manager", "operator" ], id: @group.group_union).ids
       pub_tracks = Track.where(group_id: managing_groups).ids + Track.where(group_id: @group.group_union, kind: "public").ids + TrackRole.where(group_id: @group.group_union, profile_id: auth_profile.id).pluck(:track_id)
       pub_tracks = pub_tracks.compact
       pub_tracks << nil
@@ -430,20 +431,20 @@ class Api::EventController < ApiController
       return render json: { result: "error", message: "track not found" }
     end
 
-    event_group_ids = @group.group_union.present? ? [@group.id] + @group.group_union : [@group.id]
+    event_group_ids = @group.group_union.present? ? [ @group.id ] + @group.group_union : [ @group.id ]
 
-    @timezone = @group.timezone || params[:timezone] || 'UTC'
-    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published", "closed"]).where(group_id: event_group_ids)
+    @timezone = @group.timezone || params[:timezone] || "UTC"
+    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: [ "open", "published", "closed" ]).where(group_id: event_group_ids)
     if @group.can_view_event == "member"
-      if (auth_profile.blank? || !@group.is_member(auth_profile.id))
-        @events = @events.where("events.tags @> ARRAY[?]::varchar[]", ["public"])
+      if auth_profile.blank? || !@group.is_member(auth_profile.id)
+        @events = @events.where("events.tags @> ARRAY[?]::varchar[]", [ "public" ])
       end
     elsif params[:private_event].present? && auth_profile && @group.is_manager(auth_profile.id)
       @events = @events.where(display: "private")
     elsif params[:private_event].present?
       @events = @events.where(display: "none")
     else
-      @events = @events.where(display: ["normal", "pinned", "public"])
+      @events = @events.where(display: [ "normal", "pinned", "public" ])
     end
 
     if params[:track_id]
@@ -474,7 +475,7 @@ class Api::EventController < ApiController
     end
     if params[:my_event].present?
       return { reuslt: "error", message: "authentication required" } unless auth_profile
-      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: ["attending","checked"] })
+      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: [ "attending", "checked" ] })
     end
 
     if params[:start_date].present? && params[:end_date].present?
@@ -511,7 +512,7 @@ class Api::EventController < ApiController
       @events = @events.where(id: @stars.pluck(:item_id))
     elsif params[:collection] == "my_event"
       return { reuslt: "error", message: "authentication required" } unless auth_profile
-      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: ["attending","checked"] })
+      @events = @events.joins(:participants).where(participants: { profile_id: auth_profile.id, status: [ "attending", "checked" ] })
       @events = @events.where("end_time >= ?", DateTime.now)
       @events = @events.order(start_time: :asc)
     else
@@ -531,10 +532,10 @@ class Api::EventController < ApiController
   end
 
   def discover
-    @events = Event.includes(:owner, :event_roles).where(status: ["open", "published", "closed"], display: ["normal", "pinned", "public"]).where("tags @> ARRAY[?]::varchar[]", [":featured"]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
-    @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [":featured"]).order(start_date: :desc)
-    @popups = PopupCity.includes(:group).where.not("group_tags @> ARRAY[?]::varchar[]", [":hidden"]).order(start_date: :desc)
-    @groups = Group.includes(:owner).where("group_tags @> ARRAY[?]::varchar[]", [":top"]).order(handle: :desc)
+    @events = Event.includes(:owner, :event_roles).where(status: [ "open", "published", "closed" ], display: [ "normal", "pinned", "public" ]).where("tags @> ARRAY[?]::varchar[]", [ ":featured" ]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
+    @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [ ":featured" ]).order(start_date: :desc)
+    @popups = PopupCity.includes(:group).where.not("group_tags @> ARRAY[?]::varchar[]", [ ":hidden" ]).order(start_date: :desc)
+    @groups = Group.includes(:owner).where("group_tags @> ARRAY[?]::varchar[]", [ ":top" ]).order(handle: :desc)
 
     render template: "api/event/discover"
   end
@@ -546,8 +547,8 @@ class Api::EventController < ApiController
     @group = group
     my_tracks = Track.where(group_id: group_id, kind: "public").ids + TrackRole.where(group_id: group_id, profile_id: profile.id).pluck(:track_id)
     my_tracks << nil
-    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: ["open", "published", "closed"]).where(group_id: group_id)
-    @events = @events.where(display: ["normal", "pinned", "public"])
+    @events = Event.includes(:group, :venue, :owner, :event_roles).where(status: [ "open", "published", "closed" ]).where(group_id: group_id)
+    @events = @events.where(display: [ "normal", "pinned", "public" ])
     @events = @events.where(track_id: my_tracks)
 
     if params[:start_date].present? && params[:end_date].present?
@@ -577,10 +578,10 @@ class Api::EventController < ApiController
     @events = Event.where(group_id: group_id)
 
     @events = @events.where(owner: profile)
-    .or(@events.where(group_id: Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:target_id)))
+    .or(@events.where(group_id: Membership.where(profile_id: profile.id, role: [ "owner", "manager" ]).pluck(:target_id)))
     .or(@events.where(id: EventRole.where(item_type: "Profile", item_id: profile.id).pluck(:event_id)))
 
-    @events = @events.where(status: "published").where(display: ["hidden"])
+    @events = @events.where(status: "published").where(display: [ "hidden" ])
     @events = @events.order(start_time: :desc).limit(10)
     render json: @events, status: :ok
   end
@@ -592,7 +593,7 @@ class Api::EventController < ApiController
       @events = Event.where(id: @stars)
       @with_stars = true
     else
-      @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: ["attending", "checked"] })
+      @events = Event.joins(:participants).where(participants: { profile_id: profile.id, status: [ "attending", "checked" ] })
       if params[:collection] == "upcoming"
         @events = @events.where("end_time >= ?", DateTime.now)
       elsif params[:collection] == "past"
@@ -633,7 +634,7 @@ class Api::EventController < ApiController
   end
 
   def latest_changed
-    @events = Event.includes(:group, :venue, :owner).where(status: ["open", "published"])
+    @events = Event.includes(:group, :venue, :owner).where(status: [ "open", "published" ])
     if params[:group_id].present?
       @events = @events.where(group_id: params[:group_id])
     end
@@ -653,7 +654,7 @@ class Api::EventController < ApiController
   def pending_approval_list
     profile = current_profile!
     @events = Event.where(status: "pending")
-    @events = @events.where(group_id: Membership.where(profile_id: profile.id, role: ["owner", "manager"]).pluck(:target_id))
+    @events = @events.where(group_id: Membership.where(profile_id: profile.id, role: [ "owner", "manager" ]).pluck(:target_id))
     render template: "api/event/index_without_group"
   end
 

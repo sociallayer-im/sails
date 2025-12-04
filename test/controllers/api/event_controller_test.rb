@@ -3,6 +3,34 @@ require "test_helper"
 class Api::EventControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
+  test "api#event/create for group venue_union" do
+    profile = Profile.find_by(handle: "cookie")
+    auth_token = profile.gen_auth_token
+    group = Group.find_by(handle: "guildx")
+    group2 = Group.find_by(handle: "guildy")
+    group2.update(venue_union: [ group.id, group2.id ])
+
+    post api_event_create_url,
+      params: { auth_token: auth_token, group_id: group2.id,
+      venue_id: Venue.find_by(title: "Peking University").id,
+        title: "new meetup",
+        tags: %w[live private_track],
+        start_time: DateTime.new(2024, 8, 8, 10, 20, 30),
+        end_time: DateTime.new(2024, 8, 8, 12, 20, 30),
+        location: "central park",
+        content: "wonderful",
+        display: "normal",
+        event_type: "event"
+      }
+    assert_response :success
+    event = Event.find_by(title: "new meetup")
+    assert event
+    assert event.status == "published"
+    assert event.display == "normal"
+    assert event.owner == profile
+    assert (Group.find_by(handle: "guildy").events_count - group.events_count) == 1
+  end
+
   test "api#event/create for group" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token
@@ -257,8 +285,8 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
 
     perform_enqueued_jobs
     email = ActionMailer::Base.deliveries.last
-    assert_equal [profile.email], email.to
-    assert_equal 'Social Layer Event Updated', email.subject
+    assert_equal [ profile.email ], email.to
+    assert_equal "Social Layer Event Updated", email.subject
   end
 
   test "api#event/unpublish" do
@@ -293,8 +321,8 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     event = Event.find_by(title: "my meetup")
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal [attendee.email], email.to
-    assert_equal 'Social Layer Event', email.subject
+    assert_equal [ attendee.email ], email.to
+    assert_equal "Social Layer Event", email.subject
 
     post api_event_check_url,
       params: { auth_token: auth_token, id: event.id, profile_id: attendee.id }
@@ -400,8 +428,8 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
 
     perform_enqueued_jobs
     email = ActionMailer::Base.deliveries.last
-    assert_equal [attendee.email], email.to
-    assert_equal 'Social Layer Event Cancelled', email.subject
+    assert_equal [ attendee.email ], email.to
+    assert_equal "Social Layer Event Cancelled", email.subject
   end
 
   test "api#event/get" do
@@ -530,7 +558,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     other_profile = Profile.create(handle: "is_manager")
     other_auth_token = other_profile.gen_auth_token
 
-    track.manager_ids = [other_profile.id]
+    track.manager_ids = [ other_profile.id ]
     track.save
 
     post api_event_update_url, params: {
@@ -555,7 +583,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     group2 = Group.create(nickname: "Group 2", handle: "group2")
 
     # Create group union
-    group1.update(group_union: [group2.id])
+    group1.update(group_union: [ group2.id ])
 
     # Create events for each group
     event1 = Event.create(title: "Event 1", group: group1, owner: profile1, start_time: DateTime.now, end_time: DateTime.now + 1.hour, status: "published", display: "normal", event_type: "event")
@@ -578,7 +606,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     event = Event.find_by(title: "my meetup")
 
     # Join event
-    assert_difference 'Participant.count', 1 do
+    assert_difference "Participant.count", 1 do
       post api_event_join_url, params: { auth_token: auth_token, id: event.id }
     end
     assert_response :success
@@ -589,7 +617,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     register_time = participant.register_time
 
     # Cancel joining event
-    assert_no_difference 'Participant.count' do
+    assert_no_difference "Participant.count" do
       post api_event_cancel_url, params: { auth_token: auth_token, id: event.id }
     end
     assert_response :success
@@ -598,7 +626,7 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
 
     travel_to Date.new(2024, 8, 8)
     # Rejoin event
-    assert_no_difference 'Participant.count' do
+    assert_no_difference "Participant.count" do
       post api_event_join_url, params: { auth_token: auth_token, id: event.id }
     end
     assert_response :success
@@ -670,7 +698,6 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
       notes: ""
     }
     assert_response :success
-
   end
 
   test "api#event/send_badge" do
