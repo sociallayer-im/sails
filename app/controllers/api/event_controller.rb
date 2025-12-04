@@ -172,7 +172,12 @@ class Api::EventController < ApiController
     status = event.status
     status = params[:status] if params[:status] && [ "open", "published", "closed" ].include?(params[:status])
     if event_params[:venue_id] && event_params[:venue_id] != event.venue_id
-      venue = Venue.find_by(id: event_params[:venue_id], group_id: event.group.id)
+      venue = nil
+      if event.group.venue_union.present?
+        venue = Venue.find_by(id: event_params[:venue_id], group_id: event.group.venue_union)
+      else
+        venue = Venue.find_by(id: event_params[:venue_id], group_id: event.group.id)
+      end
       raise AppError.new("group venue not exists") unless venue
 
       if venue.require_approval && !group.is_manager(profile.id)
