@@ -29,6 +29,25 @@ class Event < ApplicationRecord
 
   ### methods
 
+  def published_by_manager
+    group = self.group
+    if group.nil?
+      return "no"
+    end
+    if group.is_manager(self.owner_id)
+      return "yes"
+    end
+    return "no"
+  end
+
+  def day_of_week
+    self.start_time.strftime("%A")
+  end
+
+  def cohost_list
+    self.event_roles.map { |role| role.item.try(:handle)  }.join(",")
+  end
+
   def self.update_tags(group, old_tag, new_tag)
     evs=Event.where(group: group).where("events.tags @> ARRAY[?]::varchar[]", [old_tag])
     evs.each do |ev|

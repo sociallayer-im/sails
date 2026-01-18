@@ -590,11 +590,11 @@ module Core
 
       evs = evs.where.not(status: "cancelled").order(start_time: :asc)
 
-      fields = ['event_id', 'event_title', 'start_time', 'end_time', 'owner_id', 'owner_handle', 'owner_email', 'owner_nickname', 'owner_image_url']
+      fields = ['event_id', 'event_title', 'start_time', 'end_time', 'owner_email', 'owner_handle', 'owner_nickname', 'tags', 'published_by_manager', 'day_of_week', 'cohosts']
       csv_data = CSV.generate do |csv|
         csv << fields
         evs.each do |event|
-          csv << [event.id, event.title, event.start_time, event.end_time, event.owner.id, event.owner.handle, event.owner.email, event.owner.nickname, event.owner.image_url]
+          csv << [event.id, event.title, event.start_time, event.end_time, event.owner.email, event.owner.handle, event.owner.nickname, event.tags.join(","), event.published_by_manager, event.day_of_week, event.cohost_list]
         end
       end
 
