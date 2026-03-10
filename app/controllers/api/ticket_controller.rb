@@ -129,7 +129,9 @@ class Api::TicketController < ApiController
       if profile.email.present?
         # event.send_mail_new_event(profile.email)
       end
+      ticket_item.notify_group_owner
     end
+
 
     render json: { participant: participant.as_json, ticket_item: ticket_item.as_json }
   end
@@ -199,6 +201,8 @@ class Api::TicketController < ApiController
       end
     end
 
+    ticket_item.notify_group_owner
+
     render json: { participant: ticket_item.participant.as_json, ticket_item: ticket_item.as_json }
   end
 
@@ -214,6 +218,7 @@ class Api::TicketController < ApiController
           # ticket_item.event.send_mail_new_event(ticket_item.profile.email)
         end
       end
+      ticket_item.notify_group_owner
     end
 
     render json: { result: "ok" }
@@ -385,6 +390,7 @@ class Api::TicketController < ApiController
             ticket_item.profile.send_mail_new_event(ticket_item.event)
           end
         end
+        ticket_item.notify_group_owner
         render json: { result: "ok" }
       else
         render json: { result: "error", message: "ticket_item not found" }

@@ -50,4 +50,14 @@ class TicketItem < ApplicationRecord
       self.coupon.increment!(:order_usage_count)
     end
   end
+
+  def notify_group_owner
+    return unless ticket_type == 'group' && group.present? && status == 'succeeded'
+    
+    group_owner = group.owner || group.get_owner
+    return unless group_owner.present? && group_owner.email.present?
+    
+    mailer = GroupMailer.with(group: group, ticket_item: self, recipient: group_owner.email).ticket_purchased
+    mailer.deliver_later
+  end
 end

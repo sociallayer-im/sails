@@ -5,4 +5,11 @@ class GroupMailer < ApplicationMailer
     @recipient = params[:recipient]
     mail(to: [@recipient], subject: 'Social Layer Group Invite')
   end
+
+  def ticket_purchased
+    @group = params[:group]
+    @ticket_item = params[:ticket_item]
+    @recipient = params[:recipient]
+    mail(to: [@recipient], subject: 'Social Layer New Ticket Purchase')
+  end
 end
