@@ -165,8 +165,15 @@ class Api::EventController < ApiController
     event = Event.find(params[:id])
     authorize event, :update?
 
-    if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(id: event.id).where.not(status: "cancelled").any?
-      return render json: { result: "error", message: "time overlaped in the same venue" }
+    # Check for time conflicts when changing venue
+    if event_params[:venue_id] && event_params[:venue_id] != event.venue_id
+      if event_params[:start_time].blank? || event_params[:end_time].blank?
+        return render json: { result: "error", message: "start_time and end_time are required when changing venue" }
+      end
+
+      if Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(id: event.id).where.not(status: "cancelled").any?
+        return render json: { result: "error", message: "time overlaped in the same venue" }
+      end
     end
 
     status = event.status
@@ -196,7 +203,12 @@ class Api::EventController < ApiController
       @send_update_email = false
     end
     event.status = status
-    event.save
+
+    unless event.save
+      p "event.errors.full_messages"
+      p event.errors.full_messages
+      return render json: { result: "error", message: event.errors.full_messages.join(", ") }
+    end
 
     p "event_params"
     p event_params
