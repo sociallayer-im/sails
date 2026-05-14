@@ -180,7 +180,7 @@ class Api::EventController < ApiController
       end
       raise AppError.new("group venue not exists") unless venue
 
-      if venue.require_approval && !group.is_manager(profile.id)
+      if venue.require_approval && !event.group.is_manager(profile.id)
         status = "pending"
         send_approval_email_to_manager = true
       end
@@ -407,6 +407,7 @@ class Api::EventController < ApiController
     auth_profile = Profile.find_by(id: params[:source_profile_id]) || current_profile
 
     @group = Group.find_by(id: params[:group_id]) || Group.find_by(handle: params[:group_id])
+    raise AppError.new("group not found") unless @group
     group_id = @group.id
 
     if @group.status == "freezed"
@@ -528,6 +529,8 @@ class Api::EventController < ApiController
     limit = 1000 if limit > 1000
     @events = @events.page(params[:page]).per(limit)
 
+    @with_stars = false
+    @stars = []
     if auth_profile && params[:with_stars]
       @with_stars = true
       @stars = Comment.where(item_id: @events.ids, profile_id: auth_profile.id, comment_type: "star", item_type: "Event").pluck(:item_id)
