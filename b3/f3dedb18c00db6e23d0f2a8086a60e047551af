@@ -1,0 +1,62 @@
+config/routes.rb
+  s_212b3fb8ecd46f::t_db2a603972bae9 199-224
+  s_212b3fb8ecd46f::t_f93caec35c371f 145-149
+app/controllers/api/marker_controller.rb
+  s_212b3fb8ecd46f::t_8bcd14268ce813 66,74
+app/views/api/group/get.jbuilder
+  s_212b3fb8ecd46f::t_eb51020e6954bc 4-30
+app/models/marker.rb
+  s_212b3fb8ecd46f::t_b0a957fa6f2a9e 5
+app/controllers/api/badge_class_controller.rb
+  s_212b3fb8ecd46f::t_1180213d3e1982 29-30,32-33,38-52
+  s_212b3fb8ecd46f::t_92cf9ad24eb1fc 23-28,31,34-37,53-61
+app/controllers/api/event_controller.rb
+  s_212b3fb8ecd46f::t_f752785ff564fa 578-600,604-607,611-612
+  s_212b3fb8ecd46f::t_513d623bdcb577 437-438
+  s_212b3fb8ecd46f::t_6e3f15a3261982 601-603,608-610
+  s_212b3fb8ecd46f::t_4adf525944927f 733-746
+app/controllers/api/badge_controller.rb
+  s_212b3fb8ecd46f::t_7d10784c924f84 104
+  s_212b3fb8ecd46f::t_7048ad89985389 86-94,98-99
+app/views/api/event/show.jbuilder
+  s_212b3fb8ecd46f::t_f05f9dde2ade87 15-27
+app/controllers/api/popup_city_controller.rb
+  s_212b3fb8ecd46f::t_a141c2c8c9e973 1-22
+db/migrate/20260518184346_change_price_to_int8_in_payment_methods.rb
+  s_212b3fb8ecd46f::t_888fc80fec6c87 1-2,4-5
+  s_212b3fb8ecd46f::t_700fc7c6b09d63 3
+app/controllers/api/recurring_controller.rb
+  s_212b3fb8ecd46f::t_37887a688ccd5f 3-7
+app/controllers/api/group_invite_controller.rb
+  s_212b3fb8ecd46f::t_49c605beac175a 2-11
+app/controllers/api/voucher_controller.rb
+  s_212b3fb8ecd46f::t_17bb50b1b76242 3-37
+app/controllers/api/profile_controller.rb
+  s_212b3fb8ecd46f::t_aa6339576d758f 16-41
+  s_212b3fb8ecd46f::t_462a2b977abe78 511-522
+app/controllers/api/activity_controller.rb
+  s_212b3fb8ecd46f::t_9ee3bd38f4855f 2-16
+app/controllers/api/group_controller.rb
+  s_212b3fb8ecd46f::t_1dce7f28c1dd03 264-310
+  s_212b3fb8ecd46f::t_eff2e22dc8c7a2 261
+app/views/api/badge/get.jbuilder
+  s_212b3fb8ecd46f::t_7c68ab752f63a4 9-15
+app/views/api/marker/get.jbuilder
+  s_212b3fb8ecd46f::t_f3bde381e8137f 2-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "b3f3dedb18c00db6e23d0f2a8086a60e047551af",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
