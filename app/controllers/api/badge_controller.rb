@@ -83,19 +83,25 @@ class Api::BadgeController < ApiController
   end
 
   def list
-    profile = Profile.find(params[:profile_id])
-    if params[:owned_badges]
-      badges = profile.owned_badges.where(status: "minted")
-    elsif params[:created_badges]
-      badges = profile.created_badges.where(status: "minted")
+    if params[:profile_id].present?
+      profile = Profile.find(params[:profile_id])
+      if params[:owned_badges]
+        badges = profile.owned_badges.where(status: "minted")
+      elsif params[:created_badges]
+        badges = profile.created_badges.where(status: "minted")
+      else
+        badges = Badge.where(status: "minted")
+      end
     else
       badges = Badge.where(status: "minted")
     end
+    badges = badges.joins(:owner).where(profiles: { handle: params[:owner_handle] }) if params[:owner_handle].present?
+    badges = badges.where(badge_class_id: params[:badge_class_id]) if params[:badge_class_id].present?
     @badges = badges
   end
 
   def get
-    @badge = Badge.find(params[:id])
+    @badge = Badge.includes(:badge_class, :creator, :owner).find(params[:id])
   end
 
 end

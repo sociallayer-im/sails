@@ -434,7 +434,8 @@ class Api::EventController < ApiController
   end
 
   def get
-    @event = Event.includes(:owner).find(params[:id])
+    @event = Event.includes(:owner, :participants).find(params[:id])
+    @include_participants = params[:include_participants].present?
     render template: "api/event/show"
   end
 
@@ -574,6 +575,41 @@ class Api::EventController < ApiController
     render template: "api/event/index"
   end
 
+  def by_profile
+    profile = Profile.find_by!(handle: params[:handle])
+    now = Time.now
+
+    type = params[:type]
+
+    events = case type
+    when 'attended'
+      Event.joins(:participants).where(participants: { profile_id: profile.id, status: ['attending', 'checked'] })
+           .where("end_time >= ?", now).where(status: ['open', 'published', 'closed'])
+    when 'hosting'
+      Event.where(owner_id: profile.id).where(status: ['open', 'published', 'closed'])
+    when 'co_hosting'
+      Event.joins(:event_roles).where(event_roles: { item_id: profile.id, item_type: 'Profile' })
+           .where(status: ['open', 'published', 'closed'])
+    when 'starred'
+      starred_ids = Comment.where(profile_id: profile.id, comment_type: 'star', item_type: 'Event').pluck(:item_id)
+      Event.where(id: starred_ids).where(status: ['open', 'published', 'closed'])
+    else
+      Event.none
+    end
+
+    @events = events.includes(:group, :venue, :owner).order(start_time: :asc).limit(params[:limit] || 50)
+    @with_stars = false
+    @stars = []
+    render template: "api/event/index_without_group"
+  end
+
+  def by_recurring
+    @events = Event.includes(:group, :venue, :owner).where(recurring_id: params[:recurring_id]).order(start_time: :asc)
+    @with_stars = false
+    @stars = []
+    render template: "api/event/index_without_group"
+  end
+
   def discover
     @events = Event.includes(:owner, :event_roles).where(status: [ "open", "published", "closed" ], display: [ "normal", "pinned", "public" ]).where("tags @> ARRAY[?]::varchar[]", [ ":featured" ]).where("end_time >= ?", DateTime.now).order(start_time: :desc)
     @featured_popups = PopupCity.includes(:group).where("group_tags @> ARRAY[?]::varchar[]", [ ":featured" ]).order(start_date: :desc)
@@ -692,6 +728,20 @@ class Api::EventController < ApiController
   def themes_list
     themes = Event.where(group_id: params[:group_id]).distinct(:theme).pluck(:theme)
     render json: { themes: themes }
+  end
+
+  def check_venue_conflict
+    venue_id = params[:venue_id].to_i
+    start_time = params[:start_time]
+    end_time = params[:end_time]
+    exclude_event_id = params[:exclude_event_id]
+
+    conflicting = Event.where(venue_id: venue_id)
+                       .where(status: ["open", "published"])
+                       .where("start_time < ? AND end_time > ?", end_time, start_time)
+    conflicting = conflicting.where.not(id: exclude_event_id) if exclude_event_id.present?
+
+    render json: { events: conflicting.map { |e| e.slice(:id, :title, :start_time, :end_time) } }
   end
 
   def pending_approval_list

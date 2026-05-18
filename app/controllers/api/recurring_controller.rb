@@ -1,5 +1,10 @@
 class Api::RecurringController < ApiController
 
+  def get
+    recurring = Recurring.find(params[:id])
+    render json: { recurring: recurring.as_json(only: [:id, :start_time, :end_time, :timezone, :interval, :event_count]) }
+  end
+
   def create
     profile = current_profile!
     group = Group.find_by(id: params[:group_id])

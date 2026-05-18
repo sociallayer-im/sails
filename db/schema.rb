@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_04_072427) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_18_184346) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -471,8 +471,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_072427) do
     t.jsonb "social_links", default: {}
     t.datetime "updated_at"
     t.string "handle"
-    t.string "op_label_list", default: [], array: true
     t.integer "group_union", array: true
+    t.string "op_label_list", default: [], array: true
     t.integer "venue_union", array: true
     t.index ["group_tags"], name: "index_groups_on_group_tags", using: :gin
     t.index ["handle"], name: "index_groups_on_handle"
@@ -643,7 +643,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_072427) do
     t.string "token_name"
     t.string "token_address"
     t.string "receiver_address"
-    t.integer "price"
+    t.bigint "price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "protocol"

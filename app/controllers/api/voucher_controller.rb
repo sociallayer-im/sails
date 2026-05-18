@@ -1,5 +1,40 @@
 class Api::VoucherController < ApiController
 
+  def get
+    voucher = Voucher.includes(:sender, :receiver, :badge_class, :badges).find(params[:id])
+    render json: {
+      voucher: voucher.as_json(
+        only: [:id, :counter, :expires_at, :display, :transferable, :created_at, :badge_class_id, :sender_id, :receiver_id, :receiver_address, :message],
+        include: {
+          badge_class: { only: [:id, :title, :image_url, :metadata, :content, :transferable, :badge_type, :group_id] },
+          sender: { only: [:id, :handle, :nickname, :image_url] },
+          badges: { only: [:id, :title, :image_url, :created_at, :status], include: { owner: { only: [:id, :handle, :nickname, :image_url] } } }
+        }
+      )
+    }
+  end
+
+  def list
+    vouchers = Voucher.includes(:sender, :badge_class)
+                      .where("expires_at > ? OR expires_at IS NULL", Time.now)
+                      .where("counter != 0 OR counter IS NULL")
+    if params[:sender_handle].present?
+      sender = Profile.find_by!(handle: params[:sender_handle])
+      vouchers = vouchers.where(sender_id: sender.id)
+    elsif params[:group_handle].present?
+      vouchers = vouchers.joins(badge_class: :group).where(groups: { handle: params[:group_handle] })
+    end
+    vouchers = vouchers.order(created_at: :desc)
+    render json: {
+      vouchers: vouchers.map { |v|
+        v.as_json(only: [:id, :counter, :expires_at, :display, :transferable, :created_at, :badge_class_id, :sender_id]).merge(
+          badge_class: v.badge_class.as_json(only: [:id, :title, :image_url, :metadata, :content, :transferable, :badge_type]),
+          sender: v.sender.as_json(only: [:id, :handle, :nickname, :image_url])
+        )
+      }
+    }
+  end
+
   def get_code
     voucher = Voucher.find(params[:id])
     authorize voucher, :read?

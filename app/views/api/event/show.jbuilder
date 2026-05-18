@@ -12,3 +12,16 @@ json.event_roles @event.event_roles do |event_role|
 end
 
 json.partial! 'api/event/custom_form', custom_form: @event.custom_form
+
+if @include_participants
+  json.participants @event.participants.includes(:profile) do |p|
+    json.extract! p, :id, :status, :created_at
+    if p.profile
+      json.profile do
+        json.extract! p.profile, :id, :handle, :nickname, :image_url
+      end
+    else
+      json.profile nil
+    end
+  end
+end

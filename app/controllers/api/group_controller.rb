@@ -258,6 +258,56 @@ class Api::GroupController < ApiController
 
   def get
     @group = Group.find_by(handle: params[:group_id]) || Group.find(params[:group_id])
+    @include_detail = params[:include_detail].present?
+  end
+
+  def members
+    group = Group.find_by(handle: params[:group_id]) || Group.find(params[:group_id])
+    memberships = group.memberships.includes(:profile)
+    render json: {
+      memberships: memberships.map { |m|
+        m.as_json(only: [:id, :profile_id, :role, :created_at]).merge(
+          profile: m.profile.as_json(only: [:id, :handle, :nickname, :image_url, :email, :phone])
+        )
+      }
+    }
+  end
+
+  def featured
+    tag = params[:tag] || ':top'
+    @groups = Group.where("group_tags @> ARRAY[?]::varchar[]", [tag])
+                   .where.not(status: 'freezed')
+                   .order(created_at: :desc)
+    render json: { groups: @groups.as_json(only: [:id, :handle, :nickname, :username, :image_url, :about, :status, :group_tags, :event_enabled, :can_publish_event, :timezone, :memberships_count]) }
+  end
+
+  def track_detail
+    track = Track.includes(track_roles: :profile).find(params[:track_id])
+    render json: {
+      track: track.as_json(only: [:id, :title, :kind, :icon_url, :group_id, :about]).merge(
+        track_roles: track.track_roles.map { |tr|
+          tr.as_json(only: [:id, :profile_id, :role]).merge(
+            profile: tr.profile.as_json(only: [:id, :handle, :nickname, :image_url])
+          )
+        }
+      )
+    }
+  end
+
+  def track_roles
+    if params[:track_ids].present?
+      track_ids = params[:track_ids].split(',').map(&:to_i)
+      track_roles = TrackRole.includes(:profile).where(track_id: track_ids)
+    else
+      track_roles = TrackRole.includes(:profile).where(track_id: params[:track_id])
+    end
+    render json: {
+      track_roles: track_roles.map { |tr|
+        tr.as_json(only: [:id, :track_id, :profile_id, :role]).merge(
+          profile: tr.profile.as_json(only: [:id, :handle, :nickname, :image_url])
+        )
+      }
+    }
   end
 
   def icalendar

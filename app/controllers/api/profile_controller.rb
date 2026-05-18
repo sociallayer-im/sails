@@ -13,6 +13,32 @@ class Api::ProfileController < ApiController
     render :show
   end
 
+  def get_by_id
+    @profile = Profile.find(params[:id])
+    render :show
+  end
+
+  def followers
+    profile = Profile.find_by!(handle: params[:handle])
+    followers_contacts = Contact.where(target_id: profile.id, role: "follower").includes(:source)
+    following_contacts = Contact.where(source_id: profile.id, role: "follower").includes(:target)
+    render json: {
+      profile: profile.as_json(only: [:id, :handle, :nickname, :image_url]),
+      followers: followers_contacts.map { |f| f.source.as_json(only: [:id, :handle, :nickname, :image_url]) },
+      following: following_contacts.map { |f| f.target.as_json(only: [:id, :handle, :nickname, :image_url]) },
+      followers_count: followers_contacts.count,
+      following_count: following_contacts.count
+    }
+  end
+
+  def groups
+    profile = Profile.find_by!(handle: params[:handle])
+    memberships = Membership.where(profile_id: profile.id)
+    memberships = memberships.where(role: params[:role].split(',')) if params[:role].present?
+    groups = Group.where(id: memberships.pluck(:target_id)).where.not(status: 'freezed')
+    render json: { groups: groups.as_json(only: [:id, :handle, :nickname, :username, :image_url, :about, :social_links, :status, :permissions, :event_enabled, :can_publish_event, :timezone, :memberships_count]) }
+  end
+
   def verify
     begin
       signature = params[:signature]
@@ -480,6 +506,18 @@ class Api::ProfileController < ApiController
   def me
     profile = current_profile
     render json: { profile: profile.as_json }
+  end
+
+  def search
+    keyword = params[:keyword].to_s.strip
+    limit = [[params[:limit].to_i, 20].min, 1].max
+    limit = 5 if limit <= 0
+
+    exact = Profile.where(handle: keyword).or(Profile.where(nickname: keyword)).limit(limit)
+    fuzzy = Profile.where("handle ILIKE ? OR nickname ILIKE ?", "%#{keyword}%", "%#{keyword}%").limit(limit)
+
+    profiles = (exact.to_a + fuzzy.to_a).uniq(&:id).first(limit)
+    render json: { profiles: profiles.map { |p| p.slice(:id, :handle, :username, :nickname, :image_url) } }
   end
 
   def track_list

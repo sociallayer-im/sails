@@ -63,8 +63,7 @@ class Api::MarkerController < ApiController
   end
 
   def list
-    profile = current_profile!
-    group = Group.find(params[:group_id])
+    group = Group.find_by(handle: params[:group_handle]) || Group.find(params[:group_id])
     markers = group.markers.where(status: "active")
     markers = markers.where(marker_type: params[:marker_type]) if params[:marker_type].present?
     markers = markers.where(category: params[:category]) if params[:category].present?
@@ -72,7 +71,7 @@ class Api::MarkerController < ApiController
   end
 
   def get
-    @marker = Marker.find(params[:id])
+    @marker = Marker.includes(:group, :owner, :badge_class).find(params[:id])
   end
 
   private

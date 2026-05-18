@@ -142,6 +142,11 @@ Rails.application.routes.draw do
     get  "marker/get", to: "marker#get"
 
     post "badge_class/create", to: "badge_class#create"
+    get  "badge_class/get",     to: "badge_class#get"
+    get  "badge_class/list",    to: "badge_class#list"
+    get  "badge_class/by_user", to: "badge_class#by_user"
+    get  "profile/search",      to: "profile#search"
+    get  "event/check_venue_conflict", to: "event#check_venue_conflict"
 
     post "badge/update", to: "badge#update"
     post "badge/transfer", to: "badge#transfer"
@@ -191,6 +196,32 @@ Rails.application.routes.draw do
     get "service/get_participanted_events_by_email", to: "service#get_participanted_events_by_email"
     get "service/get_hosted_events_by_email", to: "service#get_hosted_events_by_email"
     get "service/get_user_related_groups", to: "service#get_user_related_groups"
+
+    get  "profile/get_by_id",   to: "profile#get_by_id"
+    get  "profile/followers",   to: "profile#followers"
+    get  "profile/groups",      to: "profile#groups"
+
+    get  "group/members",       to: "group#members"
+    get  "group/featured",      to: "group#featured"
+    get  "group/track_detail",  to: "group#track_detail"
+    get  "group/track_roles",   to: "group#track_roles"
+
+    get  "voucher/get",         to: "voucher#get"
+    get  "voucher/list",        to: "voucher#list"
+
+    get  "activity/list",       to: "activity#list"
+
+    get  "popup_city/list",     to: "popup_city#list"
+    get  "popup_city/get",      to: "popup_city#get"
+
+    get  "recurring/get",       to: "recurring#get"
+
+    get  "group_invite/get",    to: "group_invite#get"
+
+    get  "badge_class/invites", to: "badge_class#invites"
+
+    get  "event/by_profile",    to: "event#by_profile"
+    get  "event/by_recurring",  to: "event#by_recurring"
   end
 
   get    "sign_in",  to: "sessions#new"
