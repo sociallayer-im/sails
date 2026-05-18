@@ -16,7 +16,7 @@ console_command = '/rails/bin/rails console'
   PORT = '3000'
 
 [processes]
-  app = './bin/rails server'
+  app = './bin/rails server -b 0.0.0.0'
 
 [http_service]
   internal_port = 3000
