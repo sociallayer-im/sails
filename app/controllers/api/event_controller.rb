@@ -434,7 +434,7 @@ class Api::EventController < ApiController
   end
 
   def get
-    @event = Event.includes(:owner, :participants).find(params[:id])
+    @event = Event.includes(:owner, :event_roles, :venue, :group, :custom_form, {participants: :profile}, {tickets: :payment_methods}).find(params[:id])
     @include_participants = params[:include_participants].present?
     render template: "api/event/show"
   end

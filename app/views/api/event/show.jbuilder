@@ -5,6 +5,9 @@ json.partial! 'api/group/group_or_nil', group: @event.group
 
 json.tickets @event.tickets do |ticket|
   json.extract! ticket, :id, :title, :content, :ticket_type, :quantity, :end_time, :need_approval, :status, :zupass_event_id, :zupass_product_id, :zupass_product_name, :start_date, :end_date, :days_allowed, :tracks_allowed
+  json.payment_methods ticket.payment_methods do |pm|
+    json.extract! pm, :id, :chain, :token_name, :token_address, :receiver_address, :price
+  end
 end
 
 json.event_roles @event.event_roles do |event_role|
@@ -15,7 +18,7 @@ json.partial! 'api/event/custom_form', custom_form: @event.custom_form
 
 if @include_participants
   json.participants @event.participants.includes(:profile) do |p|
-    json.extract! p, :id, :status, :created_at
+    json.extract! p, :id, :status, :created_at, :ticket_id, :payment_status
     if p.profile
       json.profile do
         json.extract! p.profile, :id, :handle, :nickname, :image_url
