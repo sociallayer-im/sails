@@ -147,21 +147,17 @@ class Api::GroupInviteController < ApiController
     group_invite = GroupInvite.find_by(id: params[:group_invite_id])
     raise AppError.new("invite not found") if group_invite.nil?
     raise AppError.new("invalid code") unless group_invite.receiver_address == params[:code]
-    if group_invite.status == "accepted"
-      return render json: { result: "ok" }
-    end
     raise AppError.new("invite has been cancelled") unless group_invite.status == "sending"
     raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
     group = Group.find(group_invite.group_id)
-    group_invite.update(status: "accepted")
-    # group.add_member(profile.id, group_invite.role)
+    # Code invites are reusable (anyone with the link can join), so never flip status to "accepted"
     membership = Membership.find_by(profile_id: profile.id, target_id: group.id)
     if membership && membership.role == "member" && group_invite.role != "member"
       membership.update(role: group_invite.role)
-      Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: profile.id, memo: params[:message] || "membership updated")
+      Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: profile.id, memo: "membership updated")
     elsif membership.blank?
       group.add_member(profile.id, group_invite.role)
-      Activity.create(initiator_id: profile.id, action: "group_invite/add_member", receiver_type: "id", receiver_id: profile.id, memo: params[:message] || "membership created")
+      Activity.create(initiator_id: profile.id, action: "group_invite/add_member", receiver_type: "id", receiver_id: profile.id, memo: "membership created")
     end
     render json: { result: "ok" }
   end
