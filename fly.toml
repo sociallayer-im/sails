@@ -12,14 +12,8 @@ console_command = '/rails/bin/rails console'
 [deploy]
   release_command = './bin/rails db:prepare'
 
-[env]
-  PORT = '3000'
-
-[processes]
-  app = './bin/rails server -b 0.0.0.0'
-
 [http_service]
-  internal_port = 3000
+  internal_port = 80
   force_https = true
   auto_stop_machines = 'off'
   auto_start_machines = true
