@@ -133,6 +133,10 @@ Rails.application.routes.draw do
     get  "ticket/check_coupon", to: "ticket#check_coupon"
     get  "ticket/get_coupon", to: "ticket#get_coupon"
     get  "ticket/coupon_price", to: "ticket#coupon_price"
+    get  "ticket/list", to: "ticket#list"
+    get  "ticket/coupons", to: "ticket#coupons"
+    get  "ticket/coupon", to: "ticket#coupon"
+    get  "ticket/coupon_usage", to: "ticket#coupon_usage"
 
     post "marker/create", to: "marker#create"
     post "marker/update", to: "marker#update"
@@ -146,6 +150,8 @@ Rails.application.routes.draw do
     get  "badge_class/list",    to: "badge_class#list"
     get  "badge_class/by_user", to: "badge_class#by_user"
     get  "profile/search",      to: "profile#search"
+    get  "profile/batch",       to: "profile#batch"
+    get  "search",              to: "search#index"
     get  "event/check_venue_conflict", to: "event#check_venue_conflict"
 
     post "badge/update", to: "badge#update"

@@ -520,6 +520,21 @@ class Api::ProfileController < ApiController
     render json: { profiles: profiles.map { |p| p.slice(:id, :handle, :username, :nickname, :image_url) } }
   end
 
+  def batch
+    handles_or_addresses = Array(params[:handles]).flat_map { |h| h.split(",") }.map(&:strip).reject(&:empty?)
+    handles = handles_or_addresses.select { |h| !h.start_with?("0x") }
+    addresses = handles_or_addresses.select { |h| h.start_with?("0x") }
+
+    handle_result = handles.any? ? Profile.where(handle: handles) : []
+    address_result = addresses.any? ? Profile.where(address: addresses) : []
+
+    profile_fields = %i[id handle username nickname image_url address]
+    render json: {
+      handle_result: handle_result.map { |p| p.as_json(only: profile_fields) },
+      address_result: address_result.map { |p| p.as_json(only: profile_fields) }
+    }
+  end
+
   def track_list
     profile = Profile.find(params[:id])
     track_ids = profile.ticket_items.where(ticket_type: "group", group_id: params[:group_id], status: "succeeded").map {|ticket_item| ticket_item.ticket.tracks_allowed }.flatten.compact.uniq

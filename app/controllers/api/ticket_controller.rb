@@ -253,6 +253,60 @@ class Api::TicketController < ApiController
     render json: { result: "ok", payment_intent_id: payment_intent.id, client_secret: payment_intent.client_secret }
   end
 
+  def list
+    profile = Profile.find_by(handle: params[:profile_handle])
+    unless profile
+      return render json: { result: "error", message: "profile not found" }
+    end
+
+    ticket_items = TicketItem.where(profile_id: profile.id, event_id: params[:event_id])
+    ticket_items = ticket_items.where(status: params[:status]) if params[:status].present?
+
+    fields = %i[id status ticket_id profile_id event_id chain txhash amount ticket_price discount_value
+                discount_data order_number participant_id ticket_type group_id tracks_allowed
+                payment_method_id token_address receiver_address coupon_id sender_address
+                selector_type selector_address original_price protocol created_at]
+
+    render json: { ticket_items: ticket_items.map { |ti| ti.as_json(only: fields) } }
+  end
+
+  def coupons
+    coupons = Coupon.where(event_id: params[:event_id])
+
+    fields = %i[id event_id selector_type label receiver_address discount_type discount
+                applicable_ticket_ids ticket_item_ids expires_at max_allowed_usages order_usage_count]
+
+    render json: { coupons: coupons.map { |c| c.as_json(only: fields) } }
+  end
+
+  def coupon
+    coupon = Coupon.find(params[:id])
+
+    fields = %i[id event_id selector_type label receiver_address discount_type discount
+                applicable_ticket_ids ticket_item_ids expires_at max_allowed_usages order_usage_count]
+
+    render json: { coupon: coupon.as_json(only: fields) }
+  end
+
+  def coupon_usage
+    ticket_items = TicketItem.includes(:profile).where(coupon_id: params[:coupon_id])
+
+    ticket_item_fields = %i[id status ticket_id profile_id event_id chain txhash amount ticket_price discount_value
+                            discount_data order_number participant_id ticket_type group_id tracks_allowed
+                            payment_method_id token_address receiver_address coupon_id sender_address
+                            selector_type selector_address original_price protocol created_at]
+
+    profile_fields = %i[id handle nickname image_url]
+
+    render json: {
+      ticket_items: ticket_items.map do |ti|
+        ti.as_json(only: ticket_item_fields).merge(
+          profile: ti.profile&.as_json(only: profile_fields)
+        )
+      end
+    }
+  end
+
   def check_coupon
     coupon = Coupon.find_by(event_id: params[:event_id], code: params[:code])
     render json: { coupon: coupon.as_json }
