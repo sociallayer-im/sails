@@ -144,14 +144,15 @@ class Api::GroupInviteController < ApiController
 
   def accept_invite_with_code
     profile = current_profile!
-    group_invite = GroupInvite.find_by(id: params[:group_invite_id], status: "sending")
-    group = Group.find(group_invite.group_id)
+    group_invite = GroupInvite.find_by(id: params[:group_invite_id])
+    raise AppError.new("invite not found") if group_invite.nil?
     raise AppError.new("invalid code") unless group_invite.receiver_address == params[:code]
-    # raise AppError.new("invalid status") unless group_invite.status == "sending"
     if group_invite.status == "accepted"
       return render json: { result: "ok" }
     end
+    raise AppError.new("invite has been cancelled") unless group_invite.status == "sending"
     raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
+    group = Group.find(group_invite.group_id)
     group_invite.update(status: "accepted")
     # group.add_member(profile.id, group_invite.role)
     membership = Membership.find_by(profile_id: profile.id, target_id: group.id)

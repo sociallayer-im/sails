@@ -6,6 +6,10 @@ class HomeController < ApplicationController
   def demo
   end
 
+  def echo
+    render json: {result: "ok"}
+  end
+
   def up
     render json: "up"
   end

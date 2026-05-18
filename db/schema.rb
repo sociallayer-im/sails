@@ -471,8 +471,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_072427) do
     t.jsonb "social_links", default: {}
     t.datetime "updated_at"
     t.string "handle"
-    t.integer "group_union", array: true
     t.string "op_label_list", default: [], array: true
+    t.integer "group_union", array: true
     t.integer "venue_union", array: true
     t.index ["group_tags"], name: "index_groups_on_group_tags", using: :gin
     t.index ["handle"], name: "index_groups_on_handle"

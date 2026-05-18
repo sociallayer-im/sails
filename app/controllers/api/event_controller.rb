@@ -31,8 +31,21 @@ class Api::EventController < ApiController
       authorize badge_class, :send?
     end
 
-    if event_params[:venue_id] && Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(status: "cancelled").any?
-      return render json: { result: "error", message: "time overlaped in the same venue" }
+    # Check for time conflicts: must compare actual datetimes, not just time of day
+    if event_params[:venue_id]
+      begin
+        event_start = Time.parse(event_params[:start_time].to_s)
+        event_end = Time.parse(event_params[:end_time].to_s)
+
+        if Event.where(venue_id: event_params[:venue_id])
+                .where("start_time < ? AND end_time > ?", event_end, event_start)
+                .where.not(status: "cancelled")
+                .any?
+          return render json: { result: "error", message: "time overlaped in the same venue" }
+        end
+      rescue ArgumentError => e
+        return render json: { result: "error", message: "Invalid start_time or end_time format" }
+      end
     end
 
     event = Event.new(event_params)
@@ -166,12 +179,22 @@ class Api::EventController < ApiController
     authorize event, :update?
 
     # Check for time conflicts when changing venue
+    # Must check both date AND time - not just time of day across different dates
     if event_params[:venue_id] && event_params[:venue_id] != event.venue_id
       if event_params[:start_time].blank? || event_params[:end_time].blank?
         return render json: { result: "error", message: "start_time and end_time are required when changing venue" }
       end
 
-      if Event.where(venue_id: event_params[:venue_id]).where("start_time < ? AND end_time > ?", event_params[:end_time], event_params[:start_time]).where.not(id: event.id).where.not(status: "cancelled").any?
+      new_start_time = Time.parse(event_params[:start_time].to_s)
+      new_end_time = Time.parse(event_params[:end_time].to_s)
+
+      # Query only checks for actual datetime overlap, not just matching times on different dates
+      conflicting_events = Event.where(venue_id: event_params[:venue_id])
+                                 .where("start_time < ? AND end_time > ?", new_end_time, new_start_time)
+                                 .where.not(id: event.id)
+                                 .where.not(status: "cancelled")
+
+      if conflicting_events.any?
         return render json: { result: "error", message: "time overlaped in the same venue" }
       end
     end
