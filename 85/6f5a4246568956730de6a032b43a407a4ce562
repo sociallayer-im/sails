@@ -1,0 +1,27 @@
+app/controllers/api/ticket_controller.rb
+  s_212b3fb8ecd46f::t_b68136b3525f5b 256-309
+config/routes.rb
+  s_212b3fb8ecd46f::t_4d528353946220 153-154
+  s_212b3fb8ecd46f::t_96a1a4770f8cb4 136-139
+app/controllers/api/profile_controller.rb
+  s_212b3fb8ecd46f::t_87fd7dfb492553 523-537
+app/controllers/api/search_controller.rb
+  s_212b3fb8ecd46f::t_2a7ccc0499b443 1
+  s_212b3fb8ecd46f::t_64ba7f285f75ee 2-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "856f5a4246568956730de6a032b43a407a4ce562",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
