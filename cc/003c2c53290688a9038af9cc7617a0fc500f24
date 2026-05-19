@@ -1,0 +1,31 @@
+Dockerfile
+  s_e3074556b88b79::t_230e2633dcb065 71
+fly.toml
+  s_e3074556b88b79::t_1296f24a8ba4b0 19-21
+  s_e3074556b88b79::t_899a006f903d61 12-15,23
+  s_212b3fb8ecd46f::t_7857648fb045af 27,30-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "cc003c2c53290688a9038af9cc7617a0fc500f24",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    },
+    "s_e3074556b88b79": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3e58-0447-78d1-a674-9c47e6a57ad1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
