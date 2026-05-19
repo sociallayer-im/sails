@@ -12,6 +12,13 @@ end
 
 json.event_roles @event.event_roles do |event_role|
   json.extract! event_role, :id, :role, :item_id, :item_type, :nickname, :image_url
+  if event_role.item_type == 'Profile' && event_role.item_id
+    profile = Profile.find_by(id: event_role.item_id)
+    json.profile profile ? profile.as_json(only: [:id, :handle, :nickname, :image_url]) : nil
+  elsif event_role.item_type == 'Group' && event_role.item_id
+    group = Group.find_by(id: event_role.item_id)
+    json.group group ? group.as_json(only: [:id, :handle, :nickname, :image_url]) : nil
+  end
 end
 
 json.partial! 'api/event/custom_form', custom_form: @event.custom_form
