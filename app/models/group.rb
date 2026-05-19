@@ -8,8 +8,7 @@ class Group < ApplicationRecord
   has_many :vote_proposals
   has_many :vote_options
   has_many :vote_records
-  has_many :popup_cities, dependent: :delete_all
-  has_many :tracks, dependent: :delete_all
+has_many :tracks, dependent: :delete_all
   has_many :tickets
   has_many :ticket_items
 

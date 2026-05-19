@@ -4,31 +4,38 @@ class Api::GroupController < ApiController
     group = Group.find(params[:group_id])
     authorize group, :manage?, policy_class: GroupPolicy
 
-    group.popup_cities.create(popup_city_params)
+    group.update(popup_city_params)
+    render json: { result: "ok", group: group }
   end
 
   def update_popup
     profile = current_profile!
-    popup = PopupCity.find(params[:id])
-    authorize popup.group, :manage?, policy_class: GroupPolicy
+    group = Group.find(params[:id])
+    authorize group, :manage?, policy_class: GroupPolicy
 
-    popup.update(popup_city_params)
+    group.update(popup_city_params)
+    render json: { result: "ok", group: group }
   end
 
   def update_popup_admin
     profile = current_profile!
-    popup = PopupCity.find(params[:id])
+    group = Group.find(params[:id])
     raise AppError.new("not admin") unless profile.admin?
 
-    popup.update(popup_city_admin_params)
+    group.update(popup_city_admin_params)
     render json: { result: "ok" }
   end
 
   def delete_popup_admin
     profile = current_profile!
-    popup = PopupCity.find(params[:id])
+    group = Group.find(params[:id])
     raise AppError.new("not admin") unless profile.admin?
-    popup.destroy
+
+    group.update(
+      start_date: nil,
+      end_date: nil,
+      group_tags: (group.group_tags || []).reject { |t| [":featured", ":hidden", ":top"].include?(t) }
+    )
     render json: { result: "ok" }
   end
 
@@ -57,9 +64,6 @@ class Api::GroupController < ApiController
     end
 
     group.add_member(profile.id, "owner")
-    if params[:with_popup_city]
-      group.popup_cities.create(popup_city_params)
-    end
     render json: { result: "ok", group: group }
   end
 
@@ -348,7 +352,7 @@ class Api::GroupController < ApiController
           :chain, :image_url, :nickname, :about, :status, :group_ticket_enabled,
           :tags, :event_taglist, :venue_taglist, :can_publish_event, :can_join_event, :can_view_event,
           :customizer, :logo_url, :banner_link_url, :banner_image_url,
-          :timezone, :location, :metadata,
+          :timezone, :location, :website, :start_date, :end_date, :metadata,
           :event_enabled, :map_enabled,
           {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           event_tags: [],
@@ -373,15 +377,11 @@ class Api::GroupController < ApiController
   end
 
   def popup_city_params
-    params.permit(
-      :title, :image_url, :location, :website, :start_date, :end_date
-    )
+    params.permit(:image_url, :location, :website, :start_date, :end_date)
   end
 
   def popup_city_admin_params
-    params.permit(
-      :title, :image_url, :location, :website, :start_date, :end_date,
-      group_tags: []
-    ).tap { |p| p[:group_tags] = params[:group_tags] }
+    params.permit(:image_url, :location, :website, :start_date, :end_date, group_tags: [])
+          .tap { |p| p[:group_tags] = params[:group_tags] if params[:group_tags] }
   end
 end

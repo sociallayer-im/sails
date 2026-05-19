@@ -1,7 +1,13 @@
 
-json.featured_popups @featured_popups do |popup|
-  json.extract! popup, :id, :title, :location, :start_date, :end_date, :group_tags, :website, :image_url
-  group = popup.group
+json.featured_popups @featured_popups do |group|
+  json.id group.id
+  json.title group.nickname
+  json.location group.location
+  json.start_date group.start_date
+  json.end_date group.end_date
+  json.group_tags group.group_tags
+  json.website group.website
+  json.image_url group.image_url
   json.group do
     json.id group.id
     json.handle group.handle
@@ -10,9 +16,15 @@ json.featured_popups @featured_popups do |popup|
   end
 end
 
-json.popups @popups do |popup|
-  json.extract! popup, :id, :title, :location, :start_date, :end_date, :group_tags, :website, :image_url
-  group = popup.group
+json.popups @popups do |group|
+  json.id group.id
+  json.title group.nickname
+  json.location group.location
+  json.start_date group.start_date
+  json.end_date group.end_date
+  json.group_tags group.group_tags
+  json.website group.website
+  json.image_url group.image_url
   json.group do
     json.id group.id
     json.handle group.handle
