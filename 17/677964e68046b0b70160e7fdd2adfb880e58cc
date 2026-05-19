@@ -1,0 +1,35 @@
+Gemfile.lock
+  ai_agent 107-109,162,168-169,171,173,176,192-197,223-224,226,240-241,291,315,343,346,348,350,352,354,366-370,540
+db/migrate/20260519000000_retire_popup_cities_table.rb
+  s_212b3fb8ecd46f::t_7c801a7ef38791 1-34
+app/controllers/api/group_controller.rb
+  s_212b3fb8ecd46f::t_dc55416c6c63d0 380,384-385
+  s_212b3fb8ecd46f::t_4da723abdf6d8a 355
+  s_212b3fb8ecd46f::t_8b9d5f6cb2173e 7-8,13-14,16-17,22,25,31,33-38
+app/controllers/api/event_controller.rb
+  s_212b3fb8ecd46f::t_958c14ef587ea0 615-616
+app/models/group.rb
+  s_212b3fb8ecd46f::t_8ac09a14eaa538 11
+app/views/api/event/discover.jbuilder
+  s_212b3fb8ecd46f::t_0035964ee98707 2-10,19-27
+app/views/api/group/get.jbuilder
+  s_212b3fb8ecd46f::t_45f6798fb46ed5 5-6
+app/controllers/api/popup_city_controller.rb
+  s_212b3fb8ecd46f::t_e2f1f82dfd86f1 3-4,6,11-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "17677964e68046b0b70160e7fdd2adfb880e58cc",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
