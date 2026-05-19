@@ -1,10 +1,15 @@
 class Api::GroupInviteController < ApiController
   def get
-    invite = GroupInvite.includes(:receiver, :sender).find(params[:id])
+    invite = GroupInvite.includes(:receiver, :sender, :group).find(params[:id])
+    group = invite.group
     render json: {
-      invite: invite.as_json(only: [:id, :status, :role, :expires_at, :message, :receiver_id, :sender_id, :group_id]).merge(
+      group_invite: invite.as_json(only: [:id, :status, :role, :expires_at, :created_at, :message,
+                                          :receiver_id, :sender_id, :group_id,
+                                          :receiver_address, :receiver_address_type,
+                                          :badge_class_id, :badge_id, :accepted]).merge(
         receiver: invite.receiver&.as_json(only: [:id, :handle, :nickname, :image_url]),
-        sender: invite.sender&.as_json(only: [:id, :handle, :nickname, :image_url])
+        sender: invite.sender&.as_json(only: [:id, :handle, :nickname, :image_url]),
+        group: group ? group.as_json(only: [:id, :handle, :nickname, :image_url]) : nil
       )
     }
   end
