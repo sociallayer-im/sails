@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 gem "net-imap", "~> 0.6"
+gem "tsort"
 gem "dotenv-rails"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.2"
