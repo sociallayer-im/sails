@@ -3,7 +3,7 @@ json.group do
    :event_tags, :event_enabled, :can_publish_event, :can_join_event, :can_view_event, :banner_link_url, :banner_image_url, :banner_text,
    :logo_url, :memberships_count, :timezone, :customizer, :created_at, :updated_at,
    :group_tags, :map_enabled, :venue_union, :group_union, :social_links,
-   :start_date, :end_date, :location, :website
+   :start_date, :end_date, :location, :website, :featured_image_url
 
   if @include_detail
     json.memberships @group.memberships.includes(:profile) do |m|

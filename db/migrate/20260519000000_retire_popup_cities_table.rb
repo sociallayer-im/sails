@@ -1,5 +1,7 @@
 class RetirePopupCitiesTable < ActiveRecord::Migration[7.2]
   def up
+    add_column :groups, :featured_image_url, :string
+
     # Copy best popup_city data into each group (prefer :featured ones when multiple exist)
     execute <<-SQL
       UPDATE groups g
@@ -8,6 +10,7 @@ class RetirePopupCitiesTable < ActiveRecord::Migration[7.2]
         end_date   = COALESCE(g.end_date,   pc.end_date),
         location   = COALESCE(g.location,   pc.location),
         website    = COALESCE(g.website,    pc.website),
+        featured_image_url = COALESCE(g.featured_image_url, pc.image_url),
         group_tags = ARRAY(
           SELECT DISTINCT unnest(
             COALESCE(g.group_tags, ARRAY[]::varchar[]) ||
@@ -16,7 +19,7 @@ class RetirePopupCitiesTable < ActiveRecord::Migration[7.2]
         )
       FROM (
         SELECT DISTINCT ON (group_id)
-          group_id, start_date, end_date, location, website, group_tags
+          group_id, start_date, end_date, location, website, image_url, group_tags
         FROM popup_cities
         ORDER BY group_id,
           CASE WHEN group_tags @> ARRAY[':featured']::varchar[] THEN 0 ELSE 1 END,

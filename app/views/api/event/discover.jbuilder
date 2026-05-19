@@ -7,7 +7,7 @@ json.featured_popups @featured_popups do |group|
   json.end_date group.end_date
   json.group_tags group.group_tags
   json.website group.website
-  json.image_url group.image_url
+  json.image_url group.featured_image_url || group.image_url
   json.group do
     json.id group.id
     json.handle group.handle
@@ -24,7 +24,7 @@ json.popups @popups do |group|
   json.end_date group.end_date
   json.group_tags group.group_tags
   json.website group.website
-  json.image_url group.image_url
+  json.image_url group.featured_image_url || group.image_url
   json.group do
     json.id group.id
     json.handle group.handle
