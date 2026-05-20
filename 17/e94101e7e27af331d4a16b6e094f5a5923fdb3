@@ -1,0 +1,30 @@
+test/controllers/api/group_invite_controller_test.rb
+  s_212b3fb8ecd46f::t_54335a6d5a1cd8 281
+  s_212b3fb8ecd46f::t_9378b2330398b4 200
+  s_212b3fb8ecd46f::t_b8e4416f573d60 222
+  s_212b3fb8ecd46f::t_86aba59fb9d90a 248
+  s_212b3fb8ecd46f::t_23844a4805b482 191-199,201-221,223-247,249-270,272-280,282-306
+  s_212b3fb8ecd46f::t_e2080e7a62837d 271
+  s_212b3fb8ecd46f::t_1572ce6bbf09db 337
+test/fixtures/venues.yml
+  s_212b3fb8ecd46f::t_e9cfd26500b283 10
+  s_212b3fb8ecd46f::t_f71749d9bedb67 21
+test/fixtures/events.yml
+  s_212b3fb8ecd46f::t_5aa97d7e186f88 14,29,44,60,75-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "17e94101e7e27af331d4a16b6e094f5a5923fdb3",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
