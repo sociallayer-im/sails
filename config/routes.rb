@@ -23,6 +23,9 @@ Rails.application.routes.draw do
     post "siwe/verify", to: "profile#verify"
 
     post "form/submit", to: "form#submit"
+    post "form/save_event_form", to: "form#save_event_form"
+    get  "form/get_event_form",  to: "form#get_event_form"
+    get  "form/list_submissions", to: "form#list_submissions"
 
     get  "profile/me", to: "profile#me"
     post "profile/create", to: "profile#create"

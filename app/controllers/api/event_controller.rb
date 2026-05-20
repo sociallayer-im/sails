@@ -364,6 +364,20 @@ class Api::EventController < ApiController
 
     participant.save
 
+    if event.form_id && params[:form_answers].present?
+      submission = FormSubmission.find_or_initialize_by(form_id: event.form_id, user_id: profile.id.to_s)
+      submission.status = 'pending'
+      submission.submitted_at = DateTime.now
+      submission.save!
+      submission.form_answers.delete_all
+      params[:form_answers].each do |answer|
+        submission.form_answers.create!(
+          form_field_id: answer[:field_id],
+          value: answer[:value]
+        )
+      end
+    end
+
     event.increment!(:participants_count)
 
     profile.send_mail_new_event(event)
@@ -434,7 +448,7 @@ class Api::EventController < ApiController
   end
 
   def get
-    @event = Event.includes(:owner, :event_roles, :venue, :group, :custom_form, {participants: :profile}, {tickets: :payment_methods}).find(params[:id])
+    @event = Event.includes(:owner, :event_roles, :venue, :group, :custom_form, :form, {form: :form_fields}, {participants: :profile}, {tickets: :payment_methods}).find(params[:id])
     if params[:include_participants].present?
       render template: "api/event/show_with_participants"
     else

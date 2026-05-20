@@ -22,3 +22,14 @@ json.event_roles @event.event_roles do |event_role|
 end
 
 json.partial! 'api/event/custom_form', custom_form: @event.custom_form
+
+if @event.form
+  json.form do
+    json.extract! @event.form, :id, :title, :description
+    json.fields @event.form.form_fields do |field|
+      json.extract! field, :id, :label, :field_type, :required, :position
+    end
+  end
+else
+  json.form nil
+end

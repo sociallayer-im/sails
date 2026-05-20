@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_20_070000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_20_153524) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -251,6 +251,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_20_070000) do
     t.integer "assigned_operators", default: [], array: true
     t.string "kind"
     t.string "key", null: false
+    t.string "form_id"
     t.index ["group_id", "status", "start_time"], name: "index_events_on_group_id_and_status_and_start_time"
     t.index ["group_id"], name: "index_events_on_group_id"
     t.index ["key"], name: "index_events_on_key", unique: true
@@ -267,16 +268,54 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_20_070000) do
     t.string "role"
   end
 
-  create_table "form_fields", force: :cascade do |t|
-    t.string "label"
-    t.string "description"
-    t.string "field_type"
-    t.jsonb "field_options"
-    t.string "required"
-    t.string "custom_form_id"
-    t.integer "position"
+  create_table "form_answers", id: :string, force: :cascade do |t|
+    t.string "form_submission_id", null: false
+    t.string "form_field_id", null: false
+    t.text "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["form_field_id"], name: "index_form_answers_on_form_field_id"
+    t.index ["form_submission_id"], name: "index_form_answers_on_form_submission_id"
+  end
+
+  create_table "form_fields", id: :string, force: :cascade do |t|
+    t.string "form_id", null: false
+    t.string "label", null: false
+    t.string "field_type", null: false
+    t.boolean "required", default: false, null: false
+    t.boolean "for_admin", default: false
+    t.integer "position", default: 0, null: false
+    t.jsonb "options", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["form_id", "position"], name: "index_form_fields_on_form_id_and_position"
+  end
+
+  create_table "form_submissions", id: :string, force: :cascade do |t|
+    t.string "form_id", null: false
+    t.string "user_id", null: false
+    t.string "status", default: "pending", null: false
+    t.boolean "starred", default: false, null: false
+    t.text "admin_note"
+    t.datetime "submitted_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["form_id", "status"], name: "index_form_submissions_on_form_id_and_status"
+    t.index ["form_id", "user_id"], name: "index_form_submissions_on_form_id_and_user_id", unique: true
+    t.index ["user_id"], name: "index_form_submissions_on_user_id"
+  end
+
+  create_table "forms", id: :string, force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.string "slug", null: false
+    t.boolean "published", default: false, null: false
+    t.text "submission_message"
+    t.string "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_forms_on_created_by_id"
+    t.index ["slug"], name: "index_forms_on_slug", unique: true
   end
 
   create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
