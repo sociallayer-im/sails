@@ -132,8 +132,6 @@ Rails.application.routes.draw do
     post "ticket/stripe_client_secret", to: "ticket#stripe_client_secret"
     post "ticket/stripe_config", to: "ticket#stripe_config"
     post "ticket/add_group_ticket_item", to: "ticket#add_group_ticket_item"
-    post "ticket/daimo_create_payment_link", to: "ticket#daimo_create_payment_link"
-    post "ticket/daimo_webhook", to: "ticket#daimo_webhook"
     get  "ticket/list_group_ticket_types", to: "ticket#list_group_ticket_types"
     post "ticket/set_coupon", to: "ticket#set_coupon"
     get  "ticket/check_coupon", to: "ticket#check_coupon"

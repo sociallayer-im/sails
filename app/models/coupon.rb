@@ -1,5 +1,5 @@
 class Coupon < ApplicationRecord
-  validates :selector_type, inclusion: { in: %w(code email zupass badge) }
+  validates :selector_type, inclusion: { in: %w(code email badge) }
   validates :discount_type, inclusion: { in: %w(ratio amount) }
   belongs_to :event
 
