@@ -1,0 +1,21 @@
+app/models/coupon.rb
+  s_212b3fb8ecd46f::t_50477dc0e72357 2
+app/models/ticket_item.rb
+  s_212b3fb8ecd46f::t_a5950cedbc3ed7 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "42ecddf3d0c70e32fbaa528de7556eefaf7001fb",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
