@@ -61,11 +61,13 @@ class Event < ApplicationRecord
   end
 
   def local_start_time
-    self.start_time.in_time_zone(self.timezone).to_s
+    tz = ActiveSupport::TimeZone[self.timezone] ? self.timezone : 'UTC'
+    self.start_time.in_time_zone(tz).to_s
   end
 
   def local_end_time
-    self.end_time.in_time_zone(self.timezone).to_s
+    tz = ActiveSupport::TimeZone[self.timezone] ? self.timezone : 'UTC'
+    self.end_time.in_time_zone(tz).to_s
   end
 
   def self.edge_esmeralda_verification()
