@@ -28,7 +28,7 @@ if @include_participants
     json.extract! p, :id, :status, :created_at, :ticket_id, :payment_status
     if p.profile
       json.profile do
-        json.extract! p.profile, :id, :handle, :nickname, :image_url
+        json.extract! p.profile, :id, :handle, :nickname, :image_url, :email
       end
     else
       json.profile nil
