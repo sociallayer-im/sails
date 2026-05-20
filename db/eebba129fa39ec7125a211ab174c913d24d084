@@ -1,0 +1,19 @@
+db/migrate/20260519044906_add_featured_image_url_to_groups.rb
+  s_212b3fb8ecd46f::t_7a2c5eaaedafad 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "dbeebba129fa39ec7125a211ab174c913d24d084",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
