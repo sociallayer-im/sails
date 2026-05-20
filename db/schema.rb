@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_20_044447) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_20_045740) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -250,8 +250,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_20_044447) do
     t.string "op_labels", default: [], array: true
     t.integer "assigned_operators", default: [], array: true
     t.string "kind"
+    t.string "key"
     t.index ["group_id", "status", "start_time"], name: "index_events_on_group_id_and_status_and_start_time"
     t.index ["group_id"], name: "index_events_on_group_id"
+    t.index ["key"], name: "index_events_on_key", unique: true
     t.index ["owner_id"], name: "index_events_on_owner_id"
     t.index ["recurring_id"], name: "index_events_on_recurring_id"
     t.index ["track_id", "status"], name: "index_events_on_track_id_and_status"

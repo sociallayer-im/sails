@@ -1,4 +1,6 @@
 class Event < ApplicationRecord
+  TSID_GENERATOR = Tsid::Generator.new
+
   belongs_to :owner, class_name: "Profile", foreign_key: "owner_id"
   belongs_to :group, optional: true
   belongs_to :track, optional: true
@@ -13,6 +15,8 @@ class Event < ApplicationRecord
   has_many :coupons, dependent: :delete_all
   has_many :stars, -> { where(item_type: "Event", comment_type: "star") }, class_name: "Comment", foreign_key: "item_id"
   has_many :operator_notes, dependent: :delete_all
+
+  before_create :assign_key
 
   # validates :end_time, comparison: { greater_than: :start_time }
   validates :status, inclusion: { in: %w(draft open pending published closed cancelled) }
@@ -395,6 +399,12 @@ class Event < ApplicationRecord
 
   def location_url
     self.geo_lat.present? ? "https://www.google.com/maps/search/?api=1&query=#{self.geo_lat}%2C#{self.geo_lng}" : ""
+  end
+
+  private
+
+  def assign_key
+    self.key ||= TSID_GENERATOR.generate
   end
 
 end

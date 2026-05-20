@@ -20,16 +20,13 @@ module Tsid
 
       # Generate a new TSID
       def generate(timestamp = nil)
-        timestamp_us = get_timestamp_us(timestamp)
-        ensure_monotonicity(timestamp_us)
-
+        timestamp_us = ensure_monotonicity(get_timestamp_us(timestamp))
         integer = (timestamp_us << CLOCK_ID_BITS) | @clock_id
         encode(integer)
       end
 
       def generate_int()
-        timestamp_us = get_timestamp_us()
-        ensure_monotonicity(timestamp_us)
+        timestamp_us = ensure_monotonicity(get_timestamp_us())
 
         integer = (timestamp_us << CLOCK_ID_BITS) | @clock_id
         encode(integer)
