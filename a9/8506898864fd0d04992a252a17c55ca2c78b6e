@@ -1,0 +1,45 @@
+app/controllers/api/form_controller.rb
+  s_212b3fb8ecd46f::t_e429020c21f83a 46-49,53-57
+  s_212b3fb8ecd46f::t_aa34220d887760 50,52
+  s_212b3fb8ecd46f::t_e61fded998cb88 62
+  s_212b3fb8ecd46f::t_feda9982d62452 32-39
+  s_212b3fb8ecd46f::t_f5cef7437f0eba 51
+  s_212b3fb8ecd46f::t_bbaec5d3d26173 18
+app/controllers/api/event_controller.rb
+  s_212b3fb8ecd46f::t_a274b4afb4bd90 417
+  s_212b3fb8ecd46f::t_cc217feb7b6dd1 792-796
+  s_212b3fb8ecd46f::t_48add40bd78c8d 428
+  s_212b3fb8ecd46f::t_bc626d21925bea 408,418
+  s_212b3fb8ecd46f::t_0b7ba3d93d10f6 407
+  s_212b3fb8ecd46f::t_63df5d48a8a891 416
+  s_212b3fb8ecd46f::t_c4203e33d37976 353-354,388-395
+  s_212b3fb8ecd46f::t_41ffd2e6f5fa1f 445
+  s_212b3fb8ecd46f::t_7499edb0263d6f 457
+  s_212b3fb8ecd46f::t_128e22b8d21383 376-383
+  s_212b3fb8ecd46f::t_62734f859c6052 406
+  s_212b3fb8ecd46f::t_67e55e643e5751 367-375,384
+app/views/api/event/show_with_participants.jbuilder
+  s_212b3fb8ecd46f::t_0f397222855c65 29
+  s_212b3fb8ecd46f::t_a1e9314782c94c 38
+config/routes.rb
+  s_212b3fb8ecd46f::t_da70ea3d73cda8 27
+  s_212b3fb8ecd46f::t_1d02a822701ac7 29
+app/views/api/event/show.jbuilder
+  s_212b3fb8ecd46f::t_efc8248e4e72b7 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "a98506898864fd0d04992a252a17c55ca2c78b6e",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
