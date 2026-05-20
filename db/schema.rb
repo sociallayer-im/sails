@@ -686,19 +686,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_20_044447) do
     t.datetime "created_at", null: false
   end
 
-  create_table "popup_cities", force: :cascade do |t|
-    t.string "title"
-    t.string "image_url"
-    t.string "location"
-    t.string "website"
-    t.integer "group_id"
-    t.date "start_date"
-    t.date "end_date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "group_tags", array: true
-  end
-
   create_table "product_items", force: :cascade do |t|
     t.integer "product_id"
     t.string "label"
