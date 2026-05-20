@@ -15,6 +15,7 @@ class Api::FormController < ApiController
 
       FormField.where(form_id: form.id).delete_all
       (params[:fields] || []).each_with_index do |field_params, index|
+        raise AppError.new("field label cannot be blank") if field_params[:label].blank?
         form.form_fields.create!(
           label: field_params[:label],
           field_type: field_params[:field_type] || 'text',
@@ -28,17 +29,37 @@ class Api::FormController < ApiController
     render json: { form: form_json(form.reload) }
   end
 
+  def clear_event_form
+    profile = current_profile!
+    event = Event.find(params[:event_id])
+    authorize event, :update?
+    event.update_column(:form_id, nil)
+    render json: { result: "ok" }
+  end
+
   def get_event_form
     event = Event.find(params[:event_id])
     form = event.form
     render json: { form: form ? form_json(form) : nil }
   end
 
+  def get_submission
+    profile = current_profile!
+    form = Form.find(params[:form_id])
+    event = Event.find_by(form_id: form.id)
+    is_manager = event && (event.owner_id == profile.id || event.group.is_manager(profile.id))
+    is_own = params[:user_id].to_s == profile.id.to_s
+    raise AppError.new("not authorized") unless is_manager || is_own
+
+    submission = form.form_submissions.includes(:form_answers).find_by(user_id: params[:user_id].to_s)
+    render json: { submission: submission ? submission_json(submission) : nil }
+  end
+
   def list_submissions
     profile = current_profile!
     form = Form.find(params[:form_id])
     event = Event.find_by(form_id: form.id)
-    raise AppError.new("not authorized") unless event && EventPolicy.new(profile, event).update?
+    raise AppError.new("not authorized") unless event && (event.owner_id == profile.id || event.group.is_manager(profile.id))
 
     submissions = form.form_submissions.includes(:form_answers)
     render json: { submissions: submissions.map { |s| submission_json(s) } }

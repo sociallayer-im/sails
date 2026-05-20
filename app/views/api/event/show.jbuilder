@@ -26,7 +26,7 @@ json.partial! 'api/event/custom_form', custom_form: @event.custom_form
 if @event.form
   json.form do
     json.extract! @event.form, :id, :title, :description
-    json.fields @event.form.form_fields do |field|
+    json.fields @event.form.form_fields.reject(&:for_admin) do |field|
       json.extract! field, :id, :label, :field_type, :required, :position
     end
   end

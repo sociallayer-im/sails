@@ -350,6 +350,8 @@ class Api::EventController < ApiController
     end
 
     participant = Participant.find_by(event_id: event.id, profile_id: profile.id)
+    prev_status = participant&.status
+
     if !participant
       participant = Participant.new(
         profile: profile,
@@ -362,23 +364,35 @@ class Api::EventController < ApiController
       participant.register_time = DateTime.now
     end
 
-    participant.save
+    ActiveRecord::Base.transaction do
+      participant.save!
 
-    if event.form_id && params[:form_answers].present?
-      submission = FormSubmission.find_or_initialize_by(form_id: event.form_id, user_id: profile.id.to_s)
-      submission.status = 'pending'
-      submission.submitted_at = DateTime.now
-      submission.save!
-      submission.form_answers.delete_all
-      params[:form_answers].each do |answer|
-        submission.form_answers.create!(
-          form_field_id: answer[:field_id],
-          value: answer[:value]
-        )
+      if event.form_id && params[:form_answers].present?
+        valid_field_ids = FormField.where(form_id: event.form_id).pluck(:id).map(&:to_s)
+        submission = FormSubmission.find_or_initialize_by(form_id: event.form_id, user_id: profile.id.to_s)
+        submission.status = 'pending'
+        submission.submitted_at = DateTime.now
+        submission.save!
+        FormAnswer.where(form_submission_id: submission.id).delete_all
+        params[:form_answers].each do |answer|
+          next unless valid_field_ids.include?(answer[:field_id].to_s)
+          FormAnswer.create!(
+            form_submission_id: submission.id,
+            form_field_id: answer[:field_id],
+            value: answer[:value]
+          )
+        end
       end
     end
 
-    event.increment!(:participants_count)
+    # Only count confirmed attendees; pending waits until approval
+    was_counted = %w[attending checked].include?(prev_status)
+    will_be_counted = status == "attending"
+    if will_be_counted && !was_counted
+      event.increment!(:participants_count)
+    elsif !will_be_counted && was_counted
+      event.decrement!(:participants_count)
+    end
 
     profile.send_mail_new_event(event)
 
@@ -389,7 +403,9 @@ class Api::EventController < ApiController
     profile = current_profile!
     participant = Participant.find(params[:participant_id])
     authorize participant, :approve?
-    participant.update(status: "attending")
+    raise AppError.new("participant is not pending") unless participant.status == "pending"
+    participant.update!(status: "attending")
+    sync_participants_count(participant.event)
     render json: { result: "ok", participant: participant.as_json }
   end
 
@@ -397,7 +413,9 @@ class Api::EventController < ApiController
     profile = current_profile!
     participant = Participant.find(params[:participant_id])
     authorize participant, :approve?
-    participant.update(status: "rejected")
+    raise AppError.new("participant is not pending") unless participant.status == "pending"
+    participant.update!(status: "rejected")
+    sync_participants_count(participant.event)
     render json: { result: "ok", participant: participant.as_json }
   end
 
@@ -407,6 +425,7 @@ class Api::EventController < ApiController
 
     participant = Participant.find_by(event_id: params[:id], profile_id: params[:profile_id])
     authorize event, :update?
+    raise AppError.new("participant is not attending") unless participant.status == "attending"
     participant.status = "checked"
     participant.check_time = DateTime.now
     participant.save
@@ -423,7 +442,7 @@ class Api::EventController < ApiController
 
     # todo : refund or require more action when cancelling paid participants
     participant.update(status: "cancelled")
-    event.decrement!(:participants_count)
+    sync_participants_count(event)
 
     profile.send_mail_cancel_event(event)
 
@@ -435,7 +454,7 @@ class Api::EventController < ApiController
     participant = Participant.find_by(event_id: params[:id], profile_id: params[:profile_id])
     authorize participant, :update?
     participant.update(status: "cancelled")
-    participant.event.decrement!(:participants_count)
+    sync_participants_count(participant.event)
     render json: { participant: participant.as_json }
   end
 
@@ -769,6 +788,11 @@ class Api::EventController < ApiController
   end
 
   private
+
+  def sync_participants_count(event)
+    count = Participant.where(event_id: event.id, status: %w[attending checked]).count
+    event.update_column(:participants_count, count)
+  end
 
   def event_params
     params.permit(
