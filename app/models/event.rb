@@ -61,12 +61,12 @@ class Event < ApplicationRecord
   end
 
   def local_start_time
-    tz = ActiveSupport::TimeZone[self.timezone] ? self.timezone : 'UTC'
+    tz = (self.timezone && ActiveSupport::TimeZone[self.timezone]) ? self.timezone : 'UTC'
     self.start_time.in_time_zone(tz).to_s
   end
 
   def local_end_time
-    tz = ActiveSupport::TimeZone[self.timezone] ? self.timezone : 'UTC'
+    tz = (self.timezone && ActiveSupport::TimeZone[self.timezone]) ? self.timezone : 'UTC'
     self.end_time.in_time_zone(tz).to_s
   end
 
