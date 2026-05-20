@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_20_060000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_20_070000) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -381,6 +381,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_20_060000) do
     t.datetime "created_at", null: false
     t.string "receiver_address_type", default: "id"
     t.string "receiver_address"
+    t.integer "ticket_id"
   end
 
   create_table "group_pass_types", force: :cascade do |t|

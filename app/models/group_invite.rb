@@ -4,6 +4,7 @@ class GroupInvite < ApplicationRecord
   belongs_to :group
   belongs_to :badge_class, optional: true
   belongs_to :badge, optional: true
+  belongs_to :ticket, optional: true
   has_many   :activities, as: :item
 
   validates :role, inclusion: { in: %w(member operator manager owner) }

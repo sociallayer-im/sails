@@ -6,7 +6,7 @@ class Api::GroupInviteController < ApiController
       group_invite: invite.as_json(only: [:id, :status, :role, :expires_at, :created_at, :message,
                                           :receiver_id, :sender_id, :group_id,
                                           :receiver_address, :receiver_address_type,
-                                          :badge_class_id, :badge_id, :accepted]).merge(
+                                          :badge_class_id, :badge_id, :accepted, :ticket_id]).merge(
         receiver: invite.receiver&.as_json(only: [:id, :handle, :nickname, :image_url]),
         sender: invite.sender&.as_json(only: [:id, :handle, :nickname, :image_url]),
         group: group ? group.as_json(only: [:id, :handle, :nickname, :image_url]) : nil
@@ -130,8 +130,13 @@ class Api::GroupInviteController < ApiController
     authorize group_invite, :accept?
     raise AppError.new("invalid status") unless group_invite.status == "sending"
     raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
-    group_invite.update(status: "accepted")
-    group.add_member(profile.id, group_invite.role)
+
+    ActiveRecord::Base.transaction do
+      group_invite.update(status: "accepted")
+      group.add_member(profile.id, group_invite.role)
+      create_ticket_item_for_invite(group_invite, profile)
+    end
+
     render json: { result: "ok" }
   end
 
@@ -171,7 +176,10 @@ class Api::GroupInviteController < ApiController
       membership.update(role: group_invite.role)
       Activity.create(initiator_id: profile.id, action: "group_invite/update_role", receiver_type: "id", receiver_id: profile.id, memo: "membership updated")
     elsif membership.blank?
-      group.add_member(profile.id, group_invite.role)
+      ActiveRecord::Base.transaction do
+        group.add_member(profile.id, group_invite.role)
+        create_ticket_item_for_invite(group_invite, profile)
+      end
       Activity.create(initiator_id: profile.id, action: "group_invite/add_member", receiver_type: "id", receiver_id: profile.id, memo: "membership created")
     end
     render json: { result: "ok" }
@@ -196,5 +204,27 @@ class Api::GroupInviteController < ApiController
 
     group_invite.update(status: "cancelled")
     render json: { result: "ok" }
+  end
+
+  private
+
+  def create_ticket_item_for_invite(group_invite, profile)
+    return unless group_invite.ticket_id.present?
+
+    ticket = group_invite.ticket
+    return unless ticket.present?
+
+    ticket_item = TicketItem.create!(
+      ticket_id: ticket.id,
+      profile_id: profile.id,
+      group_id: ticket.group_id,
+      ticket_type: "group",
+      status: "succeeded",
+      auth_type: "invite",
+      amount: 0,
+      original_price: 0,
+      tracks_allowed: ticket.tracks_allowed,
+    )
+    ticket_item.update!(order_number: (ticket_item.id + 1_000_000).to_s)
   end
 end
