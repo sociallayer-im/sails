@@ -1,0 +1,26 @@
+app/controllers/api/group_invite_controller.rb
+  s_212b3fb8ecd46f::t_27808c6656a377 208-229
+  s_212b3fb8ecd46f::t_c6e3a12ebe2095 179-182
+  s_212b3fb8ecd46f::t_2cf70bd983d8bc 9
+  s_212b3fb8ecd46f::t_ca370fa457d963 133-139
+db/migrate/20260520070000_add_ticket_id_to_group_invites.rb
+  s_212b3fb8ecd46f::t_c993842481b0bc 1-5
+app/models/group_invite.rb
+  s_212b3fb8ecd46f::t_d51aafaed7206f 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "a745d11e5916f54a21794deee76cb8697ff0eaa0",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
