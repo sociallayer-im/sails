@@ -1,10 +1,14 @@
 class Venue < ApplicationRecord
+  TSID_GENERATOR = Tsid::Generator.new
+
   belongs_to :owner, class_name: "Profile", foreign_key: "owner_id", optional: true
   belongs_to :group
   has_many :events
   has_many :venue_timeslots
   has_many :venue_overrides
   has_many :availabilities, as: :item
+
+  before_create :assign_key
 
   validates :end_date, comparison: { greater_than: :start_date }, if: -> { start_date.present? && end_date.present? }
 
@@ -13,6 +17,14 @@ class Venue < ApplicationRecord
   accepts_nested_attributes_for :availabilities, allow_destroy: true
 
   validates :visibility, inclusion: { in: %w(all member manager none) }, allow_nil: true
+
+  private
+
+  def assign_key
+    self.key ||= TSID_GENERATOR.generate
+  end
+
+  public
 
   def check_availability_old(event_start, event_end, timezone, event_id = nil)
     start_time = event_start.in_time_zone(timezone)
