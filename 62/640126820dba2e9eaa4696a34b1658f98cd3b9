@@ -1,0 +1,22 @@
+db/migrate/20260520060000_set_events_key_not_null.rb
+  s_212b3fb8ecd46f::t_51c75d631ad037 3-4
+  s_212b3fb8ecd46f::t_cb6fff52422920 1-2,5-10
+app/models/event.rb
+  s_212b3fb8ecd46f::t_7557db683a405c 64-65,69-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "62640126820dba2e9eaa4696a34b1658f98cd3b9",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
