@@ -7,6 +7,7 @@ pku:
   geo_lat: "39.98"
   geo_lng: "116.30"
   visibility: "all"
+  key: "2345abcde01"
 
 yuanmingyuan:
   id: 541
@@ -17,3 +18,4 @@ yuanmingyuan:
   geo_lat: "39.98"
   geo_lng: "116.30"
   visibility: "all"
+  key: "2345abcde02"

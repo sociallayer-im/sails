@@ -11,6 +11,7 @@ one:
   status: "published"
   display: "normal"
   event_type: "event"
+  key: "2345abcdefg"
 
 with_ticket:
   id: 801
@@ -25,6 +26,7 @@ with_ticket:
   status: "published"
   display: "normal"
   event_type: "event"
+  key: "2345abcdefh"
 
 private_event:
   id: 901
@@ -39,6 +41,7 @@ private_event:
   event_type: "event"
   location: "central park"
   content: "wonderful"
+  key: "2345abcdefi"
 
 private_track_event:
   id: 1001
@@ -54,6 +57,7 @@ private_track_event:
   location: "central park"
   content: "wonderful"
   track_id: 2
+  key: "2345abcdefj"
 
 public_track_event:
   id: 1002
@@ -69,3 +73,4 @@ public_track_event:
   location: "central park"
   content: "wonderful"
   track_id: 1
+  key: "2345abcdefk"
