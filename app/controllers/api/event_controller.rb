@@ -435,8 +435,11 @@ class Api::EventController < ApiController
 
   def get
     @event = Event.includes(:owner, :event_roles, :venue, :group, :custom_form, {participants: :profile}, {tickets: :payment_methods}).find(params[:id])
-    @include_participants = params[:include_participants].present?
-    render template: "api/event/show"
+    if params[:include_participants].present?
+      render template: "api/event/show_with_participants"
+    else
+      render template: "api/event/show"
+    end
   end
 
   def list
