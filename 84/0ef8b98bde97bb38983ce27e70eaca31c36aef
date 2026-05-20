@@ -1,0 +1,25 @@
+app/models/venue.rb
+  s_212b3fb8ecd46f::t_b5d3880360df39 2-3,11
+  s_212b3fb8ecd46f::t_f9e383c7879c4b 21-28
+db/schema.rb
+  ai_agent 13,955,957
+db/migrate/20260520044447_add_key_to_venues.rb
+  s_212b3fb8ecd46f::t_0588913faa93c0 2-16
+  s_212b3fb8ecd46f::t_14a9e2526d017f 1,17-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "840ef8b98bde97bb38983ce27e70eaca31c36aef",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
