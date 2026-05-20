@@ -1,0 +1,45 @@
+app/models/event.rb
+  s_212b3fb8ecd46f::t_5fa4534f1dcba6 11
+app/models/form.rb
+  s_212b3fb8ecd46f::t_64bb7c3f2165f2 1-15
+app/controllers/api/form_controller.rb
+  s_212b3fb8ecd46f::t_d9bca965a43592 3-15,17-25,27-44,49-62
+  s_212b3fb8ecd46f::t_d4332a59abf355 16
+config/routes.rb
+  s_212b3fb8ecd46f::t_f9b146579a5ee5 26-28
+db/migrate/20260520153524_create_form_tables.rb
+  s_212b3fb8ecd46f::t_c1c8617815d663 1-61
+app/views/api/event/show.jbuilder
+  s_212b3fb8ecd46f::t_ffd7822c928c26 25-35
+app/controllers/api_controller.rb
+  s_212b3fb8ecd46f::t_616a584d982f74 111-120
+app/views/api/event/_event.jbuilder
+  s_212b3fb8ecd46f::t_6d63a8499f4662 1
+app/models/form_answer.rb
+  s_212b3fb8ecd46f::t_a13becaf3ea31e 1-14
+app/views/api/event/show_with_participants.jbuilder
+  s_212b3fb8ecd46f::t_5bf5f9743a6a29 26-36
+app/controllers/api/event_controller.rb
+  s_212b3fb8ecd46f::t_03f6b38e04a925 451
+  s_212b3fb8ecd46f::t_7147cc007b0ffc 367-380
+app/models/form_field.rb
+  s_212b3fb8ecd46f::t_f6d82a250f8a1e 2-12
+app/models/form_submission.rb
+  s_212b3fb8ecd46f::t_3a5e5d934ec73c 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "c88bcb414231e60e3c47b920f166a36448053fda",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
