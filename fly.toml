@@ -41,6 +41,6 @@ console_command = '/rails/bin/rails console'
     timeout = "10s"
 
 [[vm]]
-  memory = '2gb'
+  memory = '4gb'
   cpu_kind = 'shared'
-  cpus = 1
+  cpus = 2
