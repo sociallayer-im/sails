@@ -1,7 +1,8 @@
 class Api::GroupInviteController < ApiController
   def get
-    invite = GroupInvite.includes(:receiver, :sender, :group).find(params[:id])
+    invite = GroupInvite.includes(:receiver, :sender, :group, :ticket).find(params[:id])
     group = invite.group
+    ticket = invite.ticket
     render json: {
       group_invite: invite.as_json(only: [:id, :status, :role, :expires_at, :created_at, :message,
                                           :receiver_id, :sender_id, :group_id,
@@ -9,7 +10,8 @@ class Api::GroupInviteController < ApiController
                                           :badge_class_id, :badge_id, :accepted, :ticket_id]).merge(
         receiver: invite.receiver&.as_json(only: [:id, :handle, :nickname, :image_url]),
         sender: invite.sender&.as_json(only: [:id, :handle, :nickname, :image_url]),
-        group: group ? group.as_json(only: [:id, :handle, :nickname, :image_url]) : nil
+        group: group ? group.as_json(only: [:id, :handle, :nickname, :image_url]) : nil,
+        ticket: ticket ? ticket.as_json(only: [:id, :title, :ticket_type, :start_date, :end_date, :days_allowed, :tracks_allowed, :status]) : nil
       )
     }
   end
