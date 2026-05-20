@@ -1,0 +1,11 @@
+fly.toml
+  ai_agent 44,46
+lib/tsid.rb
+  ai_agent 1-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "0fe732c0bdb6fc4cf7f03cd823e5aa33a6e05cf1",
+  "prompts": {}
+}
