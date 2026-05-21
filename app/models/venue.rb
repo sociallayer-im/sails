@@ -42,14 +42,12 @@ class Venue < ApplicationRecord
         return false, "Event is after venue availibility ends"
       end
     end
-    if event_id
-      if Event.where(venue_id: self.id).where("start_time < ? AND end_time > ?", event_end, event_start).where.not(id: event_id).any?
-        return false, "Event is on a day the venue is already booked"
-      end
-    else
-      if Event.where(venue_id: self.id).where("start_time < ? AND end_time > ?", event_end, event_start).any?
-        return false, "Event is on a day the venue is already booked"
-      end
+    overlap_scope = Event.where(venue_id: self.id)
+                         .where("start_time < ? AND end_time > ?", event_end, event_start)
+                         .where.not(status: "cancelled")
+    overlap_scope = overlap_scope.where.not(id: event_id) if event_id
+    if overlap_scope.any?
+      return false, "Event is on a day the venue is already booked"
     end
     override = Availability.find_by(item_id: self.id, item_type: "Venue", day: start_date)
     timeslot = Availability.find_by(item_id: self.id, item_type: "Venue", day_of_week: start_time.strftime("%A").downcase)

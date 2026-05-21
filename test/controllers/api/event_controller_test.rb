@@ -746,11 +746,305 @@ params: { auth_token: auth_token, id: event.id }
     post api_event_update_url,
       params: { auth_token: auth_token, id: event.id,
         venue_id: venue.id,
-        location: venue.location
+        location: venue.location,
+        start_time: event.start_time.iso8601,
+        end_time: event.end_time.iso8601
     }
     assert_response :success
     event.reload
     assert_equal venue.id, event.venue_id
     assert_equal venue.location, event.location
+  end
+
+  # ── Venue availability & overlap ─────────────────────────────────────────
+
+  # Helper: fresh venue attached to guildx (timezone Asia/Shanghai)
+  def build_venue(attrs = {})
+    Venue.create!({
+      title: "test venue #{SecureRandom.hex(4)}",
+      location: "test loc",
+      group_id: 1,
+      visibility: "all"
+    }.merge(attrs))
+  end
+
+  # 2025-01-06 = Monday, 2025-01-07 = Tuesday, 2025-01-11 = Saturday
+  # Times are UTC; Asia/Shanghai is UTC+8, so 02:00 UTC = 10:00 CST
+
+  test "venue/create: no availabilities → 7*24 open, event allowed" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 1",
+      start_time: "2025-01-06T02:00:00Z",   # Mon 10:00 CST
+      end_time:   "2025-01-06T04:00:00Z",   # Mon 12:00 CST
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "ok", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: event within weekly timeslot → allowed" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "18:00"]], role: "all")
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 2",
+      start_time: "2025-01-06T02:00:00Z",   # Mon 10:00 CST
+      end_time:   "2025-01-06T04:00:00Z",   # Mon 12:00 CST
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "ok", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: event outside weekly timeslot hours → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "11:00"]], role: "all")
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 3",
+      start_time: "2025-01-06T02:00:00Z",   # Mon 10:00 CST
+      end_time:   "2025-01-06T05:00:00Z",   # Mon 13:00 CST — ends after slot closes at 11:00
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: day not in weekly slots (venue has slots, just not today) → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    # only Monday configured; event on Tuesday
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "18:00"]], role: "all")
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 4",
+      start_time: "2025-01-07T02:00:00Z",   # Tue 10:00 CST
+      end_time:   "2025-01-07T04:00:00Z",   # Tue 12:00 CST
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: date override open → allowed (overrides closed weekly slot)" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    # Tuesday is not in weekly slots, but we add an override opening it
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "18:00"]], role: "all")
+    Availability.create!(item: venue, day: "2025-01-07", intervals: [["09:00", "18:00"]], role: "all")
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 5",
+      start_time: "2025-01-07T02:00:00Z",   # Tue 10:00 CST — covered by override
+      end_time:   "2025-01-07T04:00:00Z",
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "ok", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: date override with empty intervals (closed) → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    # Monday has a slot, but the specific date is overridden closed
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "18:00"]], role: "all")
+    Availability.create!(item: venue, day: "2025-01-06", intervals: [], role: "all")
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 6",
+      start_time: "2025-01-06T02:00:00Z",   # Mon 10:00 CST — override says closed
+      end_time:   "2025-01-06T04:00:00Z",
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: event before venue start_date → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue(start_date: "2025-02-01")
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 7",
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z",
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: event after venue end_date → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue(end_date: "2024-12-31")
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 8",
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z",
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: overlaps existing published event → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Event.create!(
+      group_id: 1, owner_id: 1, venue: venue,
+      title: "existing event", status: "published",
+      start_time: "2025-01-06T01:00:00Z",
+      end_time:   "2025-01-06T05:00:00Z",
+      display: "normal", event_type: "event", key: SecureRandom.hex(8)
+    )
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 9",
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z",
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/create: overlap only with cancelled event → allowed" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Event.create!(
+      group_id: 1, owner_id: 1, venue: venue,
+      title: "cancelled event", status: "cancelled",
+      start_time: "2025-01-06T01:00:00Z",
+      end_time:   "2025-01-06T05:00:00Z",
+      display: "normal", event_type: "event", key: SecureRandom.hex(8)
+    )
+
+    post api_event_create_url, params: {
+      auth_token: profile.gen_auth_token, group_id: 1,
+      venue_id: venue.id,
+      title: "avail test 10",
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z",
+      location: "x", display: "normal", event_type: "event"
+    }
+    assert_response :success
+    assert_equal "ok", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/update: shift time within same venue timeslot → allowed (self excluded from overlap)" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "18:00"]], role: "all")
+    event = Event.create!(
+      group_id: 1, owner_id: 1, venue: venue,
+      title: "shift me", status: "published",
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z",
+      display: "normal", event_type: "event", key: SecureRandom.hex(8)
+    )
+
+    post api_event_update_url, params: {
+      auth_token: profile.gen_auth_token, id: event.id,
+      start_time: "2025-01-06T03:00:00Z",   # Mon 11:00 CST — still in slot, no self-conflict
+      end_time:   "2025-01-06T05:00:00Z"    # Mon 13:00 CST
+    }
+    assert_response :success
+    assert_equal "ok", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/update: shift time to outside timeslot → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "12:00"]], role: "all")
+    event = Event.create!(
+      group_id: 1, owner_id: 1, venue: venue,
+      title: "shift me bad", status: "published",
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T03:00:00Z",
+      display: "normal", event_type: "event", key: SecureRandom.hex(8)
+    )
+
+    post api_event_update_url, params: {
+      auth_token: profile.gen_auth_token, id: event.id,
+      start_time: "2025-01-06T05:00:00Z",   # Mon 13:00 CST — after slot closes at 12:00
+      end_time:   "2025-01-06T07:00:00Z"
+    }
+    assert_response :success
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/update: change venue with no conflict → allowed" do
+    profile = Profile.find_by(handle: "cookie")
+    old_venue = build_venue
+    new_venue = build_venue
+    event = Event.create!(
+      group_id: 1, owner_id: 1, venue: old_venue,
+      title: "change venue ok", status: "published",
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z",
+      display: "normal", event_type: "event", key: SecureRandom.hex(8)
+    )
+
+    post api_event_update_url, params: {
+      auth_token: profile.gen_auth_token, id: event.id,
+      venue_id: new_venue.id,
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z"
+    }
+    assert_response :success
+    assert_equal "ok", JSON.parse(response.body)["result"]
+  end
+
+  test "venue/update: change venue conflicts with existing event → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    old_venue = build_venue
+    new_venue = build_venue
+    Event.create!(
+      group_id: 1, owner_id: 1, venue: new_venue,
+      title: "blocker", status: "published",
+      start_time: "2025-01-06T01:00:00Z",
+      end_time:   "2025-01-06T05:00:00Z",
+      display: "normal", event_type: "event", key: SecureRandom.hex(8)
+    )
+    event = Event.create!(
+      group_id: 1, owner_id: 1, venue: old_venue,
+      title: "change venue conflict", status: "published",
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z",
+      display: "normal", event_type: "event", key: SecureRandom.hex(8)
+    )
+
+    post api_event_update_url, params: {
+      auth_token: profile.gen_auth_token, id: event.id,
+      venue_id: new_venue.id,
+      start_time: "2025-01-06T02:00:00Z",
+      end_time:   "2025-01-06T04:00:00Z"
+    }
+    assert_response :success
+    assert_equal "error", JSON.parse(response.body)["result"]
   end
 end
