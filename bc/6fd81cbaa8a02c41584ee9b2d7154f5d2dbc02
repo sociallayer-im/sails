@@ -1,0 +1,21 @@
+app/controllers/api/event_controller.rb
+  s_212b3fb8ecd46f::t_bc39766dd4e7a2 46-50
+  s_212b3fb8ecd46f::t_c145bf46cbcbb1 205-213,215
+  s_212b3fb8ecd46f::t_7b52e618348ed4 214
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "bc6fd81cbaa8a02c41584ee9b2d7154f5d2dbc02",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
