@@ -1,0 +1,21 @@
+test/controllers/api/recurring_controller_test.rb
+  s_212b3fb8ecd46f::t_0e924328033b29 70-302
+app/controllers/api/recurring_controller.rb
+  s_212b3fb8ecd46f::t_0e924328033b29 47,49-53,56-64,134-135,138-139,141-144,147-149
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "4deb9999a384dbf134a478b35b995bc2ad453de2",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
