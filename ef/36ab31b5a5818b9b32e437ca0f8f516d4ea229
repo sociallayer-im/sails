@@ -1,0 +1,19 @@
+app/models/venue.rb
+  s_212b3fb8ecd46f::t_33c7cd3eb08891 72-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "ef36ab31b5a5818b9b32e437ca0f8f516d4ea229",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
