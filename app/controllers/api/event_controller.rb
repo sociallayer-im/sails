@@ -43,6 +43,11 @@ class Api::EventController < ApiController
                 .any?
           return render json: { result: "error", message: "time overlaped in the same venue" }
         end
+
+        if venue
+          available, message = venue.check_availability(event_start, event_end, group.timezone)
+          return render json: { result: "error", message: message } unless available
+        end
       rescue ArgumentError => e
         return render json: { result: "error", message: "Invalid start_time or end_time format" }
       end
@@ -197,6 +202,17 @@ class Api::EventController < ApiController
       if conflicting_events.any?
         return render json: { result: "error", message: "time overlaped in the same venue" }
       end
+
+      new_venue = Venue.find_by(id: event_params[:venue_id])
+      if new_venue
+        available, message = new_venue.check_availability(new_start_time, new_end_time, event.group.timezone)
+        return render json: { result: "error", message: message } unless available
+      end
+    elsif event.venue_id && (event_params[:start_time].present? || event_params[:end_time].present?)
+      check_start = event_params[:start_time].present? ? Time.parse(event_params[:start_time].to_s) : event.start_time
+      check_end   = event_params[:end_time].present?   ? Time.parse(event_params[:end_time].to_s)   : event.end_time
+      available, message = event.venue.check_availability(check_start, check_end, event.group.timezone, event.id)
+      return render json: { result: "error", message: message } unless available
     end
 
     status = event.status
