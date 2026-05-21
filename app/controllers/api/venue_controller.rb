@@ -55,7 +55,7 @@ class Api::VenueController < ApiController
   private
 
   def venue_params
-    params.require(:venue).permit(
+    permitted = params.require(:venue).permit(
       :title, :location, :about, :link, :capacity, :formatted_address, :location_viewport, :location_data, :geo_lat, :geo_lng, :start_date, :end_date, :require_approval, :visibility, :featured_image_url,
       amenities: [],
       tags: [],
@@ -63,7 +63,19 @@ class Api::VenueController < ApiController
       image_urls: [],
       venue_overrides_attributes: [ :id, :venue_id, :day, :disabled, :start_at, :end_at, :role, :_destroy ],
       venue_timeslots_attributes: [ :id, :venue_id, :day_of_week, :disabled, :start_at, :end_at, :role, :_destroy ],
-      availabilities_attributes: [ :id, :item_id, :item_type, :day_of_week, :day, :intervals, :role, :_destroy ]
+      availabilities_attributes: [ :id, :item_id, :item_type, :day_of_week, :day, :role, :_destroy ]
     )
+
+    # intervals is a JSONB array-of-arrays — must be injected outside standard strong params
+    raw_avails = params.dig(:venue, :availabilities_attributes)
+    if raw_avails.present?
+      raw_list = raw_avails.is_a?(ActionController::Parameters) ? raw_avails.values : Array(raw_avails)
+      permitted_list = permitted[:availabilities_attributes] || []
+      permitted_list.each_with_index do |avail, i|
+        avail[:intervals] = Array(raw_list[i].try(:[], :intervals) || raw_list[i].try(:[], 'intervals'))
+      end
+    end
+
+    permitted
   end
 end
