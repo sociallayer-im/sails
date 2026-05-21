@@ -44,11 +44,23 @@ class Api::RecurringController < ApiController
     duration = DateTime.parse(params[:end_time]) - event_time
 
     if params[:venue_id]
+      check_time = event_time
       event_count.times do
-        start_time = event_time
-        end_time = (event_time + duration)
-        if Event.where(venue_id: params[:venue_id]).where("start_time < ?", end_time).where("end_time > ?", start_time).where.not(status: "cancelled").any?
+        check_start = check_time
+        check_end   = check_time + duration
+        if Event.where(venue_id: params[:venue_id])
+                .where("start_time < ? AND end_time > ?", check_end, check_start)
+                .where.not(status: "cancelled").any?
           return render json: { result: "error", message: "time overlaped in the same venue" }
+        end
+        if venue
+          available, message = venue.check_availability(check_start, check_end, group.timezone)
+          return render json: { result: "error", message: message } unless available
+        end
+        case params[:interval]
+        when "day"   then check_time = check_time.advance(days: 1)
+        when "week"  then check_time = check_time.advance(weeks: 1)
+        when "month" then check_time = check_time.advance(months: 1)
         end
       end
     end
@@ -119,17 +131,22 @@ class Api::RecurringController < ApiController
     # end
 
     if params[:venue_id]
+      check_venue = Venue.find_by(id: params[:venue_id])
+      check_group = events.first&.group
       event_ids = events.pluck(:id)
       events.each do |event|
-        if params[:start_time_diff]
-          event.start_time += params[:start_time_diff].to_i.seconds
-        end
-        if params[:end_time_diff]
-          event.end_time += params[:end_time_diff].to_i.seconds
-        end
+        check_start = event.start_time + params[:start_time_diff].to_i.seconds
+        check_end   = event.end_time   + params[:end_time_diff].to_i.seconds
 
-        if Event.where(venue_id: params[:venue_id]).where("start_time < ? AND end_time > ?", event.end_time, event.start_time).where.not(id: event_ids).where.not(status: "cancelled").any?
+        if Event.where(venue_id: params[:venue_id])
+                .where("start_time < ? AND end_time > ?", check_end, check_start)
+                .where.not(id: event_ids)
+                .where.not(status: "cancelled").any?
           return render json: { result: "error", message: "time overlaped in the same venue" }
+        end
+        if check_venue && check_group
+          available, message = check_venue.check_availability(check_start, check_end, check_group.timezone, event.id)
+          return render json: { result: "error", message: message } unless available
         end
       end
     end

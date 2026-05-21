@@ -67,4 +67,237 @@ class Api::RecurringControllerTest < ActionDispatch::IntegrationTest
     assert_equal [["co_host", "Profile", profile3.id]], events_ordered.second.event_roles.map { |er| [ er.role, er.item_type, er.item_id ] }
 
   end
+
+  # ── Venue availability & overlap for recurring events ────────────────────
+
+  # All dates below are Mondays (UTC+8 / Asia/Shanghai used by group "guildx"):
+  #   2025-01-06 = Mon,  2025-01-13 = Mon,  2025-01-20 = Mon
+  # start_time "2025-01-06T02:00:00Z" = 10:00 CST on Mon 6 Jan (same date in CST)
+
+  def build_venue(attrs = {})
+    Venue.create!({
+      title: "recurring test venue #{SecureRandom.hex(4)}",
+      location: "test loc",
+      group_id: 1,
+      visibility: "all"
+    }.merge(attrs))
+  end
+
+  test "recurring/create with venue: no overlap, no availability rules → allowed" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+
+    assert_difference "Event.count", 3 do
+      post api_recurring_create_url, params: {
+        auth_token: profile.gen_auth_token,
+        group_id: 1,
+        event_count: 3,
+        interval: "week",
+        timezone: "Asia/Shanghai",
+        title: "weekly venue ok",
+        start_time: "2025-01-06T02:00:00Z",
+        end_time:   "2025-01-06T04:00:00Z",
+        venue_id: venue.id,
+        location: "x", display: "normal", event_type: "event"
+      }
+    end
+    assert_equal "ok", JSON.parse(response.body)["result"]
+  end
+
+  test "recurring/create with venue: overlap on first occurrence → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Event.create!(
+      group_id: 1, owner_id: 1, venue: venue, status: "published",
+      title: "blocker wk1", display: "normal", event_type: "event",
+      start_time: "2025-01-06T01:00:00Z", end_time: "2025-01-06T05:00:00Z",
+      key: SecureRandom.hex(8)
+    )
+
+    assert_no_difference "Event.count" do
+      post api_recurring_create_url, params: {
+        auth_token: profile.gen_auth_token,
+        group_id: 1, event_count: 3, interval: "week",
+        timezone: "Asia/Shanghai", title: "weekly venue overlap1",
+        start_time: "2025-01-06T02:00:00Z", end_time: "2025-01-06T04:00:00Z",
+        venue_id: venue.id, location: "x", display: "normal", event_type: "event"
+      }
+    end
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "recurring/create with venue: overlap on non-first occurrence → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    # week 1 is free; block week 2
+    Event.create!(
+      group_id: 1, owner_id: 1, venue: venue, status: "published",
+      title: "blocker wk2", display: "normal", event_type: "event",
+      start_time: "2025-01-13T01:00:00Z", end_time: "2025-01-13T05:00:00Z",
+      key: SecureRandom.hex(8)
+    )
+
+    assert_no_difference "Event.count" do
+      post api_recurring_create_url, params: {
+        auth_token: profile.gen_auth_token,
+        group_id: 1, event_count: 3, interval: "week",
+        timezone: "Asia/Shanghai", title: "weekly venue overlap2",
+        start_time: "2025-01-06T02:00:00Z", end_time: "2025-01-06T04:00:00Z",
+        venue_id: venue.id, location: "x", display: "normal", event_type: "event"
+      }
+    end
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "recurring/create with venue: overlap only with cancelled event → allowed" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Event.create!(
+      group_id: 1, owner_id: 1, venue: venue, status: "cancelled",
+      title: "cancelled blocker", display: "normal", event_type: "event",
+      start_time: "2025-01-13T01:00:00Z", end_time: "2025-01-13T05:00:00Z",
+      key: SecureRandom.hex(8)
+    )
+
+    assert_difference "Event.count", 3 do
+      post api_recurring_create_url, params: {
+        auth_token: profile.gen_auth_token,
+        group_id: 1, event_count: 3, interval: "week",
+        timezone: "Asia/Shanghai", title: "weekly venue cancelled ok",
+        start_time: "2025-01-06T02:00:00Z", end_time: "2025-01-06T04:00:00Z",
+        venue_id: venue.id, location: "x", display: "normal", event_type: "event"
+      }
+    end
+    assert_equal "ok", JSON.parse(response.body)["result"]
+  end
+
+  test "recurring/create with venue: event outside weekly timeslot → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "11:00"]], role: "all")
+
+    assert_no_difference "Event.count" do
+      post api_recurring_create_url, params: {
+        auth_token: profile.gen_auth_token,
+        group_id: 1, event_count: 3, interval: "week",
+        timezone: "Asia/Shanghai", title: "weekly venue outside slot",
+        # 10:00–13:00 CST — ends after 11:00 slot closes
+        start_time: "2025-01-06T02:00:00Z", end_time: "2025-01-06T05:00:00Z",
+        venue_id: venue.id, location: "x", display: "normal", event_type: "event"
+      }
+    end
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "recurring/create with venue: availability violation on non-first occurrence → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    # Monday OK, but week 2 Mon has a closed-day override
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "18:00"]], role: "all")
+    Availability.create!(item: venue, day: "2025-01-13", intervals: [], role: "all")
+
+    assert_no_difference "Event.count" do
+      post api_recurring_create_url, params: {
+        auth_token: profile.gen_auth_token,
+        group_id: 1, event_count: 3, interval: "week",
+        timezone: "Asia/Shanghai", title: "weekly venue avail violation wk2",
+        start_time: "2025-01-06T02:00:00Z", end_time: "2025-01-06T04:00:00Z",
+        venue_id: venue.id, location: "x", display: "normal", event_type: "event"
+      }
+    end
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
+
+  test "recurring/update with venue: shift applies once, not double (double-shift bug)" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "18:00"]], role: "all")
+
+    # Create 3 weekly events at 10:00–12:00 CST
+    post api_recurring_create_url, params: {
+      auth_token: profile.gen_auth_token,
+      group_id: 1, event_count: 3, interval: "week",
+      timezone: "Asia/Shanghai", title: "shift me recurring",
+      start_time: "2025-01-06T02:00:00Z", end_time: "2025-01-06T04:00:00Z",
+      venue_id: venue.id, location: "x", display: "normal", event_type: "event"
+    }
+    assert_equal "ok", JSON.parse(response.body)["result"]
+    recurring_id = JSON.parse(response.body)["recurring"]["id"]
+
+    # Shift all events by 1 hour (3600s) while keeping same venue
+    post api_recurring_update_url, params: {
+      auth_token: profile.gen_auth_token,
+      recurring_id: recurring_id,
+      venue_id: venue.id,
+      start_time_diff: 3600,
+      end_time_diff: 3600,
+      title: "shift me recurring"
+    }
+    assert_equal "ok", JSON.parse(response.body)["result"]
+
+    events = Event.where(recurring_id: recurring_id).order(:start_time)
+    # Should be 11:00–13:00 CST = 03:00–05:00 UTC, not 12:00–14:00 (double-shift)
+    assert_equal "2025-01-06 03:00:00 UTC", events.first.start_time.utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+    assert_equal "2025-01-06 05:00:00 UTC", events.first.end_time.utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+  end
+
+  test "recurring/update with venue: overlap with external event → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+
+    post api_recurring_create_url, params: {
+      auth_token: profile.gen_auth_token,
+      group_id: 1, event_count: 2, interval: "week",
+      timezone: "Asia/Shanghai", title: "update conflict recurring",
+      start_time: "2025-01-06T02:00:00Z", end_time: "2025-01-06T04:00:00Z",
+      venue_id: venue.id, location: "x", display: "normal", event_type: "event"
+    }
+    recurring_id = JSON.parse(response.body)["recurring"]["id"]
+
+    # Block the shifted position for week 1 (03:00–05:00 UTC)
+    Event.create!(
+      group_id: 1, owner_id: 1, venue: venue, status: "published",
+      title: "external blocker", display: "normal", event_type: "event",
+      start_time: "2025-01-06T03:30:00Z", end_time: "2025-01-06T04:30:00Z",
+      key: SecureRandom.hex(8)
+    )
+
+    post api_recurring_update_url, params: {
+      auth_token: profile.gen_auth_token,
+      recurring_id: recurring_id,
+      venue_id: venue.id,
+      start_time_diff: 3600,
+      end_time_diff: 3600
+    }
+    assert_equal "error", JSON.parse(response.body)["result"]
+    # Events should NOT have been shifted
+    events = Event.where(recurring_id: recurring_id).order(:start_time)
+    assert_equal "2025-01-06 02:00:00 UTC", events.first.start_time.utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+  end
+
+  test "recurring/update with venue: availability violation → rejected" do
+    profile = Profile.find_by(handle: "cookie")
+    venue = build_venue
+    # Monday 09:00–12:00 only
+    Availability.create!(item: venue, day_of_week: "monday", intervals: [["09:00", "12:00"]], role: "all")
+
+    post api_recurring_create_url, params: {
+      auth_token: profile.gen_auth_token,
+      group_id: 1, event_count: 2, interval: "week",
+      timezone: "Asia/Shanghai", title: "avail violation recurring",
+      start_time: "2025-01-06T02:00:00Z", end_time: "2025-01-06T04:00:00Z",  # 10–12 CST, within slot
+      venue_id: venue.id, location: "x", display: "normal", event_type: "event"
+    }
+    recurring_id = JSON.parse(response.body)["recurring"]["id"]
+
+    # Shift by 2 hours → 12:00–14:00 CST, outside slot
+    post api_recurring_update_url, params: {
+      auth_token: profile.gen_auth_token,
+      recurring_id: recurring_id,
+      venue_id: venue.id,
+      start_time_diff: 7200,
+      end_time_diff: 7200
+    }
+    assert_equal "error", JSON.parse(response.body)["result"]
+  end
 end
