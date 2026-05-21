@@ -21,8 +21,12 @@ json.group do
       json.extract! t, :id, :title, :kind, :icon_url, :group_id
     end
 
-    json.venues @group.venues do |v|
-      json.extract! v, :id, :title, :location, :geo_lat, :geo_lng, :capacity, :require_approval, :visibility, :about, :link, :formatted_address
+    json.venues @group.venues.includes(:availabilities) do |v|
+      json.extract! v, :id, :title, :location, :geo_lat, :geo_lng, :capacity, :require_approval, :visibility, :about, :link, :formatted_address,
+                    :start_date, :end_date
+      json.availabilities v.availabilities do |a|
+        json.extract! a, :id, :day_of_week, :day, :intervals, :role
+      end
     end
 
   end
