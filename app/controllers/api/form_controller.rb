@@ -16,12 +16,15 @@ class Api::FormController < ApiController
       FormField.where(form_id: form.id).delete_all
       (params[:fields] || []).each_with_index do |field_params, index|
         raise AppError.new("field label cannot be blank") if field_params[:label].blank?
+        field_type = field_params[:field_type] || 'text'
+        options = field_type == 'select' ? (field_params[:options] || []) : []
         form.form_fields.create!(
           label: field_params[:label],
-          field_type: field_params[:field_type] || 'text',
+          field_type: field_type,
           required: field_params[:required] || false,
           for_admin: field_params[:for_admin] || false,
-          position: field_params[:position].present? ? field_params[:position] : index
+          position: field_params[:position].present? ? field_params[:position] : index,
+          options: options
         )
       end
     end
@@ -70,7 +73,7 @@ class Api::FormController < ApiController
   def form_json(form)
     form.as_json(only: [:id, :title, :description, :published]).merge(
       fields: form.form_fields.map { |f|
-        f.as_json(only: [:id, :label, :field_type, :required, :for_admin, :position])
+        f.as_json(only: [:id, :label, :field_type, :required, :for_admin, :position, :options])
       }
     )
   end

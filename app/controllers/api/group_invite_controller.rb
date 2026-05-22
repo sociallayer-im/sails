@@ -188,6 +188,27 @@ class Api::GroupInviteController < ApiController
   end
 
 
+  def my_pending_invites
+    profile = current_profile!
+    return render json: { group_invites: [] } unless profile.email.present?
+
+    invites = GroupInvite.includes(:group, :sender, :ticket)
+      .where(receiver_address: profile.email, receiver_address_type: "email", status: "sending")
+      .where("expires_at > ?", DateTime.now)
+
+    render json: {
+      group_invites: invites.as_json(
+        only: [:id, :status, :role, :expires_at, :created_at, :message, :receiver_id, :sender_id, :group_id,
+               :receiver_address, :receiver_address_type, :badge_class_id, :badge_id, :accepted, :ticket_id],
+        include: {
+          sender: { only: [:id, :handle, :nickname, :image_url] },
+          group: { only: [:id, :handle, :nickname, :image_url] },
+          ticket: { only: [:id, :title, :ticket_type, :start_date, :end_date, :days_allowed, :tracks_allowed, :status] }
+        }
+      )
+    }
+  end
+
   def cancel_invite
     profile = current_profile!
     group_invite = GroupInvite.find(params[:group_invite_id])

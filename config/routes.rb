@@ -84,6 +84,7 @@ Rails.application.routes.draw do
     get  "group/icalendar", to: "group#icalendar"
     post "group/send_invite_with_code", to: "group_invite#send_invite_with_code"
     post "group/accept_invite_with_code", to: "group_invite#accept_invite_with_code"
+    get  "group/my_pending_invites", to: "group_invite#my_pending_invites"
 
     get  "group/get", to: "group#get"
 

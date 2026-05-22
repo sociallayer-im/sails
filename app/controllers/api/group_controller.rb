@@ -353,7 +353,7 @@ class Api::GroupController < ApiController
           :tags, :event_taglist, :venue_taglist, :can_publish_event, :can_join_event, :can_view_event,
           :customizer, :logo_url, :banner_link_url, :banner_image_url,
           :timezone, :location, :website, :start_date, :end_date, :metadata,
-          :event_enabled, :map_enabled,
+          :event_enabled, :map_enabled, :parent_id, :ticket_link,
           {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           event_tags: [],
           group_tags: [],

@@ -11,7 +11,9 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def manage?
-    @group.status != "freezed" && @group.is_manager(@profile.id)
+    return false if @group.status == "freezed"
+    @group.is_manager(@profile.id) ||
+      (@group.parent_id && @group.parent.is_manager(@profile.id))
   end
 
   def manage_marker?

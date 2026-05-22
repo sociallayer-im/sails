@@ -3,7 +3,19 @@ json.group do
    :event_tags, :event_enabled, :can_publish_event, :can_join_event, :can_view_event, :banner_link_url, :banner_image_url, :banner_text,
    :logo_url, :memberships_count, :timezone, :customizer, :created_at, :updated_at,
    :group_tags, :map_enabled, :venue_union, :group_union, :social_links,
-   :start_date, :end_date, :location, :website, :featured_image_url
+   :start_date, :end_date, :location, :website, :featured_image_url, :ticket_link
+
+  if @group.parent
+    json.parent do
+      json.extract! @group.parent, :id, :handle, :nickname, :image_url
+    end
+  else
+    json.parent nil
+  end
+
+  json.children @group.children do |c|
+    json.extract! c, :id, :handle, :nickname, :image_url, :about, :memberships_count
+  end
 
   if @include_detail
     json.memberships @group.memberships.includes(:profile) do |m|

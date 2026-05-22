@@ -1,4 +1,7 @@
 class Group < ApplicationRecord
+  belongs_to :parent, class_name: "Group", foreign_key: :parent_id, optional: true
+  has_many :children, class_name: "Group", foreign_key: :parent_id
+
   has_many :events
   has_many :venues
   has_many :markers
