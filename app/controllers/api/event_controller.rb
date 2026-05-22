@@ -74,11 +74,9 @@ class Api::EventController < ApiController
     group.increment!(:events_count) if group
 
     if @send_approval_email_to_manager
-      Membership.includes(:profile).where(target_id: group.id, role: [ "owner", "manager" ]).each do |membership|
-        if membership.cap.present? && membership.cap.include?("venue") && membership.profile.email.present?
-          mailer = EventMailer.with(group: group, event: event, recipient: membership.profile.email).venue_review
-          mailer.deliver_later
-        end
+      Membership.includes(:profile).where(target_id: group.id, role: ["owner", "manager"], admin_notification: true).each do |membership|
+        next unless membership.profile&.email.present?
+        EventMailer.with(group: group, event: event, recipient: membership.profile.email).venue_review.deliver_later
       end
     end
 

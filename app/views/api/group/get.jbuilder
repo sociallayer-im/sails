@@ -19,7 +19,7 @@ json.group do
 
   if @include_detail
     json.memberships @group.memberships.includes(:profile) do |m|
-      json.extract! m, :id, :profile_id, :role
+      json.extract! m, :id, :profile_id, :role, :admin_notification
       if m.profile
         json.profile do
           json.extract! m.profile, :id, :handle, :nickname, :image_url

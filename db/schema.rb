@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_22_073125) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_22_224827) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -581,6 +581,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_22_073125) do
     t.string "cap"
     t.jsonb "data"
     t.datetime "updated_at"
+    t.boolean "admin_notification", default: false, null: false
     t.index ["profile_id", "target_id"], name: "index_memberships_on_profile_id_and_target_id", unique: true
     t.index ["target_id", "role"], name: "index_memberships_on_target_id_and_role"
   end

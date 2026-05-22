@@ -249,6 +249,17 @@ class Api::GroupController < ApiController
     render json: { result: "ok" }
   end
 
+  def set_admin_notification
+    group = Group.find(params[:group_id])
+    authorize group, :manage?, policy_class: GroupPolicy
+
+    membership = Membership.find_by!(target_id: group.id, profile_id: current_profile!.id)
+    raise AppError.new("only owner or manager can set admin_notification") unless %w[owner manager].include?(membership.role)
+    membership.update!(admin_notification: ActiveModel::Type::Boolean.new.cast(params[:admin_notification]))
+
+    render json: { result: "ok" }
+  end
+
   def leave
     profile = Profile.find(params[:profile_id])
     group = Group.find(params[:group_id])

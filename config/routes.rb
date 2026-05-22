@@ -60,6 +60,7 @@ Rails.application.routes.draw do
     post "group/remove_manager", to: "group#remove_manager"
     post "group/add_manager", to: "group#add_manager"
     post "group/add_operator", to: "group#add_operator"
+    post "group/set_admin_notification", to: "group#set_admin_notification"
     post "group/leave", to: "group#leave"
     post "group/add_track", to: "group#add_track"
     post "group/remove_track", to: "group#remove_track"
