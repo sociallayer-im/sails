@@ -1,0 +1,21 @@
+app/views/api/event/show_with_participants.jbuilder
+  s_212b3fb8ecd46f::t_4707500598153d 30
+app/views/api/event/show.jbuilder
+  s_212b3fb8ecd46f::t_89db98c6456aa4 30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "7b07b4dea42d2869146dd9f5885ef63b53ae43aa",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
