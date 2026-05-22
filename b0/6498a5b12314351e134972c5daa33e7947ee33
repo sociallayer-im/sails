@@ -1,0 +1,30 @@
+app/views/api/group/get.jbuilder
+  s_212b3fb8ecd46f::t_b511d73ab16d60 22
+db/migrate/20260522224827_add_admin_notification_to_memberships.rb
+  s_212b3fb8ecd46f::t_992571185f9fab 1-2,4-5
+  s_212b3fb8ecd46f::t_7e7dcabbb06e9e 3
+app/controllers/api/event_controller.rb
+  s_212b3fb8ecd46f::t_1af7b6fdd5c1ef 77-79
+config/routes.rb
+  s_212b3fb8ecd46f::t_6279f4f2a27362 63
+app/controllers/api/group_controller.rb
+  s_212b3fb8ecd46f::t_33efac9b70325f 252-262
+db/schema.rb
+  ai_agent 13,584
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "b06498a5b12314351e134972c5daa33e7947ee33",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
