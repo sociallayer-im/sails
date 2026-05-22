@@ -27,7 +27,7 @@ if @event.form
   json.form do
     json.extract! @event.form, :id, :title, :description
     json.fields @event.form.form_fields.reject(&:for_admin) do |field|
-      json.extract! field, :id, :label, :field_type, :required, :position
+      json.extract! field, :id, :label, :field_type, :required, :position, :options
     end
   end
 else
