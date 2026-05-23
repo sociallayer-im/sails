@@ -182,14 +182,6 @@ class Api::GroupController < ApiController
     render json: { is_member: !!membership, role: membership.try(:role) }
   end
 
-  def is_operator
-    profile = Profile.find(params[:profile_id])
-    group = Group.find(params[:group_id])
-
-    membership = group.is_operator(profile.id)
-    render json: { is_member: !!membership, role: membership.try(:role) }
-  end
-
   def is_member
     profile = Profile.find(params[:profile_id])
     group = Group.find(params[:group_id])
@@ -205,16 +197,6 @@ class Api::GroupController < ApiController
 
     membership = group.is_member(profile.id)
     membership.destroy
-    render json: { result: "ok" }
-  end
-
-  def remove_operator
-    profile = Profile.find(params[:profile_id])
-    group = Group.find(params[:group_id])
-    authorize group, :manage?, policy_class: GroupPolicy
-
-    membership = group.is_operator(profile.id)
-    membership.update(role: "member")
     render json: { result: "ok" }
   end
 
@@ -236,16 +218,6 @@ class Api::GroupController < ApiController
     membership = group.is_member(profile.id)
     membership.update(role: "manager")
 
-    render json: { result: "ok" }
-  end
-
-  def add_operator
-    profile = Profile.find(params[:profile_id])
-    group = Group.find(params[:group_id])
-    authorize group, :manage?, policy_class: GroupPolicy
-
-    membership = group.is_member(profile.id)
-    membership.update(role: "operator")
     render json: { result: "ok" }
   end
 
@@ -364,7 +336,7 @@ class Api::GroupController < ApiController
           :tags, :event_taglist, :venue_taglist, :can_publish_event, :can_join_event, :can_view_event,
           :customizer, :logo_url, :banner_link_url, :banner_image_url,
           :timezone, :location, :website, :start_date, :end_date, :metadata,
-          :event_enabled, :map_enabled, :parent_id, :ticket_link,
+          :event_enabled, :map_enabled, :parent_id, :ticket_link, :event_review_required,
           {social_links: [:twitter, :github, :discord, :telegram, :ens, :lens, :nostr]},
           event_tags: [],
           group_tags: [],

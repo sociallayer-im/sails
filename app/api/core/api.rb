@@ -396,7 +396,7 @@ module Core
           pub_tracks = Track.where(group_id: group_id).ids
           pub_tracks << nil
         elsif @group.group_union.present?
-          managing_groups = Membership.where(profile_id: profile.id, role: ["owner", "manager", "operator"], id: @group.group_union).ids
+          managing_groups = Membership.where(profile_id: profile.id, role: ["owner", "manager"], id: @group.group_union).ids
           pub_tracks = Track.where(group_id: managing_groups).ids + Track.where(group_id: @group.group_union, kind: "public").ids + TrackRole.where(group_id: @group.group_union, profile_id: profile.id).pluck(:track_id)
           pub_tracks = pub_tracks.compact
           pub_tracks << nil

@@ -23,7 +23,14 @@ class Api::EventController < ApiController
       raise AppError.new("group is empty")
     end
 
-    # todo : allow group setting for pending event
+    if group && group.event_review_required && status != "pending"
+      can_publish = group_level_satisfied?(group, profile.id, group.can_publish_event)
+      can_review  = group_level_satisfied?(group, profile.id, group.event_review_required)
+      if !can_publish && can_review
+        status = "pending"
+        @send_approval_email_to_manager = true
+      end
+    end
 
     # todo : move badge_class to voucher
     if params[:badge_class_id]
@@ -507,7 +514,7 @@ class Api::EventController < ApiController
       pub_tracks = Track.where(group_id: group_id).ids
       pub_tracks << nil
     elsif auth_profile && @group.group_union.present?
-      managing_groups = Membership.where(profile_id: auth_profile.id, role: [ "owner", "manager", "operator" ], id: @group.group_union).ids
+      managing_groups = Membership.where(profile_id: auth_profile.id, role: [ "owner", "manager" ], id: @group.group_union).ids
       pub_tracks = Track.where(group_id: managing_groups).ids + Track.where(group_id: @group.group_union, kind: "public").ids + TrackRole.where(group_id: @group.group_union, profile_id: auth_profile.id).pluck(:track_id)
       pub_tracks = pub_tracks.compact
       pub_tracks << nil
@@ -802,6 +809,15 @@ class Api::EventController < ApiController
   end
 
   private
+
+  def group_level_satisfied?(group, profile_id, level)
+    case level
+    when 'all', 'everyone' then true
+    when 'member'          then !!group.is_member(profile_id)
+    when 'manager'         then !!group.is_manager(profile_id)
+    else false
+    end
+  end
 
   def sync_participants_count(event)
     count = Participant.where(event_id: event.id, status: %w[attending checked]).count

@@ -258,6 +258,104 @@ class Api::EventControllerTest < ActionDispatch::IntegrationTest
     assert Event.find(event.id).status == "published"
   end
 
+  # ── event_review_required ────────────────────────────────────────────────────
+
+  test "api#event/create pending when event_review_required=everyone and creator is non-manager" do
+    owner   = Profile.find_by(handle: "cookie")
+    creator = Profile.find_by(handle: "mooncake")
+    group   = Group.find_by(handle: "guildx")
+    group.update!(can_publish_event: "manager", event_review_required: "everyone")
+    owner.memberships.find_by(target_id: group.id).update!(admin_notification: true)
+
+    perform_enqueued_jobs do
+      post api_event_create_url,
+        params: { auth_token: creator.gen_auth_token, group_id: group.id,
+          title: "pending review event",
+          start_time: DateTime.new(2024, 8, 8, 10, 0, 0),
+          end_time:   DateTime.new(2024, 8, 8, 12, 0, 0),
+          location: "online", content: "test", display: "normal", event_type: "event" }
+    end
+
+    assert_response :success
+    event = Event.find_by(title: "pending review event")
+    assert_equal "pending", event.status
+    assert_equal creator, event.owner
+
+    email = ActionMailer::Base.deliveries.last
+    assert_not_nil email
+    assert_includes email.to, owner.email
+  end
+
+  test "api#event/create published when event_review_required=everyone but creator is manager" do
+    manager = Profile.find_by(handle: "cookie")
+    group   = Group.find_by(handle: "guildx")
+    group.update!(can_publish_event: "manager", event_review_required: "everyone")
+
+    post api_event_create_url,
+      params: { auth_token: manager.gen_auth_token, group_id: group.id,
+        title: "manager direct publish",
+        start_time: DateTime.new(2024, 8, 8, 10, 0, 0),
+        end_time:   DateTime.new(2024, 8, 8, 12, 0, 0),
+        location: "online", content: "test", display: "normal", event_type: "event" }
+
+    assert_response :success
+    assert_equal "published", Event.find_by(title: "manager direct publish").status
+  end
+
+  test "api#event/create pending when event_review_required=member and creator is member" do
+    owner   = Profile.find_by(handle: "cookie")
+    member  = Profile.find_by(handle: "mooncake")
+    group   = Group.find_by(handle: "guildx")
+    group.update!(can_publish_event: "manager", event_review_required: "member")
+    Membership.create!(profile: member, target: group, role: "member", status: "active")
+
+    post api_event_create_url,
+      params: { auth_token: member.gen_auth_token, group_id: group.id,
+        title: "member review event",
+        start_time: DateTime.new(2024, 8, 8, 10, 0, 0),
+        end_time:   DateTime.new(2024, 8, 8, 12, 0, 0),
+        location: "online", content: "test", display: "normal", event_type: "event" }
+
+    assert_response :success
+    assert_equal "pending", Event.find_by(title: "member review event").status
+  end
+
+  test "api#event/create published when event_review_required=member but creator is not a member" do
+    non_member = Profile.find_by(handle: "mooncake")
+    group      = Group.find_by(handle: "guildx")
+    group.update!(can_publish_event: "manager", event_review_required: "member")
+
+    post api_event_create_url,
+      params: { auth_token: non_member.gen_auth_token, group_id: group.id,
+        title: "non-member review event",
+        start_time: DateTime.new(2024, 8, 8, 10, 0, 0),
+        end_time:   DateTime.new(2024, 8, 8, 12, 0, 0),
+        location: "online", content: "test", display: "normal", event_type: "event" }
+
+    assert_response :success
+    assert_equal "published", Event.find_by(title: "non-member review event").status
+  end
+
+  test "api#event/create venue approval takes priority over event_review_required" do
+    creator = Profile.find_by(handle: "mooncake")
+    group   = Group.find_by(handle: "guildx")
+    venue   = venues(:pku)
+    venue.update!(require_approval: true)
+    group.update!(can_publish_event: "manager", event_review_required: "everyone")
+
+    post api_event_create_url,
+      params: { auth_token: creator.gen_auth_token, group_id: group.id, venue_id: venue.id,
+        title: "venue + review event",
+        start_time: DateTime.new(2024, 8, 8, 10, 0, 0),
+        end_time:   DateTime.new(2024, 8, 8, 12, 0, 0),
+        location: venue.location, content: "test", display: "normal", event_type: "event" }
+
+    assert_response :success
+    assert_equal "pending", Event.find_by(title: "venue + review event").status
+  end
+
+  # ── set_admin_notification ───────────────────────────────────────────────────
+
   test "api#event/update" do
     profile = Profile.find_by(handle: "cookie")
     auth_token = profile.gen_auth_token

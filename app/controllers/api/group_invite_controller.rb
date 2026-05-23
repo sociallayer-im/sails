@@ -48,7 +48,7 @@ class Api::GroupInviteController < ApiController
     raise AppError.new("invalid status") unless group_invite.status == "requesting"
     raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
 
-    unless group.is_owner(profile.id) && [ "member", "operator", "manager" ].include?(group_invite.role) || [ "member", "operator" ].include?(group_invite.role)
+    unless group.is_owner(profile.id) && [ "member", "manager" ].include?(group_invite.role) || [ "member" ].include?(group_invite.role)
       raise AppError.new("invalid role")
     end
 

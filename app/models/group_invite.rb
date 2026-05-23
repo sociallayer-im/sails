@@ -7,6 +7,6 @@ class GroupInvite < ApplicationRecord
   belongs_to :ticket, optional: true
   has_many   :activities, as: :item
 
-  validates :role, inclusion: { in: %w(member operator manager owner) }
+  validates :role, inclusion: { in: %w(member manager owner) }
   enum :status, { sending: 'sending', requesting: 'requesting', accepted: 'accepted', cancelled: 'cancelled', revoked: 'revoked' }
 end

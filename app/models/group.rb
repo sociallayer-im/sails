@@ -17,9 +17,10 @@ has_many :tracks, dependent: :delete_all
 
   enum :status, { active: 'active', freezed: 'freezed' }
   # todo : remove all state
-  validates :can_publish_event, inclusion: { in: %w(all everyone member ticket operator manager) }
-  validates :can_join_event, inclusion: { in: %w(all everyone member ticket operator manager) }
-  validates :can_view_event, inclusion: { in: %w(all everyone member operator manager) }
+  validates :can_publish_event, inclusion: { in: %w(all everyone member ticket manager) }
+  validates :event_review_required, inclusion: { in: %w(everyone member manager) }, allow_nil: true
+  validates :can_join_event, inclusion: { in: %w(all everyone member ticket manager) }
+  validates :can_view_event, inclusion: { in: %w(all everyone member manager) }
 
   has_many :memberships, dependent: :delete_all, foreign_key: "target_id"
   has_many :profiles, through: :memberships
@@ -42,12 +43,8 @@ has_many :tracks, dependent: :delete_all
     Membership.find_by(profile_id: profile_id, target_id: id, role: %w[manager owner], status: "active")
   end
 
-  def is_operator(profile_id)
-    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[operator manager owner], status: "active")
-  end
-
   def is_member(profile_id)
-    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[member operator manager owner], status: "active")
+    Membership.find_by(profile_id: profile_id, target_id: id, role: %w[member manager owner], status: "active")
   end
 
   def add_member(profile_id, role)

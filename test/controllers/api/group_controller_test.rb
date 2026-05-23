@@ -230,19 +230,6 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     assert group.is_manager(profile2.id)
   end
 
-  test "api#group/is_operator" do
-    profile2 = Profile.find_by(handle: "mooncake")
-    auth_token = profile2.gen_auth_token
-    group = Group.find_by(handle: "guildx")
-
-    Membership.create(profile: profile2, target: group, role: "operator", status: "active")
-
-    get api_group_is_operator_url,
-      params: { profile_id: profile2.id, group_id: group.id }
-
-    assert group.is_operator(profile2.id)
-  end
-
   test "api#group/is_member" do
     profile2 = Profile.find_by(handle: "mooncake")
     auth_token = profile2.gen_auth_token
@@ -271,21 +258,6 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
     assert_nil group.is_member(profile2.id)
   end
 
-  test "api#group/remove_operator" do
-    profile = Profile.find_by(handle: "cookie")
-    profile2 = Profile.find_by(handle: "mooncake")
-    auth_token = profile.gen_auth_token
-    group = Group.find_by(handle: "guildx")
-
-    Membership.create(profile: profile2, target: group, role: "operator", status: "active")
-
-    post api_group_remove_operator_url,
-      params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
-    assert_response :success
-
-    assert_nil group.is_operator(profile2.id)
-    assert group.is_member(profile2.id)
-  end
 
   test "api#group/remove_manager" do
     profile = Profile.find_by(handle: "cookie")
@@ -365,36 +337,6 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
   #   assert group.is_manager(profile2.id)
   # end
 
-  test "api#group/add_operator for member" do
-    profile = Profile.find_by(handle: "cookie")
-    profile2 = Profile.find_by(handle: "mooncake")
-    auth_token = profile.gen_auth_token
-    group = Group.find_by(handle: "guildx")
-
-    Membership.create(profile: profile2, target: group, role: "member", status: "active")
-
-    post api_group_add_operator_url,
-      params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
-    assert_response :success
-
-    assert group.is_operator(profile2.id)
-  end
-
-  # test "api#group/add_operator for non-member" do
-  #   profile = Profile.find_by(handle: "cookie")
-  #   profile2 = Profile.find_by(handle: "mooncake")
-  #   auth_token = profile.gen_auth_token
-  #   group = Group.find_by(handle: "guildx")
-
-  #   Membership.create(profile: profile2, group: group, role: "member", status: "active")
-
-  #   post api_group_add_operator_url,
-  #     params: { auth_token: auth_token, profile_id: profile2.id, group_id: group.id }
-  #   assert_response :success
-
-  #   assert group.is_operator(profile2.id)
-  # end
-
   test "api#group/leave for member" do
     profile2 = Profile.find_by(handle: "mooncake")
     auth_token = profile2.gen_auth_token
@@ -455,5 +397,89 @@ class Api::GroupControllerTest < ActionDispatch::IntegrationTest
       params: { auth_token: auth_token, id: popup.id }
     assert_response :success
     assert_nil PopupCity.find_by(id: popup.id)
+  end
+
+  # ── set_admin_notification ───────────────────────────────────────────────────
+
+  test "api#group/set_admin_notification enables for owner" do
+    owner = Profile.find_by(handle: "cookie")
+    group = Group.find_by(handle: "guildx")
+
+    post api_group_set_admin_notification_url,
+      params: { auth_token: owner.gen_auth_token, group_id: group.id, admin_notification: true }
+    assert_response :success
+
+    membership = Membership.find_by(profile: owner, target: group)
+    assert membership.admin_notification
+  end
+
+  test "api#group/set_admin_notification enables for manager" do
+    owner   = Profile.find_by(handle: "cookie")
+    manager = Profile.find_by(handle: "mooncake")
+    group   = Group.find_by(handle: "guildx")
+    Membership.create!(profile: manager, target: group, role: "manager", status: "active")
+
+    post api_group_set_admin_notification_url,
+      params: { auth_token: manager.gen_auth_token, group_id: group.id, admin_notification: true }
+    assert_response :success
+
+    assert Membership.find_by(profile: manager, target: group).admin_notification
+  end
+
+  test "api#group/set_admin_notification disables" do
+    owner = Profile.find_by(handle: "cookie")
+    group = Group.find_by(handle: "guildx")
+    owner.memberships.find_by(target: group).update!(admin_notification: true)
+
+    post api_group_set_admin_notification_url,
+      params: { auth_token: owner.gen_auth_token, group_id: group.id, admin_notification: false }
+    assert_response :success
+
+    assert_not Membership.find_by(profile: owner, target: group).admin_notification
+  end
+
+  test "api#group/set_admin_notification rejected for plain member" do
+    member = Profile.find_by(handle: "mooncake")
+    group  = Group.find_by(handle: "guildx")
+    Membership.create!(profile: member, target: group, role: "member", status: "active")
+
+    post api_group_set_admin_notification_url,
+      params: { auth_token: member.gen_auth_token, group_id: group.id, admin_notification: true }
+
+    assert_includes ["403", "error"], response.code == "403" ? "403" : JSON.parse(response.body)["result"]
+    assert_not Membership.find_by(profile: member, target: group).admin_notification
+  end
+
+  # ── event_review_required ────────────────────────────────────────────────────
+
+  test "api#group/update sets event_review_required" do
+    owner = Profile.find_by(handle: "cookie")
+    group = Group.find_by(handle: "guildx")
+
+    post api_group_update_url,
+      params: { auth_token: owner.gen_auth_token, id: group.id, group: { event_review_required: "member" } }
+    assert_response :success
+    assert_equal "member", group.reload.event_review_required
+  end
+
+  test "api#group/update clears event_review_required" do
+    owner = Profile.find_by(handle: "cookie")
+    group = Group.find_by(handle: "guildx")
+    group.update!(event_review_required: "everyone")
+
+    post api_group_update_url,
+      params: { auth_token: owner.gen_auth_token, id: group.id, group: { event_review_required: nil } }
+    assert_response :success
+    assert_nil group.reload.event_review_required
+  end
+
+  test "api#group/update rejects invalid event_review_required value" do
+    owner = Profile.find_by(handle: "cookie")
+    group = Group.find_by(handle: "guildx")
+
+    post api_group_update_url,
+      params: { auth_token: owner.gen_auth_token, id: group.id, group: { event_review_required: "invalid_role" } }
+
+    assert_nil group.reload.event_review_required
   end
 end

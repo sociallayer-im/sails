@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_22_224827) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_22_234034) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -518,6 +518,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_22_224827) do
     t.integer "venue_union", array: true
     t.string "featured_image_url"
     t.string "ticket_link"
+    t.string "event_review_required"
     t.index ["group_tags"], name: "index_groups_on_group_tags", using: :gin
     t.index ["handle"], name: "index_groups_on_handle"
     t.index ["status"], name: "index_groups_on_status"
