@@ -1,0 +1,21 @@
+db/migrate/20260524000000_add_key_to_groups.rb
+  s_212b3fb8ecd46f::t_b803828a8cad7a 1-18
+db/migrate/20260524000001_add_key_to_profiles.rb
+  s_212b3fb8ecd46f::t_7b61c7924ed466 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "cb956c096e12f0559774cf7fe363363d5e76715a",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
