@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_22_234034) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_24_000001) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -519,8 +519,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_22_234034) do
     t.string "featured_image_url"
     t.string "ticket_link"
     t.string "event_review_required"
+    t.string "key"
     t.index ["group_tags"], name: "index_groups_on_group_tags", using: :gin
     t.index ["handle"], name: "index_groups_on_handle"
+    t.index ["key"], name: "index_groups_on_key", unique: true
     t.index ["status"], name: "index_groups_on_status"
   end
 
@@ -811,8 +813,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_22_234034) do
     t.string "fuel_address"
     t.jsonb "telegram_data"
     t.string "telegram_id"
+    t.string "key"
     t.index ["address"], name: "index_profiles_on_address", unique: true
     t.index ["email"], name: "index_profiles_on_email", unique: true
+    t.index ["key"], name: "index_profiles_on_key", unique: true
     t.index ["phone"], name: "index_profiles_on_phone", unique: true
     t.index ["username"], name: "index_profiles_on_username", unique: true
   end
