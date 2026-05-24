@@ -12,6 +12,7 @@ class Api::FormController < ApiController
     ActiveRecord::Base.transaction do
       form.save!
       event.update_column(:form_id, form.id) unless event.form_id == form.id
+      event.update_column(:require_approval, true) unless event.require_approval
 
       FormField.where(form_id: form.id).delete_all
       (params[:fields] || []).each_with_index do |field_params, index|

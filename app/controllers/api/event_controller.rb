@@ -366,8 +366,17 @@ class Api::EventController < ApiController
       raise AppError.new("group ticket check failed")
     end
 
-    if event.require_approval && !event.group.is_manager(profile.id)
+    if (event.require_approval || event.form_id.present?) && !event.group.is_manager(profile.id)
       status = "pending"
+    end
+
+    if event.form_id
+      required_field_ids = FormField.where(form_id: event.form_id, required: true, for_admin: false).pluck(:id).map(&:to_s)
+      if required_field_ids.any?
+        submitted_ids = Array(params[:form_answers]).map { |a| a[:field_id].to_s }
+        missing = required_field_ids.reject { |id| submitted_ids.include?(id) && params[:form_answers].find { |a| a[:field_id].to_s == id }&.dig(:value).present? }
+        raise AppError.new("missing required form fields") if missing.any?
+      end
     end
 
     participant = Participant.find_by(event_id: event.id, profile_id: profile.id)
