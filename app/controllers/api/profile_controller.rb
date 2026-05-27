@@ -35,8 +35,12 @@ class Api::ProfileController < ApiController
     profile = Profile.find_by!(handle: params[:handle])
     memberships = Membership.where(profile_id: profile.id)
     memberships = memberships.where(role: params[:role].split(',')) if params[:role].present?
-    groups = Group.where(id: memberships.pluck(:target_id)).where.not(status: 'freezed')
-    render json: { groups: groups.as_json(only: [:id, :handle, :nickname, :username, :image_url, :about, :social_links, :status, :permissions, :event_enabled, :can_publish_event, :timezone, :memberships_count]) }
+    role_by_group = memberships.each_with_object({}) { |m, h| h[m.target_id] = m.role }
+    groups = Group.where(id: role_by_group.keys).where.not(status: 'freezed')
+    render json: { groups: groups.map { |g|
+      g.as_json(only: [:id, :handle, :nickname, :username, :image_url, :about, :social_links, :status, :permissions, :event_enabled, :can_publish_event, :timezone, :memberships_count])
+        .merge(role: role_by_group[g.id])
+    }}
   end
 
   def verify

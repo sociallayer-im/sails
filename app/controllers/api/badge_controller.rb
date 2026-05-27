@@ -97,7 +97,7 @@ class Api::BadgeController < ApiController
     end
     badges = badges.joins(:owner).where(profiles: { handle: params[:owner_handle] }) if params[:owner_handle].present?
     badges = badges.where(badge_class_id: params[:badge_class_id]) if params[:badge_class_id].present?
-    @badges = badges
+    @badges = badges.includes(:badge_class, :creator, :owner)
   end
 
   def get
