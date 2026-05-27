@@ -1,0 +1,34 @@
+lib/evm_payment_verifier.rb
+  s_212b3fb8ecd46f::t_0c4067c202087f 1-24,35-52,54-77,83-143
+  s_212b3fb8ecd46f::t_696d701d4d876a 78-82
+  s_212b3fb8ecd46f::t_4160cbc6bcdb77 25-34
+  s_212b3fb8ecd46f::t_7be91ff166268c 53
+test/lib/evm_payment_verifier_integration_test.rb
+  s_212b3fb8ecd46f::t_8520cba79eda43 1-109
+test/lib/evm_payment_verifier_test.rb
+  s_212b3fb8ecd46f::t_e782d319a6a75b 162
+  s_212b3fb8ecd46f::t_329fcff73783b0 69
+  s_212b3fb8ecd46f::t_f8e683070a942b 274,278
+  s_212b3fb8ecd46f::t_16d1b497323e42 1,3-68,70-75,77-84,86-91,93-98,100-105,107-112,114-120,122-127,129-134,136-142,144-151,153-161,163-168,265-273,275-277,279-280
+  s_212b3fb8ecd46f::t_4f4614bff1cee3 169-264
+  s_212b3fb8ecd46f::t_371ebdf6386e99 76,85,92,99,106,113,121,128,135,143,152
+  s_212b3fb8ecd46f::t_ac3c17de594c56 2
+script/test_evm_verifier.rb
+  s_212b3fb8ecd46f::t_c63da309559a1f 1-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "1a4484dbedb510aaaac122e350b5c3eb66219faa",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
