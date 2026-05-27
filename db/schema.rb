@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_24_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_25_064233) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -695,6 +695,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_24_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "protocol"
+    t.string "chains", default: [], array: true
+    t.jsonb "chain_token_addresses", default: {}
   end
 
   create_table "point_balances", force: :cascade do |t|

@@ -69,7 +69,20 @@ class Api::TicketController < ApiController
           coupon_id = coupon.id
         end
       end
-      if paymethod.chain == "stripe" && amount < 400
+      # For multi-chain payment methods, the client passes params[:chain] to select which chain.
+      selected_chain = if paymethod.chains.present?
+        requested = params[:chain].to_s
+        unless paymethod.chains.include?(requested)
+          return render json: { result: "error", message: "chain not supported by this payment method" }
+        end
+        requested
+      else
+        paymethod.chain
+      end
+
+      effective_token_address = paymethod.token_address_for_chain(selected_chain)
+
+      if selected_chain == "stripe" && amount < 400
         amount = 0
       end
       status = amount == 0 ? "succeeded" : "pending"
@@ -79,7 +92,7 @@ class Api::TicketController < ApiController
         profile_id: profile.id,
         ticket_id: ticket.id,
         event_id: event.id,
-        chain: paymethod.chain,
+        chain: selected_chain,
         protocol: paymethod.protocol,
         participant_id: participant.id,
         amount: amount,
@@ -182,7 +195,21 @@ class Api::TicketController < ApiController
       return render json: { result: "error", message: "amount invalid" }
     end
 
-    # todo : verify token_address, receiver_address, chain
+    if ticket_item.payment_method.present? && params[:txhash].present?
+      pm = ticket_item.payment_method
+      result = EvmPaymentVerifier.verify(
+        txhash:           params[:txhash],
+        chain:            params[:chain],
+        token_address:    pm.token_address_for_chain(ticket_item.chain),
+        receiver_address: pm.receiver_address,
+        amount:           ticket_item.amount,
+        product_id:       params[:product_id].to_i,
+        item_id:          ticket_item.order_number.to_i
+      )
+      unless result.success
+        return render json: { result: "error", message: "tx verification failed: #{result.error}" }
+      end
+    end
 
     ticket_item.update(
       status: "succeeded",

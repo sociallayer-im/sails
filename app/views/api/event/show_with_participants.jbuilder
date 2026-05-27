@@ -6,7 +6,7 @@ json.partial! 'api/group/group_or_nil', group: @event.group
 json.tickets @event.tickets do |ticket|
   json.extract! ticket, :id, :title, :content, :ticket_type, :quantity, :end_time, :need_approval, :status, :zupass_event_id, :zupass_product_id, :zupass_product_name, :start_date, :end_date, :days_allowed, :tracks_allowed
   json.payment_methods ticket.payment_methods do |pm|
-    json.extract! pm, :id, :chain, :token_name, :token_address, :receiver_address, :price
+    json.extract! pm, :id, :chain, :token_name, :token_address, :receiver_address, :price, :chains, :chain_token_addresses
   end
 end
 

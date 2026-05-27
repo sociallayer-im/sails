@@ -900,7 +900,9 @@ class Api::EventController < ApiController
           :token_address,
           :receiver_address,
           :price,
-          :_destroy
+          :_destroy,
+          chains: [],
+          chain_token_addresses: {}
         ]
       ],
       payment_methods_attributes: [
@@ -913,7 +915,9 @@ class Api::EventController < ApiController
         :token_address,
         :receiver_address,
         :price,
-        :_destroy
+        :_destroy,
+        chains: [],
+        chain_token_addresses: {}
       ],
       event_roles_attributes: [ :id, :role, :group_id, :event_id, :item_type, :item_id, :email, :nickname, :image_url, :_destroy ],
       )
