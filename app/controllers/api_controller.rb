@@ -114,6 +114,10 @@ class ApiController < ApplicationController
     render json: { result: "error", message: err.message }, status: 422
   end
 
+  rescue_from ActiveRecord::RecordNotFound do |err|
+    render json: { result: "error", message: err.message }, status: 404
+  end
+
   rescue_from ActiveRecord::StatementInvalid do |err|
     Rails.logger.error err.message
     render json: { result: "error", message: err.message }, status: 500

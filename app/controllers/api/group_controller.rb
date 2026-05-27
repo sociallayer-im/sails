@@ -244,7 +244,9 @@ class Api::GroupController < ApiController
   end
 
   def get
-    @group = Group.find_by(handle: params[:group_id]) || Group.find(params[:group_id])
+    @group = Group.find_by(handle: params[:group_id]) ||
+             (params[:group_id] =~ /\A\d+\z/ ? Group.find_by(id: params[:group_id]) : nil)
+    raise ActiveRecord::RecordNotFound unless @group
     @include_detail = params[:include_detail].present?
   end
 
