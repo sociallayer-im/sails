@@ -14,19 +14,29 @@ class Api::FormController < ApiController
       event.update_column(:form_id, form.id) unless event.form_id == form.id
       event.update_column(:require_approval, true) unless event.require_approval
 
-      FormField.where(form_id: form.id).delete_all
+      # Update fields in-place to preserve IDs that existing FormAnswer records reference.
+      # Only delete fields that were explicitly removed (not in the new list).
+      incoming_ids = (params[:fields] || []).map { |f| f[:id].presence }.compact
+      FormField.where(form_id: form.id).where.not(id: incoming_ids).delete_all
+
       (params[:fields] || []).each_with_index do |field_params, index|
         raise AppError.new("field label cannot be blank") if field_params[:label].blank?
         field_type = field_params[:field_type] || 'text'
         options = field_type == 'select' ? (field_params[:options] || []) : []
-        form.form_fields.create!(
+        attrs = {
           label: field_params[:label],
           field_type: field_type,
           required: field_params[:required] || false,
           for_admin: field_params[:for_admin] || false,
           position: field_params[:position].present? ? field_params[:position] : index,
           options: options
-        )
+        }
+        if field_params[:id].present?
+          field = FormField.find_by(id: field_params[:id], form_id: form.id)
+          field ? field.update!(attrs) : form.form_fields.create!(attrs)
+        else
+          form.form_fields.create!(attrs)
+        end
       end
     end
 
