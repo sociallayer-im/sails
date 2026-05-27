@@ -1,0 +1,23 @@
+app/controllers/api/profile_controller.rb
+  s_212b3fb8ecd46f::t_18aea62c6de8e9 38-43
+app/views/api/badge/list.jbuilder
+  s_212b3fb8ecd46f::t_3984e529106841 3-5,7-8
+app/controllers/api/badge_controller.rb
+  s_212b3fb8ecd46f::t_44eb93ff847b42 100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "a4705cf3acd49116f23bf97f12a3599fe1055e3d",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
