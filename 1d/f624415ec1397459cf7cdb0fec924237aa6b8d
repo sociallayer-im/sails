@@ -1,0 +1,25 @@
+config/routes.rb
+  s_212b3fb8ecd46f::t_8475efb2781006 75
+app/views/group_mailer/member_broadcast.html.erb
+  s_212b3fb8ecd46f::t_76fb7d697798c1 1-41
+app/controllers/api/group_controller.rb
+  s_212b3fb8ecd46f::t_42592d26438443 265-287
+app/mailers/group_mailer.rb
+  s_212b3fb8ecd46f::t_417b9e466c4223 9-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "1df624415ec1397459cf7cdb0fec924237aa6b8d",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
