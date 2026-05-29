@@ -1,0 +1,19 @@
+app/controllers/api/popup_city_controller.rb
+  s_212b3fb8ecd46f::t_7aef7fa85be141 24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "34c34335fe3b96e6fd9f2b9c9ab9bb7405b17dea",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
