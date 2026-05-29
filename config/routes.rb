@@ -72,6 +72,7 @@ Rails.application.routes.draw do
     post "group/create_popup", to: "group#create_popup"
     post "group/update_popup", to: "group#update_popup"
 
+    post "group/send_email_to_members", to: "group#send_email_to_members"
     post "group/send_invite", to: "group_invite#send_invite"
     post "group/accept_invite", to: "group_invite#accept_invite"
     post "group/cancel_invite", to: "group_invite#cancel_invite"

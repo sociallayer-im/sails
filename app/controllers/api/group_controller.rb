@@ -262,6 +262,29 @@ class Api::GroupController < ApiController
     }
   end
 
+  def send_email_to_members
+    profile = current_profile!
+    group = Group.find_by(handle: params[:group_id]) || Group.find(params[:group_id])
+    authorize group, :manage?, policy_class: GroupPolicy
+
+    subject = params[:subject].to_s.strip
+    content = params[:content].to_s.strip
+    raise AppError.new("subject is required") if subject.blank?
+    raise AppError.new("content is required") if content.blank?
+
+    emails = group.memberships.includes(:profile)
+                  .map { |m| m.profile.email.presence }
+                  .compact
+                  .uniq
+
+    emails.each do |email|
+      GroupMailer.with(group: group, recipient: email, subject: subject, content: content)
+                 .member_broadcast.deliver_later
+    end
+
+    render json: { result: "ok", sent_count: emails.size }
+  end
+
   def featured
     tag = params[:tag] || ':top'
     @groups = Group.where("group_tags @> ARRAY[?]::varchar[]", [tag])
