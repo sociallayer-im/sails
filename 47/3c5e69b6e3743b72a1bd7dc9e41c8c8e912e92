@@ -1,0 +1,27 @@
+app/views/event_mailer/participant_approved.html.erb
+  s_212b3fb8ecd46f::t_01ccea5240b89d 1-71
+app/models/profile.rb
+  s_212b3fb8ecd46f::t_012af6a9dbf67b 96-107
+app/views/event_mailer/participant_rejected.html.erb
+  s_212b3fb8ecd46f::t_3926a249af02ba 1-46
+app/controllers/api/event_controller.rb
+  s_212b3fb8ecd46f::t_3b19f25b3f69e1 441,452
+app/mailers/event_mailer.rb
+  s_212b3fb8ecd46f::t_5525200df12f44 44-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "473c5e69b6e3743b72a1bd7dc9e41c8c8e912e92",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
