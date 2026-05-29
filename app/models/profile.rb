@@ -93,6 +93,18 @@ class Profile < ApplicationRecord
     end
   end
 
+  def send_mail_participant_approved(event)
+    if self.email.present?
+      EventMailer.with(event_id: event.id, recipient: self.email).participant_approved.deliver_later
+    end
+  end
+
+  def send_mail_participant_rejected(event)
+    if self.email.present?
+      EventMailer.with(event_id: event.id, recipient: self.email).participant_rejected.deliver_later
+    end
+  end
+
   def self.get_profile_groups(profile_ids)
     # Single efficient query using LEFT JOIN to ensure all profiles are included
     # even if they have no groups

@@ -41,6 +41,18 @@ class EventMailer < ApplicationMailer
     mail(to: [@recipient], subject: subject)
   end
 
+  def participant_approved()
+    @recipient = params[:recipient]
+    @event = Event.find(params[:event_id])
+    mail(to: [@recipient], subject: "You're in! Application approved — #{@event.title}")
+  end
+
+  def participant_rejected()
+    @recipient = params[:recipient]
+    @event = Event.find(params[:event_id])
+    mail(to: [@recipient], subject: "Application update — #{@event.title}")
+  end
+
   def venue_review()
     @group = params[:group]
     @event = params[:event]

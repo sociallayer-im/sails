@@ -438,6 +438,7 @@ class Api::EventController < ApiController
     raise AppError.new("participant is not pending") unless participant.status == "pending"
     participant.update!(status: "attending")
     sync_participants_count(participant.event)
+    participant.profile.send_mail_participant_approved(participant.event)
     render json: { result: "ok", participant: participant.as_json }
   end
 
@@ -448,6 +449,7 @@ class Api::EventController < ApiController
     raise AppError.new("participant is not pending") unless participant.status == "pending"
     participant.update!(status: "rejected")
     sync_participants_count(participant.event)
+    participant.profile.send_mail_participant_rejected(participant.event)
     render json: { result: "ok", participant: participant.as_json }
   end
 
