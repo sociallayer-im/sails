@@ -21,6 +21,7 @@ class Api::PopupCityController < ApiController
       start_date: g.start_date,
       end_date: g.end_date,
       image_url: g.image_url,
+      banner_image_url: g.banner_image_url,
       location: g.location,
       website: g.website,
       group_tags: g.group_tags,
