@@ -1,0 +1,34 @@
+app/views/api/event/show.jbuilder
+  s_212b3fb8ecd46f::t_b53487f0e8932d 9
+app/controllers/api/ticket_controller.rb
+  s_212b3fb8ecd46f::t_8d7923eb7f1917 152-163,169-180,182-184
+  s_212b3fb8ecd46f::t_7ea16b87927e58 164-168,181
+  s_212b3fb8ecd46f::t_888cb6da3b9970 412-430
+  s_212b3fb8ecd46f::t_f21ab3f9095696 247
+config/routes.rb
+  s_212b3fb8ecd46f::t_6b3c2d94c34212 128
+app/models/payment_method.rb
+  s_212b3fb8ecd46f::t_1973a9fce4bbed 2
+app/views/api/event/show_with_participants.jbuilder
+  s_212b3fb8ecd46f::t_cc9edc67ca4abc 9
+lib/evm_payment_verifier.rb
+  s_212b3fb8ecd46f::t_d7e4d8ce3ea7e8 29-30,33-35
+app/controllers/api/event_controller.rb
+  s_212b3fb8ecd46f::t_8379bdddc36970 66,74-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "1b77db2758c1f1bfd8c196c6899e063ff734e394",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
