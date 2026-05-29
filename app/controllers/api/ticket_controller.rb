@@ -149,6 +149,39 @@ class Api::TicketController < ApiController
     render json: { participant: participant.as_json, ticket_item: ticket_item.as_json }
   end
 
+  def verify_payment
+    profile = current_profile!
+    ticket_item = TicketItem.find_by(id: params[:ticket_item_id])
+    raise AppError.new("ticket_item not found") unless ticket_item
+    raise AppError.new("not authorized") unless ticket_item.profile_id == profile.id
+
+    if ticket_item.status == "succeeded"
+      return render json: { result: "ok", participant: ticket_item.participant.as_json, ticket_item: ticket_item.as_json }
+    end
+
+    raise AppError.new("ticket_item is not pending") unless ticket_item.status == "pending"
+
+    # Non-stripe paid items must supply a txhash for on-chain verification.
+    if ticket_item.amount.to_i > 0 && ticket_item.chain != "stripe"
+      raise AppError.new("txhash is required for crypto payments") if params[:txhash].blank?
+      pm = ticket_item.payment_method
+      raise AppError.new("payment_method not found") unless pm.present?
+      result = EvmPaymentVerifier.verify(
+        txhash:           params[:txhash],
+        chain:            ticket_item.chain,
+        token_address:    pm.token_address_for_chain(ticket_item.chain),
+        receiver_address: pm.receiver_address,
+        amount:           ticket_item.amount,
+        product_id:       ticket_item.event_id,
+        item_id:          ticket_item.order_number.to_i
+      )
+      raise AppError.new("tx verification failed: #{result.error}") unless result.success
+    end
+
+    mark_ticket_item_paid!(ticket_item, txhash: params[:txhash], sender_address: params[:sender_address])
+    render json: { result: "ok", participant: ticket_item.participant.as_json, ticket_item: ticket_item.as_json }
+  end
+
   def cancel_unpaid_item
     ticket_item = TicketItem.find_by(chain: params[:chain], event_id: params[:product_id], order_number: params[:item_id].to_s)
     profile = current_profile!
@@ -211,25 +244,7 @@ class Api::TicketController < ApiController
       end
     end
 
-    ticket_item.update(
-      status: "succeeded",
-      txhash: params[:txhash],
-      sender_address: params[:sender_address],
-      )
-
-    if ticket_item.ticket_type == 'group' && Membership.find_by(profile_id: ticket_item.profile_id, target_id: ticket_item.group_id).blank?
-      Membership.create(profile: ticket_item.profile, target: ticket_item.group, role: "member", status: "active")
-    end
-
-    if ticket_item.participant.payment_status != "succeeded"
-      ticket_item.participant.update(payment_status: "succeeded")
-      if ticket_item.profile.email.present?
-        ticket_item.profile.send_mail_new_event(ticket_item.event)
-      end
-    end
-
-    ticket_item.notify_group_owner
-
+    mark_ticket_item_paid!(ticket_item, txhash: params[:txhash], sender_address: params[:sender_address])
     render json: { participant: ticket_item.participant.as_json, ticket_item: ticket_item.as_json }
   end
 
@@ -393,6 +408,25 @@ class Api::TicketController < ApiController
   end
 
   private
+
+  def mark_ticket_item_paid!(ticket_item, txhash:, sender_address:)
+    ticket_item.update!(
+      status: "succeeded",
+      txhash: txhash,
+      sender_address: sender_address
+    )
+
+    if ticket_item.ticket_type == "group" && Membership.find_by(profile_id: ticket_item.profile_id, target_id: ticket_item.group_id).blank?
+      Membership.create(profile: ticket_item.profile, target: ticket_item.group, role: "member", status: "active")
+    end
+
+    if ticket_item.participant.payment_status != "succeeded"
+      ticket_item.participant.update(payment_status: "succeeded")
+      ticket_item.profile.send_mail_new_event(ticket_item.event) if ticket_item.profile.email.present?
+    end
+
+    ticket_item.notify_group_owner
+  end
 
   def submission_params
     params.require(:submission).permit(:custom_form_id, :answers)

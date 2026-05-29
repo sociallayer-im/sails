@@ -1,5 +1,5 @@
 class PaymentMethod < ApplicationRecord
-  SUPPORTED_CHAINS = %w[ethereum op arb polygon base stripe].freeze
+  SUPPORTED_CHAINS = %w[ethereum optimism arbitrum polygon base stripe].freeze
 
   belongs_to :item, polymorphic: true, optional: true
 

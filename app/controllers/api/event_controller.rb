@@ -63,7 +63,7 @@ class Api::EventController < ApiController
     event = Event.new(event_params)
     event.timezone = group.timezone if group && event.timezone.blank?
     event.pinned = params[:pinned] if group && group.is_manager(profile.id)
-    event.update(
+    saved = event.update(
       status: status,
       owner: profile,
       group: group,
@@ -71,12 +71,14 @@ class Api::EventController < ApiController
       event_type: event_params[:event_type] || "event", # todo : could be "group_ticket"
     )
 
+    unless saved
+      raise AppError.new(event.errors.full_messages.join(", "))
+    end
+
     if event_params[:event_type] == "group_ticket"
       group.update(group_ticket_event_id: event.id)
       event.tickets.update_all(ticket_type: "group")
     end
-
-    p "event.errors.full_messages", event.errors.full_messages
 
     group.increment!(:events_count) if group
 

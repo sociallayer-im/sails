@@ -26,10 +26,13 @@ class EvmPaymentVerifier
     key = ENV["ALCHEMY_API_KEY"]
     {
       "ethereum" => "https://eth-mainnet.g.alchemy.com/v2/#{key}",
-      "op"       => "https://opt-mainnet.g.alchemy.com/v2/#{key}",
-      "arb"      => "https://arb-mainnet.g.alchemy.com/v2/#{key}",
+      "optimism" => "https://opt-mainnet.g.alchemy.com/v2/#{key}",
+      "arbitrum" => "https://arb-mainnet.g.alchemy.com/v2/#{key}",
       "polygon"  => "https://polygon-mainnet.g.alchemy.com/v2/#{key}",
       "base"     => "https://base-mainnet.g.alchemy.com/v2/#{key}",
+      # legacy aliases stored in old ticket_item rows
+      "op"       => "https://opt-mainnet.g.alchemy.com/v2/#{key}",
+      "arb"      => "https://arb-mainnet.g.alchemy.com/v2/#{key}",
     }
   end.freeze
 
