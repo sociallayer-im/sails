@@ -2,35 +2,80 @@
 <html dir="ltr" lang="en">
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <style type="text/css">
+      img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+      a img { border: none; }
+      body { margin: 0; padding: 0; }
+    </style>
   </head>
-  <body style="padding-left:1rem;padding-right:1rem;font-family:sans-serif">
-    <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="max-width:37.5em">
+  <body style="margin:0;padding:0;background-color:#f9fafb;font-family:Arial,Helvetica,sans-serif">
+    <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f9fafb;padding:24px 0">
       <tbody>
-        <tr style="width:100%">
-          <td>
-            <a href="https://app.sola.day/event/<%= @group.handle %>" style="color:rgb(39,41,40);text-decoration:none;display:block;vertical-align:middle;flex-wrap:nowrap;margin-top:3rem;margin-bottom:2rem;line-height:32px" target="_blank">
-              <img alt="" height="32" src="https://ik.imagekit.io/soladata/g9orl7uo_Xf0S5pGU4" style="display:inline-block;outline:none;border:none;text-decoration:none;border-radius:9999px;margin-right:0.5rem;vertical-align:middle" width="32" />
-              <%= @group.handle %>
-            </a>
+        <tr>
+          <td align="center">
+            <table align="center" width="600" border="0" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+              <tbody>
 
-            <div style="line-height:1.6;color:rgb(39,39,42);font-size:15px;margin-bottom:3rem">
-              <%= raw @content %>
-            </div>
-
-            <a href="https://app.sola.day/event/<%= @group.handle %>" style="color:rgb(255,255,255);text-decoration:none;display:inline-flex;padding-left:3rem;padding-right:3rem;width:auto;justify-content:center;align-items:center;height:56px;position:relative;background-color:rgb(39,39,42);border-radius:1rem;text-align:center;font-weight:700" target="_blank">
-              <div style="text-align:center;color:rgb(255,255,255);font-size:1rem;line-height:56px;vertical-align:middle;font-weight:700">Visit <%= @group.handle %></div>
-            </a>
-
-            <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="margin-top:3rem">
-              <tbody style="width:100%">
-                <tr style="width:100%">
-                  <td>
-                    <div>
-                      <div style="line-height:normal">For more events go to<a href="https://app.sola.day" style="color:rgb(116,146,239);text-decoration:none;margin-left:0.5rem;margin-right:0.5rem" target="_blank">Social Layer↗</a></div>
-                      <img alt="" src="https://ik.imagekit.io/soladata/fr550sre_BVy4kGMS7" style="width:102px;height:32px" />
-                    </div>
+                <!-- Header: group logo + name -->
+                <tr>
+                  <td style="padding:24px 32px 20px">
+                    <a href="https://app.sola.day/event/<%= @group.handle %>" style="text-decoration:none;display:inline-block;vertical-align:middle" target="_blank">
+                      <% if @group.image_url.present? %>
+                      <img alt="<%= @group.handle %>" src="<%= @group.image_url %>" width="36" height="36"
+                           style="display:inline-block;border-radius:50%;margin-right:10px;vertical-align:middle;width:36px;height:36px;object-fit:cover" />
+                      <% end %>
+                      <span style="color:#27282a;font-size:16px;font-weight:600;vertical-align:middle"><%= @group.nickname.presence || @group.handle %></span>
+                    </a>
                   </td>
                 </tr>
+
+                <!-- Content -->
+                <tr>
+                  <td style="padding:0 32px 32px;font-size:15px;line-height:1.7;color:#374151">
+                    <%=
+                      # Inject display:block on img tags to prevent inline-image gaps in email clients
+                      @content.gsub(/<img(\s)/i, '<img style="display:block;max-width:100%;height:auto;border:0"\1')
+                    %>
+                  </td>
+                </tr>
+
+                <!-- CTA -->
+                <tr>
+                  <td style="padding:0 32px 32px">
+                    <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+                      <tbody>
+                        <tr>
+                          <td align="center" style="background-color:#27272a;border-radius:8px">
+                            <a href="https://app.sola.day/event/<%= @group.handle %>"
+                               style="display:inline-block;padding:14px 32px;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none"
+                               target="_blank">Visit <%= @group.nickname.presence || @group.handle %></a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="padding:20px 32px;border-top:1px solid #f3f4f6">
+                    <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                      <tbody>
+                        <tr>
+                          <td>
+                            <span style="font-size:12px;color:#9ca3af">For more events go to </span>
+                            <a href="https://app.sola.day" style="font-size:12px;color:#7492ef;text-decoration:none" target="_blank">Social Layer↗</a>
+                          </td>
+                          <td align="right">
+                            <img alt="Social Layer" src="https://ik.imagekit.io/soladata/fr550sre_BVy4kGMS7"
+                                 width="82" height="26" style="display:inline-block;width:82px;height:26px" />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
               </tbody>
             </table>
           </td>

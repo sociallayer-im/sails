@@ -272,17 +272,23 @@ class Api::GroupController < ApiController
     raise AppError.new("subject is required") if subject.blank?
     raise AppError.new("content is required") if content.blank?
 
-    emails = group.memberships.includes(:profile)
-                  .map { |m| m.profile.email.presence }
-                  .compact
-                  .uniq
+    test_recipient = params[:test_recipient].to_s.strip
+
+    emails = if test_recipient.present?
+      [test_recipient]
+    else
+      group.memberships.includes(:profile)
+           .map { |m| m.profile.email.presence }
+           .compact
+           .uniq
+    end
 
     emails.each do |email|
       GroupMailer.with(group: group, recipient: email, subject: subject, content: content)
                  .member_broadcast.deliver_later
     end
 
-    render json: { result: "ok", sent_count: emails.size }
+    render json: { result: "ok", sent_count: emails.size, test: test_recipient.present? }
   end
 
   def featured
