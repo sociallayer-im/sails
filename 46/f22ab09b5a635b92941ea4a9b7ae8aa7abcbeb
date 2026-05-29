@@ -1,0 +1,21 @@
+app/views/group_mailer/member_broadcast.html.erb
+  s_212b3fb8ecd46f::t_078ccd90a23fdb 5-9,11-12,14-17,19-40,42-57,59-75,78
+app/controllers/api/group_controller.rb
+  s_212b3fb8ecd46f::t_2e3a9f759b311c 275-284,291
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "46f22ab09b5a635b92941ea4a9b7ae8aa7abcbeb",
+  "prompts": {},
+  "sessions": {
+    "s_212b3fb8ecd46f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6bae81f-00a5-4e13-b16c-f46ae68799f0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
