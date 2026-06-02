@@ -46,7 +46,7 @@ class Api::GroupInviteController < ApiController
     authorize group, :manage?, policy_class: GroupPolicy
 
     raise AppError.new("invalid status") unless group_invite.status == "requesting"
-    raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
+    raise AppError.new("invite expired") if group_invite.expires_at && DateTime.now >= group_invite.expires_at
 
     unless group.is_owner(profile.id) && [ "member", "manager" ].include?(group_invite.role) || [ "member" ].include?(group_invite.role)
       raise AppError.new("invalid role")
@@ -131,7 +131,7 @@ class Api::GroupInviteController < ApiController
     group = Group.find(group_invite.group_id)
     authorize group_invite, :accept?
     raise AppError.new("invalid status") unless group_invite.status == "sending"
-    raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
+    raise AppError.new("invite expired") if group_invite.expires_at && DateTime.now >= group_invite.expires_at
 
     ActiveRecord::Base.transaction do
       group_invite.update(status: "accepted")
@@ -170,7 +170,7 @@ class Api::GroupInviteController < ApiController
     raise AppError.new("invite not found") if group_invite.nil?
     raise AppError.new("invalid code") unless group_invite.receiver_address == params[:code]
     raise AppError.new("invite has been cancelled") unless group_invite.status == "sending"
-    raise AppError.new("invite expired") unless DateTime.now < group_invite.expires_at
+    raise AppError.new("invite expired") if group_invite.expires_at && DateTime.now >= group_invite.expires_at
     group = Group.find(group_invite.group_id)
     # Code invites are reusable (anyone with the link can join), so never flip status to "accepted"
     membership = Membership.find_by(profile_id: profile.id, target_id: group.id)
