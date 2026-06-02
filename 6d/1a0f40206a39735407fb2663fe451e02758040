@@ -1,0 +1,19 @@
+app/controllers/api/group_invite_controller.rb
+  s_73e0a0bf632766::t_66020a42449e67 49,134,173
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "6d1a0f40206a39735407fb2663fe451e02758040",
+  "prompts": {},
+  "sessions": {
+    "s_73e0a0bf632766": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0bcdf466-622e-4484-a06e-f7169403bbb0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
