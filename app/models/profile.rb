@@ -38,6 +38,8 @@ class Profile < ApplicationRecord
   has_many :ticket_items
   enum :status, { active: 'active', freezed: 'freezed', admin: 'admin' }
 
+  before_save { self.email = email.downcase.strip if email.present? }
+
   def admin?
     self.status == "admin"
   end

@@ -63,13 +63,14 @@ class Api::ServiceController < ApiController
   end
 
   def send_email
+    email = params[:email].to_s.downcase.strip
     code = rand(10_000..100_000)
-    token = ProfileToken.create(context: params[:context], sent_to: params[:email], code: code)
+    token = ProfileToken.create(context: params[:context], sent_to: email, code: code)
 
-    mailer = SigninMailer.with(code: code, recipient: params[:email]).signin
+    mailer = SigninMailer.with(code: code, recipient: email).signin
     mailer.deliver_now!
 
-    render json: { result: "ok", email: params[:email] }
+    render json: { result: "ok", email: email }
   end
 
   def stats

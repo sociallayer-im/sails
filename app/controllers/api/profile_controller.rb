@@ -109,14 +109,15 @@ class Api::ProfileController < ApiController
   end
 
   def signin_with_email
-    token = ProfileToken.where(context: "email-signin", sent_to: params[:email], code: params[:code]).order('created_at DESC').first
+    email = params[:email].to_s.downcase.strip
+    token = ProfileToken.where(context: "email-signin", sent_to: email, code: params[:code]).order('created_at DESC').first
     raise AppError.new("EMailSignIn::InvalidEmailOrCode") unless token
     raise AppError.new("EMailSignIn::Expired") unless DateTime.now < (token.created_at + 30.minute)
     raise AppError.new("EMailSignIn::CodeIsUsed") if token.verified
 
     token.update(verified: true)
 
-    profile = Profile.find_or_create_by(email: params[:email])
+    profile = Profile.find_or_create_by(email: email)
     profile.bind_ticket_items
 
     if !Group.find(3635).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
@@ -141,7 +142,8 @@ class Api::ProfileController < ApiController
       raise AppError.new("invalid next token")
     end
 
-    profile = Profile.find_or_create_by(email: params[:email])
+    email = params[:email].to_s.downcase.strip
+    profile = Profile.find_or_create_by(email: email)
     profile.bind_ticket_items
 
     if !Group.find(3635).is_member(profile.id) && Event.edge_esmeralda_api_check(profile.email)
@@ -166,7 +168,8 @@ class Api::ProfileController < ApiController
       raise AppError.new("invalid next token")
     end
 
-    profile = Profile.find_or_create_by(email: params[:email])
+    email = params[:email].to_s.downcase.strip
+    profile = Profile.find_or_create_by(email: email)
     profile.bind_ticket_items
 
     SigninActivity.create(
@@ -302,7 +305,8 @@ class Api::ProfileController < ApiController
 
     zupass_list = params[:zupass_list]
     first_pass = zupass_list.first
-    profile = Profile.find_or_create_by(email: params[:email])
+    email = params[:email].to_s.downcase.strip
+    profile = Profile.find_or_create_by(email: email)
     profile.update(
       zupass: "#{first_pass[:zupass_event_id]}:#{first_pass[:zupass_product_id]}",
       )
@@ -333,7 +337,8 @@ class Api::ProfileController < ApiController
       raise AppError.new("invalid next token")
     end
 
-    profile = Profile.find_or_create_by(email: params[:email])
+    email = params[:email].to_s.downcase.strip
+    profile = Profile.find_or_create_by(email: email)
     profile.update(
       zupass: "#{params[:zupass_event_id]}:#{params[:zupass_product_id]}",
       )
