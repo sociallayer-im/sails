@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_25_064233) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
   create_schema "hdb_catalog"
 
   # These are extensions that must be enabled in order to support this database
@@ -223,7 +223,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_25_064233) do
     t.text "host_info"
     t.text "content"
     t.string "category"
-    t.string "tags", array: true
+    t.string "tags", default: [], array: true
     t.integer "max_participant"
     t.integer "min_participant"
     t.integer "participants_count", default: 0

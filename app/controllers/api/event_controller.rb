@@ -859,7 +859,6 @@ class Api::EventController < ApiController
       :require_approval,
       :content,
       :kind,
-      :tags,
       :max_participant,
       :min_participant,
       :participants_count,

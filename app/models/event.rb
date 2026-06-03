@@ -18,6 +18,7 @@ class Event < ApplicationRecord
   has_many :operator_notes, dependent: :delete_all
 
   before_create :assign_key
+  before_save { self.tags = tags || [] }
 
   # validates :end_time, comparison: { greater_than: :start_time }
   validates :status, inclusion: { in: %w(draft open pending published closed cancelled) }
