@@ -594,7 +594,7 @@ module Core
       csv_data = CSV.generate do |csv|
         csv << fields
         evs.each do |event|
-          csv << [event.id, event.title, event.start_time, event.end_time, event.owner.email, event.owner.handle, event.owner.nickname, event.tags.join(","), event.published_by_manager, event.day_of_week, event.cohost_list]
+          csv << [event.id, event.title, event.start_time, event.end_time, event.owner.email, event.owner.handle, event.owner.nickname, event.tags&.join(","), event.published_by_manager, event.day_of_week, event.cohost_list]
         end
       end
 
