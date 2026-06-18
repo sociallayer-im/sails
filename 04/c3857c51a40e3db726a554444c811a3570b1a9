@@ -1,0 +1,31 @@
+app/views/api/group/get.jbuilder
+  s_e9ed806a3d225c::t_3627a2b2ffe7e4 36-37,39-56
+ginger.yml
+  s_e9ed806a3d225c::t_d07c2e3678419b 4-6,15,18-20
+  s_e9ed806a3d225c::t_20256c10791280 22
+db/migrate/20260618000000_create_places_and_migrate_location_data.rb
+  s_e9ed806a3d225c::t_436d1917286239 9,18-24,26-40,45-46,55-77
+  s_e9ed806a3d225c::t_c166968186556e 44,47-54,115-143
+app/models/event.rb
+  s_e9ed806a3d225c::t_37ddf498ea715c 10-17
+app/models/venue.rb
+  s_e9ed806a3d225c::t_27b85d6aec895d 8-15
+app/models/marker.rb
+  s_e9ed806a3d225c::t_72034b87a9ac62 9-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "04c3857c51a40e3db726a554444c811a3570b1a9",
+  "prompts": {},
+  "sessions": {
+    "s_e9ed806a3d225c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "931f6a9c-6836-4bdb-a9b8-4af9de9ee16d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
