@@ -1,0 +1,55 @@
+service: sails
+image: ghcr.io/sociallayer-im/sails
+
+servers:
+  web:
+    hosts: [sg.sola.day]
+    primary: true
+
+registry:
+  server: ghcr.io
+  username: jiangplus
+  password: GHCR_TOKEN          # resolved from the process env / .env at deploy time
+
+proxy:
+  host: api.sola.day
+  app_port: 8080                # Thruster HTTP port (THRUSTER_HTTP_PORT)
+  ssl: true                     # kamal-proxy handles Let's Encrypt
+  health_check_path: /up
+  deploy_timeout: 60
+  drain_timeout: 30
+
+ssh:
+  user: root
+
+builder:
+  arch: amd64
+  remote: ssh://ubuntu@wamo.city
+
+env:
+  RAILS_ENV: production
+  RAILS_LOG_LEVEL: debug
+  THRUSTER_HTTP_PORT: "8080"
+  THRUSTER_TARGET_PORT: "3000"
+
+secrets:
+  load: [.env.production]
+  inject:
+    - DATABASE_URL
+    - SECRET_KEY_BASE
+    - JWT_SECRET_KEY
+    - RESEND_KEY
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - AWS_HOST
+    - AWS_BUCKET
+    - AWS_REGION
+    - BUCKET_NAME
+    - S3_URL
+    - NEXT_TOKEN
+    - SKYLIGHT_AUTHENTICATION
+    - CLOUDFLARE_ACCOUNT_ID
+    - CLOUDFLARE_IMAGE_API_KEY
+    - ALCHEMY_API_KEY
+
+retain_containers: 5

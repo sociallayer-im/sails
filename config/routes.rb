@@ -87,6 +87,10 @@ Rails.application.routes.draw do
 
     get  "group/get", to: "group#get"
 
+    get  "place/search", to: "place#search"
+    get  "place/get", to: "place#get"
+    post "place/create", to: "place#create"
+
     post "event/create", to: "event#create"
     post "event/update", to: "event#update"
     post "event/unpublish", to: "event#unpublish"

@@ -5,6 +5,7 @@ class Event < ApplicationRecord
   belongs_to :group, optional: true
   belongs_to :track, optional: true
   belongs_to :venue, optional: true
+  belongs_to :place, optional: true
   belongs_to :badge_class, optional: true
   belongs_to :recurring, optional: true
   has_one :custom_form, dependent: :delete, as: :item

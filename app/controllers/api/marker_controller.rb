@@ -78,8 +78,7 @@ class Api::MarkerController < ApiController
 
   def marker_params
     params.require(:marker).permit(:marker_type, :category, :pin_image_url, :cover_image_url,
-              :title, :about, :link, :start_time, :end_time,
-              :location, :formatted_address, :location_viewport, :location_data, :geo_lat, :geo_lng
+              :title, :about, :link, :start_time, :end_time, :place_id
             )
   end
 end

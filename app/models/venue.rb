@@ -3,6 +3,7 @@ class Venue < ApplicationRecord
 
   belongs_to :owner, class_name: "Profile", foreign_key: "owner_id", optional: true
   belongs_to :group
+  belongs_to :place, optional: true
   has_many :events
   has_many :venue_timeslots
   has_many :venue_overrides
