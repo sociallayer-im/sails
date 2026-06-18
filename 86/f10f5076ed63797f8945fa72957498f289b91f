@@ -1,0 +1,70 @@
+app/controllers/api/marker_controller.rb
+  s_e9ed806a3d225c::t_31158dcf087d33 81
+app/views/api/venue/_venue_or_nil.jbuilder
+  s_e9ed806a3d225c::t_f6355a3c8c2ea9 3-23
+app/views/api/event/_event.jbuilder
+  s_e9ed806a3d225c::t_37ed2153ab21b0 1-22
+ginger.yml
+  s_e9ed806a3d225c::t_1e05766276ecd0 1-55
+app/views/api/place/_place.jbuilder
+  s_e9ed806a3d225c::t_c45652cbc252a6 1
+app/models/marker.rb
+  s_e9ed806a3d225c::t_1cd52c1ecffceb 6
+app/views/api/place/search.jbuilder
+  s_e9ed806a3d225c::t_7f26634f33d8cb 1-3
+app/views/api/place/get.jbuilder
+  s_e9ed806a3d225c::t_589ac3fed685cd 1-3
+app/models/event.rb
+  s_e9ed806a3d225c::t_8f608e771b1984 8
+config/routes.rb
+  s_e9ed806a3d225c::t_58aa5589548574 90-91,93
+  s_e9ed806a3d225c::t_0f9807fe3e4603 92
+app/models/venue.rb
+  s_e9ed806a3d225c::t_34490afdcfb29b 6
+app/controllers/api/event_controller.rb
+  s_e9ed806a3d225c::t_3dde04c2b08e47 852
+db/migrate/20260618000001_add_data_to_places.rb
+  s_e9ed806a3d225c::t_fed0ed612a96b2 1-5
+app/views/api/marker/_marker_full.jbuilder
+  s_e9ed806a3d225c::t_5bee8b43a680db 2-23
+app/controllers/api/venue_controller.rb
+  s_e9ed806a3d225c::t_03d741ca9cb149 70
+  s_e9ed806a3d225c::t_976f666caef93b 7-8,17,22,31,45-46,51-60,62-66
+  s_e9ed806a3d225c::t_f1ede1e0d2b4b2 61
+app/models/place.rb
+  s_e9ed806a3d225c::t_0e307d17d6b4b6 2
+  s_e9ed806a3d225c::t_726b1e4945b176 1,3
+app/controllers/api/place_controller.rb
+  s_e9ed806a3d225c::t_ba1f2a2c10ea8e 11
+  s_e9ed806a3d225c::t_fb4ce7240501cb 1-10,12-14,23-25
+  s_e9ed806a3d225c::t_ed8a2d4dc862b5 21
+  s_e9ed806a3d225c::t_fc172dc04384ea 15-20,22
+db/migrate/20260618000000_create_places_and_migrate_location_data.rb
+  s_e9ed806a3d225c::t_c9601310c8f9a7 14-16
+  s_e9ed806a3d225c::t_a27ed33f0dc940 62-63
+  s_e9ed806a3d225c::t_e969d464ebbf93 77-83
+  s_e9ed806a3d225c::t_cbe6a13d17fc2d 35
+  s_e9ed806a3d225c::t_52a1467c548b8c 32-33
+  s_e9ed806a3d225c::t_8bb07c7523fa58 12
+  s_e9ed806a3d225c::t_4465061367d0bd 9,29-31,61
+  s_e9ed806a3d225c::t_9d136b3754710c 6-7
+  s_e9ed806a3d225c::t_1029bf20e70c1c 3
+  s_e9ed806a3d225c::t_c1a5e2158a68f5 76
+  s_e9ed806a3d225c::t_fe4a7875e9cdf2 1-2,4-5,8,10-11,13,17-28,34,36-60,64-75,84-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "86f10f5076ed63797f8945fa72957498f289b91f",
+  "prompts": {},
+  "sessions": {
+    "s_e9ed806a3d225c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "931f6a9c-6836-4bdb-a9b8-4af9de9ee16d",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "jiangplus <jiang.plus.times@gmail.com>"
+    }
+  }
+}
