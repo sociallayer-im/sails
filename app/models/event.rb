@@ -7,6 +7,14 @@ class Event < ApplicationRecord
   belongs_to :venue, optional: true
   belongs_to :place, optional: true
   belongs_to :badge_class, optional: true
+
+  # Location fields were extracted to the `places` table; expose them as
+  # read-only delegates so existing call sites keep working.
+  def location          = place&.name
+  def formatted_address = place&.address
+  def geo_lat           = place&.geo_lat
+  def geo_lng           = place&.geo_lng
+  def location_viewport = place&.location_viewport
   belongs_to :recurring, optional: true
   has_one :custom_form, dependent: :delete, as: :item
   belongs_to :form, foreign_key: :form_id, primary_key: :id, optional: true

@@ -5,6 +5,14 @@ class Venue < ApplicationRecord
   belongs_to :group
   belongs_to :place, optional: true
   has_many :events
+
+  # Location fields were extracted to the `places` table; expose them as
+  # read-only delegates so existing call sites keep working.
+  def location          = place&.name
+  def formatted_address = place&.address
+  def geo_lat           = place&.geo_lat
+  def geo_lng           = place&.geo_lng
+  def location_viewport = place&.location_viewport
   has_many :venue_timeslots
   has_many :venue_overrides
   has_many :availabilities, as: :item

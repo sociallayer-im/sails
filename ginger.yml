@@ -1,6 +1,9 @@
 service: sails
 image: ghcr.io/sociallayer-im/sails
 
+runner: nomad
+egress: traefik
+
 servers:
   web:
     hosts: [sg.sola.day]
@@ -9,15 +12,14 @@ servers:
 registry:
   server: ghcr.io
   username: jiangplus
-  password: GHCR_TOKEN          # resolved from the process env / .env at deploy time
+  password: GHCR_TOKEN
 
 proxy:
-  host: api.sola.day
-  app_port: 8080                # Thruster HTTP port (THRUSTER_HTTP_PORT)
-  ssl: true                     # kamal-proxy handles Let's Encrypt
+  hosts: [api.sola.day]
+  app_port: 8080
+  ssl: true
   health_check_path: /up
-  deploy_timeout: 60
-  drain_timeout: 30
+  deploy_timeout: 90
 
 ssh:
   user: root

@@ -33,9 +33,27 @@ json.group do
       json.extract! t, :id, :title, :kind, :icon_url, :group_id
     end
 
-    json.venues @group.venues.includes(:availabilities) do |v|
-      json.extract! v, :id, :title, :location, :geo_lat, :geo_lng, :capacity, :require_approval, :visibility, :about, :link, :formatted_address,
+    json.venues @group.venues.includes(:availabilities, :place) do |v|
+      json.extract! v, :id, :title, :capacity, :require_approval, :visibility, :about, :link, :place_id,
                     :start_date, :end_date
+      place = v.place
+      if place
+        json.location          place.name
+        json.formatted_address place.address
+        json.geo_lat           place.geo_lat
+        json.geo_lng           place.geo_lng
+        json.location_viewport place.location_viewport
+        json.place do
+          json.partial! "api/place/place", place: place
+        end
+      else
+        json.location          nil
+        json.formatted_address nil
+        json.geo_lat           nil
+        json.geo_lng           nil
+        json.location_viewport nil
+        json.place             nil
+      end
       json.availabilities v.availabilities do |a|
         json.extract! a, :id, :day_of_week, :day, :intervals, :role
       end

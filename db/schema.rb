@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
-  create_schema "hdb_catalog"
+ActiveRecord::Schema[7.2].define(version: 2026_06_18_000000) do
+  create_schema "pscale_extensions"
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "pgcrypto"
+  enable_extension "hypopg"
   enable_extension "plpgsql"
 
   create_table "activities", force: :cascade do |t|
@@ -210,11 +210,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
     t.string "timezone"
     t.string "meeting_url"
     t.integer "venue_id"
-    t.string "location"
-    t.string "formatted_address"
-    t.text "location_viewport"
-    t.decimal "geo_lat", precision: 10, scale: 6
-    t.decimal "geo_lng", precision: 10, scale: 6
     t.integer "owner_id"
     t.integer "group_id"
     t.string "cover_url"
@@ -252,6 +247,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
     t.string "kind"
     t.string "key", null: false
     t.string "form_id"
+    t.bigint "place_id"
     t.index ["group_id", "status", "start_time"], name: "index_events_on_group_id_and_status_and_start_time"
     t.index ["group_id"], name: "index_events_on_group_id"
     t.index ["key"], name: "index_events_on_key", unique: true
@@ -554,11 +550,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
     t.text "about"
     t.string "link"
     t.string "status", default: "normal", null: false, comment: "normal | removed"
-    t.string "location"
-    t.string "formatted_address"
-    t.text "location_viewport"
-    t.decimal "geo_lat", precision: 10, scale: 6
-    t.decimal "geo_lng", precision: 10, scale: 6
     t.datetime "start_time"
     t.datetime "end_time"
     t.integer "badge_class_id"
@@ -571,7 +562,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
     t.datetime "created_at", null: false
     t.datetime "updated_at"
     t.string "location_data"
-    t.index ["geo_lat", "geo_lng"], name: "index_markers_on_geo_lat_and_geo_lng"
+    t.bigint "place_id"
     t.index ["group_id", "status"], name: "index_markers_on_group_id_and_status"
   end
 
@@ -697,6 +688,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
     t.string "protocol"
     t.string "chains", default: [], array: true
     t.jsonb "chain_token_addresses", default: {}
+  end
+
+  create_table "places", force: :cascade do |t|
+    t.string "address"
+    t.decimal "geo_lat", precision: 10, scale: 6
+    t.decimal "geo_lng", precision: 10, scale: 6
+    t.string "name", null: false
+    t.text "location_viewport"
+    t.string "data", comment: "Google Maps place_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_places_on_name"
   end
 
   create_table "point_balances", force: :cascade do |t|
@@ -965,14 +968,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
 
   create_table "venues", force: :cascade do |t|
     t.string "title"
-    t.string "location"
     t.text "about"
     t.integer "group_id"
     t.integer "owner_id"
-    t.string "formatted_address"
-    t.text "location_viewport"
-    t.decimal "geo_lat", precision: 10, scale: 6
-    t.decimal "geo_lng", precision: 10, scale: 6
     t.datetime "created_at", null: false
     t.date "start_date"
     t.date "end_date"
@@ -991,6 +989,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_03_053753) do
     t.string "featured_image_url"
     t.integer "track_ids", default: [], array: true
     t.string "key", null: false
+    t.bigint "place_id"
     t.index ["group_id", "visibility"], name: "index_venues_on_group_id_and_visibility"
     t.index ["key"], name: "index_venues_on_key", unique: true
   end
